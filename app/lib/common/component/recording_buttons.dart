@@ -97,7 +97,8 @@ class _StartJourneyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 58,
+      width: 224,
+      height: 52,
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
@@ -105,45 +106,23 @@ class _StartJourneyButton extends StatelessWidget {
           foregroundColor: StyleConstants.inkColor,
           elevation: 8,
           shadowColor: StyleConstants.deepGreen.withValues(alpha: 0.22),
-          padding: const EdgeInsets.symmetric(horizontal: 22),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(20),
             side: BorderSide(
               color: Colors.white.withValues(alpha: 0.45),
             ),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: const BoxDecoration(
-                color: StyleConstants.journeyYellow,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.route_rounded,
-                color: StyleConstants.inkColor,
-                size: 17,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                context.tr('home.start_new_journey'),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.1,
-                ),
-              ),
-            ),
-          ],
+        child: Text(
+          context.tr('home.start_new_journey'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.1,
+          ),
         ),
       ),
     );
@@ -165,7 +144,7 @@ class _ActiveJourneyControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 52,
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.96),
@@ -183,13 +162,13 @@ class _ActiveJourneyControls extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 142,
-            height: 46,
+            width: 112,
+            height: 42,
             child: FilledButton.icon(
               onPressed: onPrimaryPressed,
               icon: Icon(
                 isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                size: 21,
+                size: 18,
               ),
               label: Text(
                 context.tr(isPaused ? 'home.resume' : 'home.pause'),
@@ -201,12 +180,12 @@ class _ActiveJourneyControls extends StatelessWidget {
                     : StyleConstants.journeyYellow,
                 foregroundColor: StyleConstants.inkColor,
                 textStyle: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(15),
                 ),
               ),
             ),
@@ -218,9 +197,9 @@ class _ActiveJourneyControls extends StatelessWidget {
             style: IconButton.styleFrom(
               backgroundColor: StyleConstants.softYellow,
               foregroundColor: StyleConstants.inkColor,
-              fixedSize: const Size(46, 46),
+              fixedSize: const Size(42, 42),
             ),
-            icon: const Icon(Icons.stop_rounded, size: 22),
+            icon: const Icon(Icons.stop_rounded, size: 20),
           ),
         ],
       ),
