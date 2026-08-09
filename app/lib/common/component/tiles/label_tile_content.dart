@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class LabelTileContent extends StatelessWidget {
   const LabelTileContent({
@@ -33,7 +34,7 @@ class LabelTileContent extends StatelessWidget {
         content,
         style: const TextStyle(
           fontSize: 14.0,
-          color: Color(0x99FFFFFF),
+          color: StyleConstants.mutedInkColor,
         ),
         textAlign: TextAlign.justify,
         maxLines: contentMaxLines,
@@ -50,7 +51,7 @@ class LabelTileContent extends StatelessWidget {
     return Icon(
       effectiveIcon,
       size: 16.0,
-      color: rightIconColor ?? const Color(0x99FFFFFF),
+      color: rightIconColor ?? StyleConstants.mutedInkColor,
     );
   }
 

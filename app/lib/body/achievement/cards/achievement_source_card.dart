@@ -5,8 +5,8 @@ import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/constants/index.dart';
 
-const _groundExploreColor = Color(0xFFFFB86B);
-const _flightExploreColor = Color(0xFF4E8BFF);
+const _groundExploreColor = StyleConstants.deepGreen;
+const _flightExploreColor = Color(0xFFD6A40E);
 
 class AchievementSourceCard extends StatelessWidget {
   const AchievementSourceCard({
@@ -35,7 +35,7 @@ class AchievementSourceCard extends StatelessWidget {
               Text(
                 context.tr('achievement.source.description'),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.58),
+                  color: StyleConstants.mutedInkColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -92,7 +92,7 @@ class _TotalAreaSummary extends StatelessWidget {
               Text(
                 context.tr('achievement.overview.title'),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.68),
+                  color: StyleConstants.mutedInkColor,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
                   height: 1,
@@ -423,7 +423,7 @@ class _PercentText extends StatelessWidget {
         maxLines: 1,
         text: TextSpan(
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.64),
+            color: StyleConstants.mutedInkColor,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -504,7 +504,7 @@ class _PlusDivider extends StatelessWidget {
             child: Center(
               child: Container(
                 width: 1,
-                color: Colors.white.withValues(alpha: 0.09),
+                color: StyleConstants.lineColor,
               ),
             ),
           ),
@@ -528,15 +528,15 @@ class _PlusBubble extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: const Color(0xFF17212B),
+        color: StyleConstants.softGreen,
         shape: BoxShape.circle,
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: StyleConstants.lineColor,
         ),
       ),
       child: Icon(
         Icons.add_rounded,
-        color: Colors.white.withValues(alpha: 0.72),
+        color: StyleConstants.deepGreen,
         size: compact ? 16 : 21,
       ),
     );

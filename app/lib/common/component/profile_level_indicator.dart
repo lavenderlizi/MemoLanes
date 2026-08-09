@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class ProfileLevelIndicator extends StatelessWidget {
   final int level;
@@ -125,7 +126,7 @@ class CircularProgressPainter extends CustomPainter {
     canvas.drawCircle(center, radius, bgPaint);
 
     final progressPaint = Paint()
-      ..color = const Color(0xFFB4EC51)
+      ..color = StyleConstants.primaryGreen
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;

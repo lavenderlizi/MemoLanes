@@ -132,7 +132,7 @@ class _AchievementStatsErrorCard extends StatelessWidget {
               Text(
                 context.tr('achievement.source.error'),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.58),
+                  color: StyleConstants.mutedInkColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -209,9 +209,9 @@ class _TotalAreaSkeleton extends StatelessWidget {
           ? const EdgeInsets.fromLTRB(12, 12, 12, 14)
           : const EdgeInsets.fromLTRB(16, 14, 16, 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.035),
+        color: StyleConstants.canvasColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: StyleConstants.lineColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,9 +244,9 @@ class _SourceMetricSkeleton extends StatelessWidget {
           ? const EdgeInsets.fromLTRB(10, 12, 10, 12)
           : const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.035),
+        color: StyleConstants.canvasColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: StyleConstants.lineColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -296,7 +296,7 @@ class _SkeletonBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.075),
+        color: StyleConstants.lineColor,
         borderRadius: BorderRadius.circular(radius),
       ),
       child: SizedBox(width: width, height: height),
@@ -312,17 +312,31 @@ class _AchievementPageTitle extends StatelessWidget {
     return SafeAreaWrapper(
       child: SizedBox(
         width: double.infinity,
-        child: Text(
-          context.tr('achievement.title'),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.92),
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            height: 1,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.tr('achievement.title'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                color: StyleConstants.inkColor,
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.tr('achievement.page_subtitle'),
+              style: const TextStyle(
+                color: StyleConstants.mutedInkColor,
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -340,7 +354,7 @@ class _OngoingJourneyBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
         decoration: BoxDecoration(
-          color: accent.withValues(alpha: 0.07),
+          color: StyleConstants.softYellow,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: accent.withValues(alpha: 0.14)),
         ),
@@ -360,7 +374,7 @@ class _OngoingJourneyBanner extends StatelessWidget {
                   Text(
                     context.tr('achievement.ongoing.title'),
                     style: TextStyle(
-                      color: Colors.white,
+                      color: StyleConstants.inkColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       height: 1.2,
@@ -370,7 +384,7 @@ class _OngoingJourneyBanner extends StatelessWidget {
                   Text(
                     context.tr('achievement.ongoing.description'),
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.58),
+                      color: StyleConstants.mutedInkColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       height: 1.3,

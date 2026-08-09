@@ -78,16 +78,16 @@ class _JourneyBodyState extends State<JourneyBody> {
       lastDate: DateTime.now(),
       centerAlignModePicker: true,
       calendarType: CalendarDatePicker2Type.single,
-      selectedDayHighlightColor: const Color(0xFFB6E13D).withAlpha(230),
+      selectedDayHighlightColor: StyleConstants.primaryGreen,
       dayTextStyle: const TextStyle(
-        color: Colors.white,
+        color: StyleConstants.inkColor,
       ),
       weekdayLabelTextStyle: const TextStyle(
-        color: Colors.white,
+        color: StyleConstants.mutedInkColor,
         fontWeight: FontWeight.bold,
       ),
       controlsTextStyle: const TextStyle(
-        color: Colors.white,
+        color: StyleConstants.inkColor,
         fontSize: 15,
         fontWeight: FontWeight.bold,
       ),
@@ -122,7 +122,7 @@ class _JourneyBodyState extends State<JourneyBody> {
                       width: 4,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
-                        color: const Color(0xFFB6E13D),
+                        color: StyleConstants.journeyYellow,
                       ),
                     ),
                   ),
@@ -198,6 +198,22 @@ class _JourneyBodyState extends State<JourneyBody> {
                   .format(_journeyHeaderList[index].start!.toLocal())
               : naiveDateToString(date: _journeyHeaderList[index].journeyDate),
           trailing: LabelTileContent(showArrow: true),
+          prefix: Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: StyleConstants.softGreen,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: const Icon(
+                Icons.route_rounded,
+                color: StyleConstants.deepGreen,
+                size: 18,
+              ),
+            ),
+          ),
           onTap: () {
             navigatorPush(
               context,
@@ -270,21 +286,122 @@ class _JourneyBodyState extends State<JourneyBody> {
     }
     final firstDate = _firstDate;
     if (firstDate == null) {
-      return Center(child: Text(context.tr("journey.no_data")));
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 28, 20, 140),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _JourneyPageHeader(),
+            Expanded(
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 360),
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: StyleConstants.surfaceColor,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: StyleConstants.lineColor),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 58,
+                        height: 58,
+                        decoration: const BoxDecoration(
+                          color: StyleConstants.softYellow,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.map_outlined,
+                          color: StyleConstants.inkColor,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        context.tr('journey.no_data'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: StyleConstants.mutedInkColor,
+                          fontSize: 15,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     } else {
       final isLandscape =
           MediaQuery.of(context).orientation == Orientation.landscape;
       if (isLandscape) {
         return _buildLandscapeBody(firstDate);
       }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildDatePickerWithValue(firstDate),
-          const SizedBox(height: 16.0),
-          Expanded(child: _buildJourneyHeaderList()),
-        ],
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _JourneyPageHeader(),
+            const SizedBox(height: 18),
+            Container(
+              decoration: BoxDecoration(
+                color: StyleConstants.surfaceColor,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: StyleConstants.lineColor),
+              ),
+              child: _buildDatePickerWithValue(firstDate),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              context.tr('journey.records_title'),
+              style: const TextStyle(
+                color: StyleConstants.inkColor,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Expanded(child: _buildJourneyHeaderList()),
+          ],
+        ),
       );
     }
+  }
+}
+
+class _JourneyPageHeader extends StatelessWidget {
+  const _JourneyPageHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.tr('journey.editor_overview_title'),
+          style: const TextStyle(
+            color: StyleConstants.inkColor,
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            height: 1.05,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Text(
+          context.tr('journey.editor_overview_subtitle'),
+          style: const TextStyle(
+            color: StyleConstants.mutedInkColor,
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
   }
 }

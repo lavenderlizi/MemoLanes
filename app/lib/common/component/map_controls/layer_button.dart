@@ -24,16 +24,24 @@ class LayerButton extends StatelessWidget {
       content: PointerInterceptor(child: const LayerPopupContent()),
       child: PointerInterceptor(
           child: Container(
-        width: 48,
-        height: 48,
-        decoration: const BoxDecoration(
-          color: Colors.black,
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.96),
           shape: BoxShape.circle,
+          border: Border.all(color: Colors.white),
+          boxShadow: [
+            BoxShadow(
+              color: StyleConstants.inkColor.withValues(alpha: 0.14),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Center(
           child: Icon(
             Icons.layers,
-            color: StyleConstants.defaultColor,
+            color: StyleConstants.deepGreen,
             size: 20,
           ),
         ),

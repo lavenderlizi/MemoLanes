@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class AchievementComingSoonCard extends StatelessWidget {
   const AchievementComingSoonCard({super.key});
@@ -18,15 +19,15 @@ class AchievementComingSoonCard extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.06),
+                  color: StyleConstants.softYellow,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: StyleConstants.journeyYellow.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Icon(
                   Icons.auto_awesome_rounded,
-                  color: Colors.white.withValues(alpha: 0.72),
+                  color: const Color(0xFFA17700),
                   size: 22,
                 ),
               ),
@@ -40,7 +41,7 @@ class AchievementComingSoonCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: StyleConstants.inkColor,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         height: 1.2,
@@ -52,7 +53,7 @@ class AchievementComingSoonCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.54),
+                        color: StyleConstants.mutedInkColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         height: 1.25,

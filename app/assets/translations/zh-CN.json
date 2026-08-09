@@ -1,5 +1,13 @@
 {
+  "navigation": {
+    "record": "记录",
+    "time_machine": "时光机",
+    "edit": "编辑",
+    "achievement": "成就",
+    "settings": "设置"
+  },
   "home": {
+    "recording": "正在记录",
     "start_new_journey": "开始新旅程",
     "pause": "暂停",
     "resume": "恢复",
@@ -62,6 +70,9 @@
     "exit": "退出应用"
   },
   "journey": {
+    "editor_overview_title": "整理旅途",
+    "editor_overview_subtitle": "按日期查看记录，修正不完整或有偏差的轨迹",
+    "records_title": "当日记录",
     "editor": {
       "move": "移动",
       "draw": "绘制",
@@ -192,6 +203,7 @@
     "notification_message": "记录意外停止，请重新启动应用。"
   },
   "achievement": {
+    "page_subtitle": "把走过的地方，慢慢收藏成自己的世界",
     "title": "成就",
     "area_units": {
       "square_meters": "m²",
@@ -291,6 +303,8 @@
     }
   },
   "settings": {
+    "page_title": "设置",
+    "page_subtitle": "管理地图、数据与记录偏好",
     "other": "其他",
     "about": "关于"
   },

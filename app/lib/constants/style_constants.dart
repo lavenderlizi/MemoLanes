@@ -5,6 +5,20 @@ import 'package:memolanes/common/component/bottom_nav_bar.dart';
 class StyleConstants {
   StyleConstants._();
 
+  // MemoLanes light travel palette. The green is deliberately calm and
+  // editorial rather than the high-energy neon commonly used by fitness apps.
+  static const Color canvasColor = Color(0xFFFAFBF5);
+  static const Color surfaceColor = Color(0xFFFFFFFF);
+  static const Color inkColor = Color(0xFF182016);
+  static const Color mutedInkColor = Color(0xFF6C7567);
+  static const Color lineColor = Color(0xFFE7EBD9);
+  static const Color primaryGreen = Color(0xFFB8EA72);
+  static const Color deepGreen = Color(0xFF2E693D);
+  static const Color softGreen = Color(0xFFECF9D9);
+  static const Color journeyYellow = Color(0xFFFFD72E);
+  static const Color deepYellow = Color(0xFF8B6600);
+  static const Color softYellow = Color(0xFFFFF5BD);
+
   // navBar
   // Visual bottom inset for the floating nav bar on gesture/home-indicator
   // devices. This intentionally differs from the raw safe-area value so iOS
@@ -54,7 +68,7 @@ class StyleConstants {
       navBarSafeAreaForContext(context) + mapPrimaryControlNavBarSpacing;
 
   // colors
-  static const Color defaultColor = Color(0xFFB4EC51);
+  static const Color defaultColor = deepGreen;
   static const Color loadingMaskColor = Color.fromRGBO(0, 0, 0, 0.35);
   static const double overlayFloatingRadius = 16.0;
 }

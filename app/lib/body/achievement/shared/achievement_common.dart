@@ -2,6 +2,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:memolanes/src/rust/achievement/region.dart';
 
@@ -141,14 +142,14 @@ class _FallbackCountryFlag extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.white.withValues(alpha: 0.08),
+          color: StyleConstants.canvasColor,
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.14),
+            color: StyleConstants.lineColor,
           ),
         ),
         child: Icon(
           Icons.public_rounded,
-          color: Colors.white.withValues(alpha: 0.68),
+          color: StyleConstants.mutedInkColor,
           size: size * 0.54,
         ),
       ),
@@ -178,7 +179,7 @@ class AchievementCardTitleRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              color: Colors.white,
+              color: StyleConstants.inkColor,
               fontSize: 22,
               fontWeight: FontWeight.w800,
               height: 1,
@@ -190,6 +191,7 @@ class AchievementCardTitleRow extends StatelessWidget {
           position: PopupPosition.top,
           verticalOffset: 8,
           contentRadius: 16,
+          backgroundColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 10,
@@ -201,7 +203,7 @@ class AchievementCardTitleRow extends StatelessWidget {
               child: Text(
                 info,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.78),
+                  color: StyleConstants.inkColor,
                   fontSize: 13,
                   height: 1.45,
                 ),
@@ -214,7 +216,7 @@ class AchievementCardTitleRow extends StatelessWidget {
               padding: const EdgeInsets.only(top: 1),
               child: Icon(
                 Icons.info_outline_rounded,
-                color: Colors.white.withValues(alpha: 0.58),
+                color: StyleConstants.mutedInkColor,
                 size: 18,
               ),
             ),
@@ -246,7 +248,7 @@ class AchievementProgressLine extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            ColoredBox(color: Colors.white.withValues(alpha: 0.08)),
+            const ColoredBox(color: StyleConstants.lineColor),
             FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: progress,

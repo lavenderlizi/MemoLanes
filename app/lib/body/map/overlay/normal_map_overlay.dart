@@ -33,7 +33,7 @@ class NormalMapOverlay extends StatelessWidget {
             onPressed: onTrackingPressed,
           ),
           const AccuracyDisplay(),
-          LayerButton(),
+          const LayerButton(),
         ],
       ),
     );
@@ -54,6 +54,7 @@ class NormalMapOverlay extends StatelessWidget {
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
     final recordingBottom =
         StyleConstants.mapPrimaryControlBottomInsetForContext(context);
+    final controlBottom = recordingBottom + 82;
 
     return Stack(
       children: isLandscape
@@ -66,32 +67,21 @@ class NormalMapOverlay extends StatelessWidget {
               ),
               Positioned(
                 right: padding.right + 32.0,
-                bottom: recordingBottom,
+                bottom: controlBottom,
                 child: _buildMapControls(),
               ),
             ]
           : [
               Positioned(
+                right: padding.right + 18,
+                bottom: controlBottom,
+                child: _buildMapControls(),
+              ),
+              Positioned(
                 left: horizontalSafeArea + 24.0,
                 right: horizontalSafeArea + 24.0,
                 bottom: recordingBottom,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          right: 8.0,
-                          bottom: mediaQuery.size.height * 0.08,
-                        ),
-                        child: _buildMapControls(),
-                      ),
-                    ),
-                    _buildRecordingButtons(),
-                  ],
-                ),
+                child: _buildRecordingButtons(),
               ),
             ],
     );
@@ -107,7 +97,6 @@ class NormalMapOverlay extends StatelessWidget {
         RecIndicator(
           isRecording:
               gpsManager.recordingStatus == GpsRecordingStatus.recording,
-          blinkDurationMs: 1000,
         ),
       ],
     );

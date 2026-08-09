@@ -7,6 +7,7 @@ import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/achievement_stats_store.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/region_preference.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:provider/provider.dart';
 
@@ -81,7 +82,7 @@ class _CountriesErrorCard extends StatelessWidget {
               Text(
                 context.tr('achievement.countries.error'),
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.58),
+                  color: StyleConstants.mutedInkColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -154,7 +155,7 @@ class _CountriesHeader extends StatelessWidget {
             args: [count.toString()],
           ),
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
+            color: StyleConstants.mutedInkColor,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -237,7 +238,7 @@ class _CountryFlagItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF2A2A2A), Color(0xFF1A1A1A)],
+                    colors: [Color(0xFFFFF5D6), Color(0xFFF4E5AD)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -288,7 +289,7 @@ class _CountryNameText extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: Colors.white,
+            color: StyleConstants.inkColor,
             fontSize: fontSize,
             fontWeight: FontWeight.w600,
             height: 1.08,
@@ -343,7 +344,7 @@ class _CountriesEmptyState extends StatelessWidget {
         context.tr('achievement.countries.empty'),
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.white.withValues(alpha: 0.46),
+          color: StyleConstants.mutedInkColor,
           fontSize: 13,
           fontWeight: FontWeight.w500,
           height: 1.35,
@@ -445,7 +446,7 @@ class _SkeletonBlock extends StatelessWidget {
       alignment: alignment,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.075),
+          color: StyleConstants.lineColor,
           borderRadius: BorderRadius.circular(radius),
         ),
         child: SizedBox(width: width, height: height),

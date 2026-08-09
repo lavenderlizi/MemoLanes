@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 enum CardLabelTilePosition {
   single,
@@ -77,6 +78,10 @@ class CardLabelTile extends StatelessWidget {
                       alignment: alignment,
                       child: Text(
                         label,
+                        style: const TextStyle(
+                          color: StyleConstants.inkColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     );
                   },
@@ -88,7 +93,7 @@ class CardLabelTile extends StatelessWidget {
                   position == CardLabelTilePosition.middle)
               ? Container(
                   height: 0.5,
-                  color: const Color(0xFF262626),
+                  color: StyleConstants.lineColor,
                 )
               : SizedBox.shrink(),
         ],

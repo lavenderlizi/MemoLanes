@@ -1,5 +1,13 @@
 {
+  "navigation": {
+    "record": "Record",
+    "time_machine": "Timeline",
+    "edit": "Edit",
+    "achievement": "Awards",
+    "settings": "Settings"
+  },
   "home": {
+    "recording": "Recording",
     "start_new_journey": "Start new journey",
     "pause": "Pause",
     "resume": "Resume",
@@ -62,6 +70,9 @@
     "exit": "Exit"
   },
   "journey": {
+    "editor_overview_title": "Refine journeys",
+    "editor_overview_subtitle": "Browse by date and correct incomplete or inaccurate tracks",
+    "records_title": "Journeys on this day",
     "editor": {
       "move": "Move",
       "draw": "Draw",
@@ -192,6 +203,7 @@
     "notification_message": "Recording was unexpectedly stopped, please restart the app."
   },
   "achievement": {
+    "page_subtitle": "Collect the places you've been into a world of your own",
     "title": "Achievements",
     "area_units": {
       "square_meters": "m²",
@@ -291,6 +303,8 @@
     }
   },
   "settings": {
+    "page_title": "Settings",
+    "page_subtitle": "Manage maps, data, and recording preferences",
     "other": "Other",
     "about": "About"
   },

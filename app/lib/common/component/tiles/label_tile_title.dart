@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class LabelTileTitle extends StatelessWidget {
   const LabelTileTitle({
@@ -21,7 +22,7 @@ class LabelTileTitle extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       decoration: BoxDecoration(
-        color: const Color(0x1AFFFFFF),
+        color: StyleConstants.surfaceColor,
         borderRadius: borderRadius,
       ),
       child: ConstrainedBox(
@@ -31,7 +32,12 @@ class LabelTileTitle extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(color: const Color(0x99FFFFFF)),
+          style: const TextStyle(
+            color: StyleConstants.deepGreen,
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+            letterSpacing: 0.2,
+          ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

@@ -238,10 +238,16 @@ Widget _rulerContainer(Widget child) => ClipRRect(
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.15),
+            color: Colors.white.withValues(alpha: 0.94),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: Colors.white.withValues(alpha: 0.2), width: 1),
+            border: Border.all(color: StyleConstants.lineColor, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: StyleConstants.inkColor.withValues(alpha: 0.1),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: child,
         ),
@@ -514,7 +520,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
                       child: Container(
                         width: 2,
                         height: kRulerExtent,
-                        color: StyleConstants.defaultColor,
+                        color: StyleConstants.journeyYellow,
                       ),
                     ),
                   ),
@@ -537,13 +543,17 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
           width: 2,
           height: isSelected ? 10 : 6,
           color: isSelected
-              ? StyleConstants.defaultColor
-              : Colors.white.withValues(alpha: 0.5),
+              ? StyleConstants.deepGreen
+              : StyleConstants.mutedInkColor.withValues(alpha: 0.45),
         ),
         SizedBox(height: isSelected ? 4 : 6),
         Text(label,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9), fontSize: 11)),
+                color: isSelected
+                    ? StyleConstants.inkColor
+                    : StyleConstants.mutedInkColor,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500)),
       ],
     );
   }

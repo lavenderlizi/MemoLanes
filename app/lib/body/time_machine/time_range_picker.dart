@@ -208,6 +208,7 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
           position: PopupPosition.top,
           verticalOffset: 12,
           contentRadius: 12,
+          backgroundColor: Colors.white,
           barrierColor: Colors.transparent,
           content: PointerInterceptor(
             child: _TimeMachineViewModeAndLayerMenu(
@@ -335,7 +336,7 @@ class _TimeMachineViewModeAndLayerMenuState
           VerticalDivider(
             width: 1,
             thickness: 1,
-            color: Colors.white24,
+            color: StyleConstants.lineColor,
             indent: 8,
             endIndent: 8,
           ),
@@ -351,7 +352,7 @@ class _TimeMachineViewModeAndLayerMenuState
           VerticalDivider(
             width: 1,
             thickness: 1,
-            color: Colors.white24,
+            color: StyleConstants.lineColor,
             indent: 8,
             endIndent: 8,
           ),
@@ -382,7 +383,7 @@ class _TimeMachineViewModeAndLayerMenuState
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.white54,
+          color: StyleConstants.mutedInkColor,
           fontSize: 12,
         ),
       ),
@@ -407,8 +408,9 @@ class _TimeMachineViewModeAndLayerMenuState
             Text(
               context.tr(labelKey),
               style: TextStyle(
-                color:
-                    isSelected ? StyleConstants.defaultColor : Colors.white70,
+                color: isSelected
+                    ? StyleConstants.defaultColor
+                    : StyleConstants.inkColor,
                 fontSize: 14,
               ),
             ),
@@ -506,7 +508,7 @@ class TimeRangeControllerBall extends StatelessWidget {
   static const double _emphasisFontSize = 13;
 
   static final TextStyle _contentStyle = TextStyle(
-    color: Colors.white,
+    color: StyleConstants.inkColor,
     fontSize: _emphasisFontSize,
     fontWeight: FontWeight.w600,
   );
@@ -541,7 +543,7 @@ class TimeRangeControllerBall extends StatelessWidget {
             child: Text(
               caption,
               style: TextStyle(
-                color: Colors.white70,
+                color: StyleConstants.mutedInkColor,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -561,17 +563,14 @@ class TimeRangeControllerBall extends StatelessWidget {
           width: _buttonSize,
           height: _buttonSize,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: Colors.white.withValues(alpha: 0.94),
             borderRadius: BorderRadius.circular(_borderRadius),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.35),
-              width: 1,
-            ),
+            border: Border.all(color: StyleConstants.lineColor, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
+                color: StyleConstants.inkColor.withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
@@ -604,12 +603,16 @@ Widget _buildGlassPanel(Widget child, {EdgeInsets? padding}) {
       child: Container(
         padding: padding,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: Colors.white.withValues(alpha: 0.94),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1,
-          ),
+          border: Border.all(color: StyleConstants.lineColor, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: StyleConstants.inkColor.withValues(alpha: 0.1),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: child,
       ),
@@ -718,7 +721,7 @@ class _TapTile extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: StyleConstants.mutedInkColor,
                   fontSize: 10,
                 ),
               ),
@@ -729,7 +732,7 @@ class _TapTile extends StatelessWidget {
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: StyleConstants.inkColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),

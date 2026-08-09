@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/gps_manager.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:provider/provider.dart';
 
 class AccuracyDisplay extends StatefulWidget {
@@ -46,7 +47,7 @@ String getSignalStatus(AccuracyLevel accuracyLevel) {
 
 Color getStatusColor(AccuracyLevel accuracyLevel) {
   return switch (accuracyLevel) {
-    AccuracyLevel.excellent => const Color(0xFFB4EC51),
+    AccuracyLevel.excellent => StyleConstants.primaryGreen,
     AccuracyLevel.good => Colors.yellow,
     AccuracyLevel.fair => Colors.orange,
     AccuracyLevel.poor => Colors.red,
@@ -60,8 +61,8 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 8),
-      width: 48,
-      height: 48,
+      width: 44,
+      height: 44,
       child: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.none,
@@ -74,11 +75,19 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
               final accuracyLevel = getAccuracyLevel(accuracy);
 
               return Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: hasData ? Colors.black : Colors.black38,
+                  color: Colors.white.withValues(alpha: hasData ? 0.96 : 0.78),
                   shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white),
+                  boxShadow: [
+                    BoxShadow(
+                      color: StyleConstants.inkColor.withValues(alpha: 0.14),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -86,7 +95,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                     onTap: () => {
                       if (hasData) {setState(() => showDetail = !showDetail)}
                     },
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(22),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -95,7 +104,9 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                             hasData ? '${accuracy.round()}m\nACC' : 'NO\nGPS',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: hasData ? Colors.white : Colors.white60,
+                              color: hasData
+                                  ? StyleConstants.inkColor
+                                  : StyleConstants.mutedInkColor,
                               fontSize: 10,
                               height: 1.0,
                             ),
@@ -103,7 +114,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                         ),
                         if (hasData)
                           CustomPaint(
-                            size: const ui.Size(48, 48),
+                            size: const ui.Size(44, 44),
                             painter: AccuracyTicksPainter(
                               filledTicks: getFilledTicks(accuracyLevel),
                               color: getStatusColor(accuracyLevel),
@@ -132,8 +143,17 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: StyleConstants.lineColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: StyleConstants.inkColor
+                                  .withValues(alpha: 0.14),
+                              blurRadius: 22,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +172,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                       child: Text(
                                         '${position.accuracy.round()} m',
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          color: StyleConstants.inkColor,
                                           fontSize: 32,
                                           fontWeight: FontWeight.w400,
                                         ),
@@ -161,7 +181,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                     const Text(
                                       'Accuracy',
                                       style: TextStyle(
-                                        color: Colors.white70,
+                                        color: StyleConstants.mutedInkColor,
                                         fontSize: 16,
                                       ),
                                     ),
@@ -191,7 +211,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                             Text(
                               '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
                               style: const TextStyle(
-                                color: Colors.white70,
+                                color: StyleConstants.mutedInkColor,
                                 fontSize: 12,
                               ),
                             ),
@@ -201,7 +221,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                   .toString()
                                   .substring(0, 19),
                               style: const TextStyle(
-                                color: Colors.white70,
+                                color: StyleConstants.mutedInkColor,
                                 fontSize: 12,
                               ),
                             ),

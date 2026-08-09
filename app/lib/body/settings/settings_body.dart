@@ -106,6 +106,8 @@ class _SettingsBodyState extends State<SettingsBody> {
         bottom: StyleConstants.navBarSafeArea + 16.0,
       ),
       children: [
+        const _SettingsPageHeader(),
+        const SizedBox(height: 18),
         // TODO: Enable this when we have user system.
         // CircleAvatar(
         //   backgroundColor: const Color(0xFFB6E13D),
@@ -135,9 +137,9 @@ class _SettingsBodyState extends State<SettingsBody> {
                     padding: const EdgeInsets.all(2),
                     badgeGradient: const badges.BadgeGradient.linear(
                       colors: [
-                        Color(0xFFB7CC1F),
-                        Color(0xFFB6E13D),
-                        Color(0xFFB7CC1F),
+                        StyleConstants.primaryGreen,
+                        StyleConstants.journeyYellow,
+                        StyleConstants.primaryGreen,
                       ],
                     ),
                   ),
@@ -375,6 +377,40 @@ class _SettingsBodyState extends State<SettingsBody> {
               if (!context.mounted) return;
               await _selectImportFile(context, ImportType.fow);
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsPageHeader extends StatelessWidget {
+  const _SettingsPageHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.tr('settings.page_title'),
+            style: const TextStyle(
+              color: StyleConstants.inkColor,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              height: 1.05,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            context.tr('settings.page_subtitle'),
+            style: const TextStyle(
+              color: StyleConstants.mutedInkColor,
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
         ],
       ),

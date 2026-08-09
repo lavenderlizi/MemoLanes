@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -17,7 +18,7 @@ class DialogButton {
     VoidCallback? onPressed,
     Color? backgroundColor,
     Color? textColor,
-  })  : backgroundColor = backgroundColor ?? const Color(0xFFB4EC51),
+  })  : backgroundColor = backgroundColor ?? StyleConstants.primaryGreen,
         textColor = textColor ?? Colors.black,
         onPressed = onPressed ?? (() => {});
 }

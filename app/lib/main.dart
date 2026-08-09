@@ -98,13 +98,44 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamilyFallback:
             Platform.isIOS ? ['.AppleSystemUIFont', 'PingFang SC'] : null,
-        scaffoldBackgroundColor: const Color(0xFF141414),
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: StyleConstants.canvasColor,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFB6E13D),
-          brightness: Brightness.dark,
+          seedColor: StyleConstants.primaryGreen,
+          brightness: Brightness.light,
+          primary: StyleConstants.primaryGreen,
+          onPrimary: StyleConstants.inkColor,
+          primaryContainer: StyleConstants.softGreen,
+          onPrimaryContainer: StyleConstants.deepGreen,
+          secondary: StyleConstants.journeyYellow,
+          onSecondary: StyleConstants.inkColor,
+          surface: StyleConstants.surfaceColor,
         ),
+        textTheme: Theme.of(context).textTheme.apply(
+              bodyColor: StyleConstants.inkColor,
+              displayColor: StyleConstants.inkColor,
+            ),
         iconTheme: const IconThemeData(
-          color: Colors.black87,
+          color: StyleConstants.inkColor,
+        ),
+        dividerColor: StyleConstants.lineColor,
+        cardTheme: const CardThemeData(
+          color: StyleConstants.surfaceColor,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          margin: EdgeInsets.zero,
+        ),
+        switchTheme: SwitchThemeData(
+          thumbColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : const Color(0xFF9CA59F),
+          ),
+          trackColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? StyleConstants.primaryGreen
+                : const Color(0xFFDDE2DC),
+          ),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           elevation: 8,
@@ -198,13 +229,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// Tabs 0 and 1: map (shared MapBody, overlay switched by mode); tabs 2, 3, 4: separate pages.
   Widget _buildPageContent() {
+    Widget child;
     if (_selectedIndex <= 1) {
-      return MapBody(
+      child = MapBody(
         key: _mapBodyKey,
         mode: _selectedIndex == 0 ? MapMode.normal : MapMode.timeMachine,
       );
+    } else {
+      child = KeyedSubtree(
+        key: ValueKey(_selectedIndex),
+        child: _buildDeferredTabBody(_selectedIndex),
+      );
     }
-    return _buildDeferredTabBody(_selectedIndex);
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      reverseDuration: const Duration(milliseconds: 180),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.018, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+      ),
+      child: child,
+    );
   }
 
   Widget _buildDeferredTabBody(int index) {
