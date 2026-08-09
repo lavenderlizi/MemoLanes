@@ -59,8 +59,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8, bottom: 8),
+    return SizedBox(
       width: 44,
       height: 44,
       child: Stack(
@@ -78,9 +77,11 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: hasData ? 0.96 : 0.78),
+                  color: Colors.white.withValues(alpha: hasData ? 0.76 : 0.64),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.78),
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: StyleConstants.inkColor.withValues(alpha: 0.14),

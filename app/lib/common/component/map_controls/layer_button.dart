@@ -27,9 +27,9 @@ class LayerButton extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.96),
+          color: Colors.white.withValues(alpha: 0.76),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.78)),
           boxShadow: [
             BoxShadow(
               color: StyleConstants.inkColor.withValues(alpha: 0.14),

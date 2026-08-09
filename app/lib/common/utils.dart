@@ -56,6 +56,7 @@ Future<bool> showCommonDialog(BuildContext context, String message,
           backgroundColor: confirmGroundColor == StyleConstants.defaultColor
               ? Colors.grey
               : StyleConstants.defaultColor,
+          textColor: confirmTextColor,
           onPressed: () {
             Navigator.of(context).pop(false);
           })

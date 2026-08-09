@@ -42,7 +42,7 @@ class BottomNavBar extends StatelessWidget {
             offset: const Offset(0, 12),
           ),
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: Colors.white.withValues(alpha: 0.48),
             blurRadius: 10,
             spreadRadius: -4,
             offset: const Offset(0, -2),
@@ -62,15 +62,15 @@ class BottomNavBar extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withValues(alpha: 0.78),
-                      Colors.white.withValues(alpha: 0.48),
-                      StyleConstants.softGreen.withValues(alpha: 0.42),
+                      Colors.white.withValues(alpha: 0.64),
+                      Colors.white.withValues(alpha: 0.36),
+                      StyleConstants.softGreen.withValues(alpha: 0.3),
                     ],
                     stops: const [0, 0.52, 1],
                   ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.82),
+                    color: Colors.white.withValues(alpha: 0.72),
                     width: 1.2,
                   ),
                 ),
@@ -85,7 +85,7 @@ class BottomNavBar extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.white.withValues(alpha: 0),
-                        Colors.white.withValues(alpha: 0.95),
+                        Colors.white.withValues(alpha: 0.82),
                         Colors.white.withValues(alpha: 0),
                       ],
                     ),
@@ -108,14 +108,15 @@ class BottomNavBar extends StatelessWidget {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withValues(alpha: 0.72),
-                            StyleConstants.primaryGreen.withValues(alpha: 0.48),
-                            StyleConstants.journeyYellow.withValues(alpha: 0.2),
+                            Colors.white.withValues(alpha: 0.56),
+                            StyleConstants.primaryGreen.withValues(alpha: 0.36),
+                            StyleConstants.journeyYellow
+                                .withValues(alpha: 0.14),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          color: Colors.white.withValues(alpha: 0.76),
                         ),
                         boxShadow: [
                           BoxShadow(

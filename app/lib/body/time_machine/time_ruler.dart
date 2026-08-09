@@ -235,12 +235,15 @@ class _DayRulerData extends _RulerData {
 Widget _rulerContainer(Widget child) => ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.94),
+            color: Colors.white.withValues(alpha: 0.42),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: StyleConstants.lineColor, width: 1),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.72),
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
                 color: StyleConstants.inkColor.withValues(alpha: 0.1),

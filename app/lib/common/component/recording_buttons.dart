@@ -97,20 +97,20 @@ class _StartJourneyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 224,
+      width: 164,
       height: 52,
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: StyleConstants.primaryGreen,
+          backgroundColor: StyleConstants.primaryGreen.withValues(alpha: 0.78),
           foregroundColor: StyleConstants.inkColor,
           elevation: 8,
           shadowColor: StyleConstants.deepGreen.withValues(alpha: 0.22),
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(
-              color: Colors.white.withValues(alpha: 0.45),
+              color: Colors.white.withValues(alpha: 0.68),
             ),
           ),
         ),
@@ -147,9 +147,9 @@ class _ActiveJourneyControls extends StatelessWidget {
       height: 52,
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.96),
+        color: Colors.white.withValues(alpha: 0.68),
         borderRadius: BorderRadius.circular(23),
-        border: Border.all(color: Colors.white),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
         boxShadow: [
           BoxShadow(
             color: StyleConstants.inkColor.withValues(alpha: 0.14),
@@ -176,8 +176,8 @@ class _ActiveJourneyControls extends StatelessWidget {
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: isPaused
-                    ? StyleConstants.primaryGreen
-                    : StyleConstants.journeyYellow,
+                    ? StyleConstants.primaryGreen.withValues(alpha: 0.78)
+                    : StyleConstants.journeyYellow.withValues(alpha: 0.78),
                 foregroundColor: StyleConstants.inkColor,
                 textStyle: const TextStyle(
                   fontSize: 13,
@@ -195,7 +195,8 @@ class _ActiveJourneyControls extends StatelessWidget {
             onPressed: onEndPressed,
             tooltip: context.tr('common.end'),
             style: IconButton.styleFrom(
-              backgroundColor: StyleConstants.softYellow,
+              backgroundColor:
+                  StyleConstants.softYellow.withValues(alpha: 0.74),
               foregroundColor: StyleConstants.inkColor,
               fixedSize: const Size(42, 42),
             ),
