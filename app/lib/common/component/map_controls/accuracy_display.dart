@@ -141,92 +141,105 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
 
                     return GestureDetector(
                       onTap: () => setState(() => showDetail = false),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: StyleConstants.lineColor),
-                          boxShadow: [
-                            BoxShadow(
-                              color: StyleConstants.inkColor
-                                  .withValues(alpha: 0.14),
-                              blurRadius: 22,
-                              offset: const Offset(0, 8),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: BackdropFilter(
+                          filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.68),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.8),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: StyleConstants.inkColor
+                                      .withValues(alpha: 0.14),
+                                  blurRadius: 22,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Column(
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 16.0),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 16.0,
+                                          ),
+                                          child: Text(
+                                            '${position.accuracy.round()} m',
+                                            style: const TextStyle(
+                                              color: StyleConstants.inkColor,
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ),
+                                        const Text(
+                                          'Accuracy',
+                                          style: TextStyle(
+                                            color: StyleConstants.mutedInkColor,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: statusColor,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
                                       child: Text(
-                                        '${position.accuracy.round()} m',
+                                        signalStatus,
                                         style: const TextStyle(
                                           color: StyleConstants.inkColor,
-                                          fontSize: 32,
-                                          fontWeight: FontWeight.w400,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                      ),
-                                    ),
-                                    const Text(
-                                      'Accuracy',
-                                      style: TextStyle(
-                                        color: StyleConstants.mutedInkColor,
-                                        fontSize: 16,
                                       ),
                                     ),
                                   ],
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
+                                const SizedBox(height: 12),
+                                Text(
+                                  '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
+                                  style: const TextStyle(
+                                    color: StyleConstants.mutedInkColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: statusColor,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    signalStatus,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                    ),
+                                ),
+                                Text(
+                                  position.timestamp
+                                      .toLocal()
+                                      .toString()
+                                      .substring(0, 19),
+                                  style: const TextStyle(
+                                    color: StyleConstants.mutedInkColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
-                              style: const TextStyle(
-                                color: StyleConstants.mutedInkColor,
-                                fontSize: 12,
-                              ),
-                            ),
-                            Text(
-                              position.timestamp
-                                  .toLocal()
-                                  .toString()
-                                  .substring(0, 19),
-                              style: const TextStyle(
-                                color: StyleConstants.mutedInkColor,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     );

@@ -108,7 +108,7 @@ class _StartJourneyButton extends StatelessWidget {
           shadowColor: StyleConstants.deepGreen.withValues(alpha: 0.22),
           padding: const EdgeInsets.symmetric(horizontal: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             side: BorderSide(
               color: Colors.white.withValues(alpha: 0.68),
             ),
@@ -177,13 +177,18 @@ class _ActiveJourneyControls extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: isPaused
                     ? StyleConstants.primaryGreen.withValues(alpha: 0.78)
-                    : StyleConstants.journeyYellow.withValues(alpha: 0.78),
-                foregroundColor: StyleConstants.inkColor,
+                    : Colors.white.withValues(alpha: 0.56),
+                foregroundColor: isPaused
+                    ? StyleConstants.inkColor
+                    : StyleConstants.mutedInkColor,
                 textStyle: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 10),
+                side: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.68),
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),

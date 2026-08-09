@@ -553,7 +553,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
         Text(label,
             style: TextStyle(
                 color: isSelected
-                    ? StyleConstants.inkColor
+                    ? StyleConstants.deepGreen
                     : StyleConstants.mutedInkColor,
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500)),

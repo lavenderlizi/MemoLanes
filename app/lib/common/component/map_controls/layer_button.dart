@@ -21,6 +21,20 @@ class LayerButton extends StatelessWidget {
       horizontalOffset: -16,
       contentRadius: 24,
       barrierColor: Colors.transparent,
+      contentDecoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.68),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.8),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: StyleConstants.inkColor.withValues(alpha: 0.14),
+            blurRadius: 22,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       content: PointerInterceptor(child: const LayerPopupContent()),
       child: PointerInterceptor(
           child: Container(
@@ -127,8 +141,9 @@ class _LayerPopupContentState extends State<LayerPopupContent> {
               child: Center(
                 child: FaIcon(
                   icon,
-                  color:
-                      isActive ? StyleConstants.defaultColor : Colors.white70,
+                  color: isActive
+                      ? StyleConstants.deepGreen
+                      : StyleConstants.mutedInkColor,
                   size: 16,
                 ),
               ),
@@ -137,8 +152,11 @@ class _LayerPopupContentState extends State<LayerPopupContent> {
             Text(
               text,
               style: TextStyle(
-                color: isActive ? StyleConstants.defaultColor : Colors.white70,
+                color: isActive
+                    ? StyleConstants.deepGreen
+                    : StyleConstants.mutedInkColor,
                 fontSize: 14,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],

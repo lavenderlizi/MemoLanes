@@ -208,16 +208,44 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
           position: PopupPosition.top,
           verticalOffset: 12,
           contentRadius: 12,
-          backgroundColor: Colors.white,
+          contentPadding: EdgeInsets.zero,
           barrierColor: Colors.transparent,
-          content: PointerInterceptor(
-            child: _TimeMachineViewModeAndLayerMenu(
-              currentViewMode: _viewMode,
-              onViewModeSelect: _onViewModeSelected,
-              currentRulerMode: _rulerMode,
-              onRulerModeSelect: _onRulerModeSelected,
-              selectedJourneyKinds: widget.selectedJourneyKinds,
-              onJourneyKindsChanged: widget.onJourneyKindsChanged,
+          contentDecoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: StyleConstants.inkColor.withValues(alpha: 0.12),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          content: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.42),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    width: 1,
+                  ),
+                ),
+                child: PointerInterceptor(
+                  child: _TimeMachineViewModeAndLayerMenu(
+                    currentViewMode: _viewMode,
+                    onViewModeSelect: _onViewModeSelected,
+                    currentRulerMode: _rulerMode,
+                    onRulerModeSelect: _onRulerModeSelected,
+                    selectedJourneyKinds: widget.selectedJourneyKinds,
+                    onJourneyKindsChanged: widget.onJourneyKindsChanged,
+                  ),
+                ),
+              ),
             ),
           ),
           child: PointerInterceptor(
@@ -508,9 +536,9 @@ class TimeRangeControllerBall extends StatelessWidget {
   static const double _emphasisFontSize = 13;
 
   static final TextStyle _contentStyle = TextStyle(
-    color: StyleConstants.inkColor,
+    color: StyleConstants.deepGreen,
     fontSize: _emphasisFontSize,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
   );
 
   @override
