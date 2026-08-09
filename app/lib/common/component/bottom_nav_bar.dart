@@ -18,7 +18,7 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onIndexChanged;
   final Function hasUpdateNotification;
 
-  static const double height = 72;
+  static const double height = 58;
   static const double designHorizontalMargin = 24;
 
   Alignment get _selectionAlignment => switch (selectedIndex) {
@@ -33,7 +33,7 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(27),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: StyleConstants.inkColor.withValues(alpha: 0.15),
@@ -50,7 +50,7 @@ class BottomNavBar extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(27),
+        borderRadius: BorderRadius.circular(24),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Stack(
@@ -68,7 +68,7 @@ class BottomNavBar extends StatelessWidget {
                     ],
                     stops: const [0, 0.52, 1],
                   ),
-                  borderRadius: BorderRadius.circular(27),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.82),
                     width: 1.2,
@@ -101,7 +101,7 @@ class BottomNavBar extends StatelessWidget {
                   heightFactor: 1,
                   child: Padding(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 3, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -113,7 +113,7 @@ class BottomNavBar extends StatelessWidget {
                             StyleConstants.journeyYellow.withValues(alpha: 0.2),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.9),
                         ),
@@ -195,46 +195,27 @@ class BottomNavBar extends StatelessWidget {
             onIndexChanged(index);
           },
           borderRadius: BorderRadius.circular(22),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              badges.Badge(
-                showBadge: index == 4 && hasUpdateNotification(),
-                position: badges.BadgePosition.topEnd(top: -4, end: -5),
-                badgeStyle: const badges.BadgeStyle(
-                  badgeColor: StyleConstants.journeyYellow,
-                  padding: EdgeInsets.all(4),
-                ),
-                child: AnimatedScale(
-                  scale: isSelected ? 1.08 : 1,
-                  duration: const Duration(milliseconds: 260),
-                  curve: Curves.easeOutBack,
-                  child: Icon(
-                    isSelected ? activeIcon : icon,
-                    color: isSelected
-                        ? StyleConstants.deepGreen
-                        : StyleConstants.mutedInkColor,
-                    size: 23,
-                  ),
+          child: Center(
+            child: badges.Badge(
+              showBadge: index == 4 && hasUpdateNotification(),
+              position: badges.BadgePosition.topEnd(top: -4, end: -5),
+              badgeStyle: const badges.BadgeStyle(
+                badgeColor: StyleConstants.journeyYellow,
+                padding: EdgeInsets.all(4),
+              ),
+              child: AnimatedScale(
+                scale: isSelected ? 1.1 : 1,
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOutBack,
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  color: isSelected
+                      ? StyleConstants.deepGreen
+                      : StyleConstants.mutedInkColor,
+                  size: isSelected ? 29 : 27,
                 ),
               ),
-              const SizedBox(height: 3),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: isSelected
-                        ? StyleConstants.deepGreen
-                        : StyleConstants.mutedInkColor,
-                    fontSize: 10,
-                    height: 1,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

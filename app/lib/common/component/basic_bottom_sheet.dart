@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/cards/line_painter.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class BasicBottomSheet extends StatelessWidget {
   const BasicBottomSheet({
@@ -12,7 +13,7 @@ class BasicBottomSheet extends StatelessWidget {
     this.showTitle = true,
     this.maxHeightFactor,
     this.contentPadding = EdgeInsets.zero,
-    this.backgroundColor = Colors.black,
+    this.backgroundColor = StyleConstants.canvasColor,
   });
 
   final Widget child;
@@ -68,7 +69,7 @@ class BasicBottomSheet extends StatelessWidget {
                     child: Text(
                       title!,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: StyleConstants.inkColor,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
@@ -105,7 +106,7 @@ Future<T?> showBasicBottomSheet<T>(
   double? maxHeightFactor,
   EdgeInsetsGeometry contentPadding = EdgeInsets.zero,
   Color? barrierColor,
-  Color backgroundColor = Colors.black,
+  Color backgroundColor = StyleConstants.canvasColor,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -158,7 +159,10 @@ Future<T?> showBasicCardWithResult<T>(
     showTitle: showLeading,
     maxHeightFactor: 0.75,
     leading: IconButton(
-      icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+      icon: const Icon(
+        Icons.arrow_back_ios,
+        color: StyleConstants.inkColor,
+      ),
       onPressed: () => Navigator.of(context).pop(),
     ),
     actions: primaryButtonText != null && onPrimaryPressed != null
@@ -169,7 +173,8 @@ Future<T?> showBasicCardWithResult<T>(
               child: FilledButton(
                 onPressed: onPrimaryPressed,
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF007AFF),
+                  backgroundColor: StyleConstants.primaryGreen,
+                  foregroundColor: StyleConstants.inkColor,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: Text(primaryButtonText),

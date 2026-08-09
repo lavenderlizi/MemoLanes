@@ -214,7 +214,7 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
       body: Stack(
         children: [
           SlidingUpPanel(
-            color: Colors.black,
+            color: StyleConstants.canvasColor,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.0),
               topRight: Radius.circular(16.0),

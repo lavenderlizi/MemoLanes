@@ -12,14 +12,14 @@ class CapsuleBarConstants {
   static const double pillRadius = 18.0;
   static const double iconButtonSize = 36.0;
 
-  static const Color defaultForeground = Color(0xFFE5E5E7);
-  static const Color defaultPill = Color(0xFF2C2C2E);
-  static const Color defaultSubtitleFg = Color(0xFF8E8E93);
-  static const Color defaultBackground = Color(0xFF1C1C1E);
-  static const Color barBorderColor = Color(0xFF2C2C2E);
-  static const Color barBorderColorLight = Color(0xFFD1D1D6);
-  static const Color lightPillBackground = Color(0xFFE5E5E7);
-  static const Color subtitleColorLight = Color(0xFF636366);
+  static const Color defaultForeground = StyleConstants.inkColor;
+  static const Color defaultPill = StyleConstants.surfaceColor;
+  static const Color defaultSubtitleFg = StyleConstants.mutedInkColor;
+  static const Color defaultBackground = StyleConstants.canvasColor;
+  static const Color barBorderColor = StyleConstants.lineColor;
+  static const Color barBorderColorLight = StyleConstants.lineColor;
+  static const Color lightPillBackground = StyleConstants.surfaceColor;
+  static const Color subtitleColorLight = StyleConstants.mutedInkColor;
 }
 
 /// Capsule-style bar content: back button, optional title pill, optional more button.

@@ -165,8 +165,8 @@ class _ActiveJourneyControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
-      padding: const EdgeInsets.all(6),
+      height: 56,
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.96),
         borderRadius: BorderRadius.circular(23),
@@ -180,8 +180,11 @@ class _ActiveJourneyControls extends StatelessWidget {
         ],
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
+          SizedBox(
+            width: 142,
+            height: 46,
             child: FilledButton.icon(
               onPressed: onPrimaryPressed,
               icon: Icon(
@@ -198,11 +201,12 @@ class _ActiveJourneyControls extends StatelessWidget {
                     : StyleConstants.journeyYellow,
                 foregroundColor: StyleConstants.inkColor,
                 textStyle: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(17),
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
             ),
@@ -214,7 +218,7 @@ class _ActiveJourneyControls extends StatelessWidget {
             style: IconButton.styleFrom(
               backgroundColor: StyleConstants.softYellow,
               foregroundColor: StyleConstants.inkColor,
-              fixedSize: const Size(48, 48),
+              fixedSize: const Size(46, 46),
             ),
             icon: const Icon(Icons.stop_rounded, size: 22),
           ),

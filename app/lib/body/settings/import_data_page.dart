@@ -7,6 +7,7 @@ import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/cards/line_painter.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -189,7 +190,7 @@ class _ImportDataPage extends State<ImportDataPage> {
           : Stack(
               children: [
                 SlidingUpPanel(
-                  color: Colors.black,
+                  color: StyleConstants.canvasColor,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16.0),
                     topRight: Radius.circular(16.0),

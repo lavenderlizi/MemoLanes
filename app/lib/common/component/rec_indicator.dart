@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
@@ -129,9 +128,9 @@ class _RecIndicatorState extends State<RecIndicator>
                         ),
                       ),
                       const SizedBox(width: 7),
-                      Text(
-                        context.tr('home.recording'),
-                        style: const TextStyle(
+                      const Text(
+                        'REC',
+                        style: TextStyle(
                           color: StyleConstants.inkColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,

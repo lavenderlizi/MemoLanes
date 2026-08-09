@@ -39,7 +39,7 @@ class StyleConstants {
 
   // Gap between the nav bar and primary map controls such as recording buttons
   // and the time-machine ruler.
-  static const double mapPrimaryControlNavBarSpacing = 20;
+  static const double mapPrimaryControlNavBarSpacing = 14;
 
   // Bottom inset shared by primary map controls so they align across map modes.
   static const double mapPrimaryControlBottomInset =

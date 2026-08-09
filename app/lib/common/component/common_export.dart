@@ -12,7 +12,7 @@ import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
-const Color _exportActionSheetBackgroundColor = Color(0xFF242424);
+const Color _exportActionSheetBackgroundColor = StyleConstants.canvasColor;
 
 class CommonExportOption {
   const CommonExportOption({
@@ -286,7 +286,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
                 option.icon,
                 color: selected
                     ? StyleConstants.defaultColor
-                    : const Color(0x99FFFFFF),
+                    : StyleConstants.mutedInkColor,
               ),
               const SizedBox(width: 12.0),
               Expanded(
@@ -298,7 +298,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
                     Text(
                       option.description,
                       style: const TextStyle(
-                        color: Color(0x99FFFFFF),
+                        color: StyleConstants.mutedInkColor,
                         fontSize: 13.0,
                       ),
                     ),
@@ -312,7 +312,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
                     : Icons.radio_button_unchecked,
                 color: selected
                     ? StyleConstants.defaultColor
-                    : const Color(0x99FFFFFF),
+                    : StyleConstants.mutedInkColor,
               ),
             ],
           ),
@@ -377,7 +377,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
                 child: Text(
                   context.tr('data.export_data.format_section_title'),
                   style: const TextStyle(
-                    color: Color(0x99FFFFFF),
+                    color: StyleConstants.mutedInkColor,
                     fontSize: 13.0,
                   ),
                 ),
@@ -433,7 +433,7 @@ class _ExportActionSheetContent extends StatelessWidget {
                 width: 56.0,
                 height: 56.0,
                 decoration: const BoxDecoration(
-                  color: Color(0x1AFFFFFF),
+                  color: StyleConstants.softGreen,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
