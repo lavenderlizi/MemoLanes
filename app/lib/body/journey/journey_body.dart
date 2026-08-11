@@ -13,7 +13,19 @@ import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 
 class JourneyBody extends StatefulWidget {
-  const JourneyBody({super.key});
+  const JourneyBody({
+    super.key,
+    this.onJourneySelected,
+    this.compactPicker = false,
+  });
+
+  /// When supplied, tapping a row selects it instead of opening the details
+  /// page. This lets the existing calendar/list work inside the map picker.
+  final Future<bool?> Function(JourneyHeader journey)? onJourneySelected;
+
+  /// Removes the full-page heading and tightens spacing for the floating map
+  /// picker. The calendar remains above a separately scrollable journey list.
+  final bool compactPicker;
 
   @override
   State<JourneyBody> createState() => _JourneyBodyState();
@@ -27,6 +39,7 @@ class _JourneyBodyState extends State<JourneyBody> {
   static const _landscapeListMinWidth = 280.0;
 
   List<JourneyHeader> _journeyHeaderList = [];
+  final ScrollController _journeyListController = ScrollController();
 
   DateTime _selectedDate = DateTime.now();
   late final DateTime? _firstDate;
@@ -36,11 +49,20 @@ class _JourneyBodyState extends State<JourneyBody> {
   late List<int> _daysWithJourneyList;
   bool _isLoadingFirstDate = true;
 
+  bool get _isSelectionMode => widget.onJourneySelected != null;
+  bool get _isCompactPicker => _isSelectionMode && widget.compactPicker;
+
   @override
   void initState() {
     super.initState();
     _initialize();
     _updateJourneyHeaderList();
+  }
+
+  @override
+  void dispose() {
+    _journeyListController.dispose();
+    super.dispose();
   }
 
   Future<void> _initialize() async {
@@ -79,16 +101,20 @@ class _JourneyBodyState extends State<JourneyBody> {
       centerAlignModePicker: true,
       calendarType: CalendarDatePicker2Type.single,
       selectedDayHighlightColor: StyleConstants.primaryGreen,
-      dayTextStyle: const TextStyle(
+      controlsHeight: _isCompactPicker ? 38 : null,
+      dayMaxWidth: _isCompactPicker ? 30 : null,
+      dayTextStyle: TextStyle(
         color: StyleConstants.inkColor,
+        fontSize: _isCompactPicker ? 12 : null,
       ),
-      weekdayLabelTextStyle: const TextStyle(
+      weekdayLabelTextStyle: TextStyle(
         color: StyleConstants.mutedInkColor,
+        fontSize: _isCompactPicker ? 11 : null,
         fontWeight: FontWeight.bold,
       ),
-      controlsTextStyle: const TextStyle(
+      controlsTextStyle: TextStyle(
         color: StyleConstants.inkColor,
-        fontSize: 15,
+        fontSize: _isCompactPicker ? 13 : 15,
         fontWeight: FontWeight.bold,
       ),
       selectableYearPredicate: (year) => _yearsWithJourneyList.contains(year),
@@ -116,10 +142,12 @@ class _JourneyBodyState extends State<JourneyBody> {
                     style: textStyle,
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 27.5),
+                    padding: EdgeInsets.only(
+                      top: _isCompactPicker ? 20 : 27.5,
+                    ),
                     child: Container(
-                      height: 4,
-                      width: 4,
+                      height: _isCompactPicker ? 3 : 4,
+                      width: _isCompactPicker ? 3 : 4,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         color: StyleConstants.journeyYellow,
@@ -134,8 +162,11 @@ class _JourneyBodyState extends State<JourneyBody> {
         return dayWidget;
       },
       dynamicCalendarRows: true,
-      disabledDayTextStyle:
-          const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
+      disabledDayTextStyle: TextStyle(
+        color: Colors.grey,
+        fontSize: _isCompactPicker ? 12 : null,
+        fontWeight: FontWeight.w400,
+      ),
       disabledMonthTextStyle:
           const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
       disabledYearTextStyle:
@@ -186,17 +217,20 @@ class _JourneyBodyState extends State<JourneyBody> {
   }
 
   Widget _buildJourneyHeaderList() {
-    return ListView.builder(
+    final journeyList = ListView.builder(
+      controller: _journeyListController,
       padding: EdgeInsets.only(
-        bottom: StyleConstants.navBarSafeArea + 5,
+        right: _isCompactPicker ? 12 : 0,
+        bottom: _isSelectionMode ? 20 : StyleConstants.navBarSafeArea + 5,
       ),
       itemCount: _journeyHeaderList.length,
       itemBuilder: (context, index) {
+        final journeyHeader = _journeyHeaderList[index];
         return LabelTile(
-          label: _journeyHeaderList[index].start != null
+          label: journeyHeader.start != null
               ? DateFormat("yyyy-MM-dd HH:mm:ss")
-                  .format(_journeyHeaderList[index].start!.toLocal())
-              : naiveDateToString(date: _journeyHeaderList[index].journeyDate),
+                  .format(journeyHeader.start!.toLocal())
+              : naiveDateToString(date: journeyHeader.journeyDate),
           trailing: LabelTileContent(showArrow: true),
           prefix: Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -214,11 +248,26 @@ class _JourneyBodyState extends State<JourneyBody> {
               ),
             ),
           ),
-          onTap: () {
+          onTap: () async {
+            final onJourneySelected = widget.onJourneySelected;
+            if (onJourneySelected != null) {
+              AppHaptics.selection();
+              final refresh = await onJourneySelected(journeyHeader);
+              if (refresh == true) {
+                _yearsWithJourneyList = await api.yearsWithJourney();
+                _monthsWithJourneyList =
+                    await api.monthsWithJourney(year: _selectedDate.year);
+                _daysWithJourneyList = await api.daysWithJourney(
+                    year: _selectedDate.year, month: _selectedDate.month);
+                if (!mounted) return;
+                _updateJourneyHeaderList();
+              }
+              return;
+            }
             navigatorPush(
               context,
               page: JourneyInfoPage(
-                journeyHeader: _journeyHeaderList[index],
+                journeyHeader: journeyHeader,
               ),
             ).then((refresh) async {
               if (refresh != null && refresh) {
@@ -235,10 +284,37 @@ class _JourneyBodyState extends State<JourneyBody> {
         );
       },
     );
+
+    if (!_isCompactPicker) return journeyList;
+
+    return ScrollbarTheme(
+      data: ScrollbarThemeData(
+        thumbColor: WidgetStatePropertyAll(
+          StyleConstants.deepGreen.withValues(alpha: 0.72),
+        ),
+        trackColor: WidgetStatePropertyAll(
+          StyleConstants.softGreen.withValues(alpha: 0.88),
+        ),
+        trackBorderColor: const WidgetStatePropertyAll(
+          StyleConstants.lineColor,
+        ),
+      ),
+      child: Scrollbar(
+        controller: _journeyListController,
+        thumbVisibility: true,
+        trackVisibility: true,
+        interactive: true,
+        thickness: 6,
+        radius: const Radius.circular(99),
+        scrollbarOrientation: ScrollbarOrientation.right,
+        child: journeyList,
+      ),
+    );
   }
 
   Widget _buildLandscapeBody(DateTime firstDate) {
-    const bottomPadding = StyleConstants.navBarSafeArea + 5;
+    final bottomPadding =
+        _isSelectionMode ? 20.0 : StyleConstants.navBarSafeArea + 5;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -287,11 +363,17 @@ class _JourneyBodyState extends State<JourneyBody> {
     final firstDate = _firstDate;
     if (firstDate == null) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(20, 28, 20, 140),
+        padding: EdgeInsets.fromLTRB(
+          _isCompactPicker ? 14 : 20,
+          _isCompactPicker ? 12 : 28,
+          _isCompactPicker ? 14 : 20,
+          _isSelectionMode ? 24 : 140,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _JourneyPageHeader(),
+            if (!_isCompactPicker)
+              _JourneyPageHeader(selectionMode: _isSelectionMode),
             Expanded(
               child: Center(
                 child: Container(
@@ -339,34 +421,41 @@ class _JourneyBodyState extends State<JourneyBody> {
     } else {
       final isLandscape =
           MediaQuery.of(context).orientation == Orientation.landscape;
-      if (isLandscape) {
+      if (isLandscape && !_isCompactPicker) {
         return _buildLandscapeBody(firstDate);
       }
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
+        padding: EdgeInsets.fromLTRB(
+          _isCompactPicker ? 12 : 16,
+          _isCompactPicker ? 10 : 22,
+          _isCompactPicker ? 12 : 16,
+          0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _JourneyPageHeader(),
-            const SizedBox(height: 18),
+            if (!_isCompactPicker) ...[
+              _JourneyPageHeader(selectionMode: _isSelectionMode),
+              const SizedBox(height: 18),
+            ],
             Container(
               decoration: BoxDecoration(
                 color: StyleConstants.surfaceColor,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(_isCompactPicker ? 18 : 22),
                 border: Border.all(color: StyleConstants.lineColor),
               ),
               child: _buildDatePickerWithValue(firstDate),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: _isCompactPicker ? 10 : 16),
             Text(
               context.tr('journey.records_title'),
-              style: const TextStyle(
+              style: TextStyle(
                 color: StyleConstants.inkColor,
-                fontSize: 16,
+                fontSize: _isCompactPicker ? 14 : 16,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: _isCompactPicker ? 6 : 10),
             Expanded(child: _buildJourneyHeaderList()),
           ],
         ),
@@ -376,7 +465,9 @@ class _JourneyBodyState extends State<JourneyBody> {
 }
 
 class _JourneyPageHeader extends StatelessWidget {
-  const _JourneyPageHeader();
+  const _JourneyPageHeader({required this.selectionMode});
+
+  final bool selectionMode;
 
   @override
   Widget build(BuildContext context) {
@@ -384,17 +475,21 @@ class _JourneyPageHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          context.tr('journey.editor_overview_title'),
-          style: const TextStyle(
+          context.tr(selectionMode
+              ? 'journey.picker_title'
+              : 'journey.editor_overview_title'),
+          style: TextStyle(
             color: StyleConstants.inkColor,
-            fontSize: 28,
+            fontSize: selectionMode ? 24 : 28,
             fontWeight: FontWeight.w800,
             height: 1.05,
           ),
         ),
         const SizedBox(height: 7),
         Text(
-          context.tr('journey.editor_overview_subtitle'),
+          context.tr(selectionMode
+              ? 'journey.picker_subtitle'
+              : 'journey.editor_overview_subtitle'),
           style: const TextStyle(
             color: StyleConstants.mutedInkColor,
             fontSize: 14,

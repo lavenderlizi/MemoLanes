@@ -9,7 +9,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:memolanes/app_bootstrap.dart';
 import 'package:memolanes/body/achievement/achievement_body.dart'
     deferred as achievement;
-import 'package:memolanes/body/journey/journey_body.dart' deferred as journey;
 import 'package:memolanes/body/map/map_body.dart';
 import 'package:memolanes/body/first_launch_setup.dart';
 import 'package:memolanes/body/settings/settings_body.dart'
@@ -162,7 +161,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   DateTime? _lastExitPopAt;
 
-  Future<void>? _journeyLib;
   Future<void>? _achievementLib;
   Future<void>? _settingsLib;
 
@@ -227,13 +225,19 @@ class _MyHomePageState extends State<MyHomePage> {
     SystemNavigator.pop();
   }
 
-  /// Tabs 0 and 1: map (shared MapBody, overlay switched by mode); tabs 2, 3, 4: separate pages.
+  /// Tabs 0, 1 and 2 share one MapBody and only switch its overlay. This keeps
+  /// the current map position while moving between Record, Timeline and
+  /// Journeys. Tabs 3 and 4 are separate pages.
   Widget _buildPageContent() {
     Widget child;
-    if (_selectedIndex <= 1) {
+    if (_selectedIndex <= 2) {
       child = MapBody(
         key: _mapBodyKey,
-        mode: _selectedIndex == 0 ? MapMode.normal : MapMode.timeMachine,
+        mode: switch (_selectedIndex) {
+          0 => MapMode.normal,
+          1 => MapMode.timeMachine,
+          _ => MapMode.journeys,
+        },
       );
     } else {
       child = KeyedSubtree(
@@ -263,10 +267,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildDeferredTabBody(int index) {
     return switch (index) {
-      2 => _buildDeferredBody(
-          _journeyLib ??= journey.loadLibrary(),
-          () => journey.JourneyBody(),
-        ),
       3 => _buildDeferredBody(
           _achievementLib ??= achievement.loadLibrary(),
           () => achievement.AchievementBody(),
@@ -300,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Stack(
           children: [
             SafeAreaWrapper(
-              useSafeArea: _selectedIndex > 1,
+              useSafeArea: _selectedIndex > 2,
               child: _buildPageContent(),
             ),
             Positioned(
@@ -330,7 +330,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            if (_selectedIndex <= 1)
+            if (_selectedIndex <= 2)
               Positioned(
                 right: mediaQuery.viewPadding.right + mapCopyrightTrailingGap,
                 bottom: navBarBottomInset +

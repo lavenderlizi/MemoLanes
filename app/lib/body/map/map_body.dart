@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:memolanes/body/map/overlay/journey_overlay.dart';
 import 'package:memolanes/body/map/overlay/normal_map_overlay.dart';
 import 'package:memolanes/body/map/overlay/time_machine_overlay.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
@@ -19,6 +20,9 @@ enum MapMode {
 
   /// TimeMachineOverlay
   timeMachine,
+
+  /// JourneyOverlay
+  journeys,
 }
 
 // TODO: `dart run build_runner build` is needed for generating `map.g.dart`,
@@ -57,14 +61,13 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
 
   TrackingMode _currentTrackingMode = TrackingMode.off;
 
-  /// In timeMachine mode always treat as off ;
-  /// in normal mode use _currentTrackingMode (loaded from MMKV in init).
-  TrackingMode get _effectiveTrackingMode => widget.mode == MapMode.timeMachine
-      ? TrackingMode.off
-      : _currentTrackingMode;
+  /// Map tracking controls only belong to Record mode. Timeline and Journeys
+  /// keep the current viewport but do not follow the user's live location.
+  TrackingMode get _effectiveTrackingMode =>
+      widget.mode == MapMode.normal ? _currentTrackingMode : TrackingMode.off;
 
-  /// GlobalKey pins the main map WebView's State so tab 0↔1 switch does not
-  /// cause mistaken rebuild and reload.
+  /// GlobalKey pins the main map WebView's State so tab 0↔1↔2 switches do not
+  /// cause a mistaken rebuild and reload.
   final GlobalKey<BaseMapWebviewState> _mainMapKey =
       GlobalKey<BaseMapWebviewState>();
 
@@ -120,7 +123,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.mode == widget.mode) return;
     final gpsManager = Provider.of<GpsManager>(context, listen: false);
-    if (widget.mode == MapMode.timeMachine) {
+    if (widget.mode != MapMode.normal) {
       gpsManager.toggleMapTracking(false);
     } else {
       _syncTrackingModeWithGpsManager();
@@ -229,6 +232,8 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
         return TimeMachineOverlay(
           onJourneyRangeLoaded: setJourneyMapRendererProxy,
         );
+      case MapMode.journeys:
+        return const JourneyOverlay();
     }
   }
 

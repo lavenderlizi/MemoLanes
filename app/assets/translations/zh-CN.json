@@ -72,6 +72,9 @@
   "journey": {
     "editor_overview_title": "整理旅途",
     "editor_overview_subtitle": "按日期查看记录，修正不完整或有偏差的轨迹",
+    "picker_title": "选择旅途",
+    "picker_subtitle": "选择日期，再选择要查看或编辑的旅途",
+    "choose_journey": "选择旅途",
     "records_title": "当日记录",
     "editor": {
       "move": "移动",
