@@ -58,7 +58,7 @@ class _AchievementRegionAreaListPageState
     final items = _sortedItems(widget.items);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0D0F),
+      backgroundColor: StyleConstants.canvasColor,
       appBar: CapsuleStyleAppBar(
         title: widget.title,
       ),
@@ -153,20 +153,18 @@ class _RegionAreaSortControl extends StatelessWidget {
         style: ButtonStyle(
           backgroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return StyleConstants.defaultColor.withValues(alpha: 0.18);
+              return StyleConstants.softGreen;
             }
-            return Colors.white.withValues(alpha: 0.045);
+            return StyleConstants.surfaceColor;
           }),
           foregroundColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return StyleConstants.defaultColor;
+              return StyleConstants.deepGreen;
             }
-            return Colors.white.withValues(alpha: 0.62);
+            return StyleConstants.mutedInkColor;
           }),
           side: WidgetStatePropertyAll(
-            BorderSide(
-              color: Colors.white.withValues(alpha: 0.10),
-            ),
+            BorderSide(color: StyleConstants.lineColor),
           ),
           textStyle: const WidgetStatePropertyAll(
             TextStyle(
@@ -201,15 +199,15 @@ class _RegionAreaListTile extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.06),
+              color: StyleConstants.softGreen,
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.10),
+                color: StyleConstants.lineColor,
               ),
             ),
             child: item.flagCountryCode == null
                 ? Icon(
                     Icons.public_rounded,
-                    color: Colors.white.withValues(alpha: 0.68),
+                    color: StyleConstants.deepGreen,
                     size: 23,
                   )
                 : AchievementCountryFlag(
@@ -231,7 +229,7 @@ class _RegionAreaListTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: StyleConstants.inkColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           height: 1.1,
@@ -255,8 +253,8 @@ class _RegionAreaListTile extends StatelessWidget {
                     const SizedBox(width: 10),
                     Text(
                       formatPercent(item.progress, fractionDigits: 3),
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.62),
+                      style: const TextStyle(
+                        color: StyleConstants.mutedInkColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         height: 1,
@@ -290,7 +288,7 @@ class _RegionAreaText extends StatelessWidget {
           Text(
             area.value,
             style: const TextStyle(
-              color: Colors.white,
+              color: StyleConstants.inkColor,
               fontSize: 16,
               fontWeight: FontWeight.w800,
               height: 1,
@@ -301,8 +299,8 @@ class _RegionAreaText extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 1),
             child: Text(
               area.unit,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.58),
+              style: const TextStyle(
+                color: StyleConstants.mutedInkColor,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 height: 1,
@@ -329,8 +327,8 @@ class _RegionAreaListEmptyCard extends StatelessWidget {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.46),
+            style: const TextStyle(
+              color: StyleConstants.mutedInkColor,
               fontSize: 13,
               fontWeight: FontWeight.w500,
               height: 1.35,
