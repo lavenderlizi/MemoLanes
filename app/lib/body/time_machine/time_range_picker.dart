@@ -487,7 +487,9 @@ class _TimeMachineViewModeAndLayerMenuState
         textAlign: TextAlign.center,
         style: TextStyle(
           color: StyleConstants.mutedInkColor,
-          fontSize: 12,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.1,
         ),
       ),
     );
