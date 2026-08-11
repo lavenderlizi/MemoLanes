@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/app_haptics.dart';
-import 'package:memolanes/common/component/custom_popup.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
@@ -50,6 +50,12 @@ enum TimeMachineViewMode {
 }
 
 class _TimeRangePickerState extends State<TimeRangePicker> {
+  final OverlayPortalController _modeMenuController = OverlayPortalController(
+    debugLabel: 'time-machine-mode-menu',
+  );
+  final LayerLink _modeMenuLayerLink = LayerLink();
+  final Object _modeMenuTapRegionGroup = Object();
+
   TimeMachineViewMode _viewMode = TimeMachineViewMode.period;
   TimeRulerMode _rulerMode = TimeRulerMode.year;
   int _selectedYear = DateTime.now().year;
@@ -133,6 +139,16 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
     _notifyRange();
   }
 
+  void _toggleModeMenu() {
+    _modeMenuController.toggle();
+  }
+
+  void _hideModeMenu() {
+    if (_modeMenuController.isShowing) {
+      _modeMenuController.hide();
+    }
+  }
+
   DateTime get _displayDate =>
       DateTime(_displayYear, _displayMonth, _displayDay);
 
@@ -204,72 +220,131 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        CustomPopup(
-          position: PopupPosition.top,
-          verticalOffset: 12,
-          contentRadius: 12,
-          contentPadding: EdgeInsets.zero,
-          barrierColor: Colors.transparent,
-          contentDecoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: StyleConstants.inkColor.withValues(alpha: 0.12),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          content: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.42),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.72),
-                    width: 1,
+        OverlayPortal(
+          controller: _modeMenuController,
+          overlayChildBuilder: (overlayContext) {
+            final mediaQuery = MediaQuery.of(overlayContext);
+            final maxMenuWidth = math.max(
+              0.0,
+              mediaQuery.size.width -
+                  mediaQuery.viewPadding.left -
+                  mediaQuery.viewPadding.right -
+                  48,
+            );
+
+            // OverlayPortal's child receives full-screen constraints. Align
+            // loosens them before the follower is measured, so the follower's
+            // anchor uses the menu's actual size instead of the screen size.
+            return Align(
+              alignment: Alignment.topLeft,
+              child: CompositedTransformFollower(
+                link: _modeMenuLayerLink,
+                showWhenUnlinked: false,
+                targetAnchor: Alignment.topLeft,
+                followerAnchor: Alignment.bottomLeft,
+                offset: const Offset(0, -12),
+                child: TapRegion(
+                  groupId: _modeMenuTapRegionGroup,
+                  onTapOutside: (_) => _hideModeMenu(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxMenuWidth),
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 160),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) => Opacity(
+                        opacity: value,
+                        child: Transform.scale(
+                          scale: 0.96 + value * 0.04,
+                          alignment: Alignment.bottomLeft,
+                          child: child,
+                        ),
+                      ),
+                      child: _buildModeMenu(),
+                    ),
                   ),
                 ),
-                child: PointerInterceptor(
-                  child: _TimeMachineViewModeAndLayerMenu(
-                    currentViewMode: _viewMode,
-                    onViewModeSelect: _onViewModeSelected,
-                    currentRulerMode: _rulerMode,
-                    onRulerModeSelect: _onRulerModeSelected,
-                    selectedJourneyKinds: widget.selectedJourneyKinds,
-                    onJourneyKindsChanged: widget.onJourneyKindsChanged,
+              ),
+            );
+          },
+          child: CompositedTransformTarget(
+            link: _modeMenuLayerLink,
+            child: TapRegion(
+              groupId: _modeMenuTapRegionGroup,
+              child: PointerInterceptor(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _toggleModeMenu,
+                  child: TimeRangeControllerBall(
+                    key: ValueKey(
+                        'ball-$_displayYear-$_displayMonth-$_displayDay'),
+                    viewMode: _viewMode,
+                    rulerMode: _rulerMode,
+                    selectedDate: _viewMode == TimeMachineViewMode.custom
+                        ? _toDate
+                        : _displayDate,
+                    loading: widget.loading,
                   ),
                 ),
               ),
-            ),
-          ),
-          child: PointerInterceptor(
-            child: TimeRangeControllerBall(
-              key: ValueKey('ball-$_displayYear-$_displayMonth-$_displayDay'),
-              viewMode: _viewMode,
-              rulerMode: _rulerMode,
-              selectedDate: _viewMode == TimeMachineViewMode.custom
-                  ? _toDate
-                  : _displayDate,
-              loading: widget.loading,
             ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: PointerInterceptor(
-            child: SizedBox(
-              height: _kPickerBlockHeight,
-              child: rulerChild,
+          child: TapRegion(
+            groupId: _modeMenuTapRegionGroup,
+            child: PointerInterceptor(
+              child: SizedBox(
+                height: _kPickerBlockHeight,
+                child: rulerChild,
+              ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildModeMenu() {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: StyleConstants.inkColor.withValues(alpha: 0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.66),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.84),
+                width: 1,
+              ),
+            ),
+            child: PointerInterceptor(
+              child: _TimeMachineViewModeAndLayerMenu(
+                currentViewMode: _viewMode,
+                onViewModeSelect: _onViewModeSelected,
+                currentRulerMode: _rulerMode,
+                onRulerModeSelect: _onRulerModeSelected,
+                selectedJourneyKinds: widget.selectedJourneyKinds,
+                onJourneyKindsChanged: widget.onJourneyKindsChanged,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -420,29 +495,43 @@ class _TimeMachineViewModeAndLayerMenuState
 
   Widget _buildMenuTile(BuildContext context, String labelKey, bool isSelected,
       VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSelected)
-              Icon(Icons.check, size: 18, color: StyleConstants.defaultColor)
-            else
-              const SizedBox(width: 18, height: 18),
-            const SizedBox(width: 8),
-            Text(
-              context.tr(labelKey),
-              style: TextStyle(
-                color: isSelected
-                    ? StyleConstants.defaultColor
-                    : StyleConstants.inkColor,
-                fontSize: 14,
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      child: Material(
+        color: isSelected
+            ? StyleConstants.softGreen.withValues(alpha: 0.62)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(9),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(9),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isSelected)
+                  const Icon(
+                    Icons.check_rounded,
+                    size: 18,
+                    color: StyleConstants.deepGreen,
+                  )
+                else
+                  const SizedBox(width: 18, height: 18),
+                const SizedBox(width: 7),
+                Text(
+                  context.tr(labelKey),
+                  style: TextStyle(
+                    color: isSelected
+                        ? StyleConstants.deepGreen
+                        : StyleConstants.deepGreen.withValues(alpha: 0.82),
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -514,7 +603,8 @@ class _TimeMachineViewModeAndLayerMenuState
   }
 }
 
-/// Mode button: square, semi-transparent (matches timeline style); tap opens [CustomPopup] menu.
+/// Mode button: square, semi-transparent (matches timeline style); tap opens
+/// the non-modal mode menu anchored above it.
 /// The caption is derived from the current [viewMode] together with [rulerMode],
 /// showing the selected date in the format appropriate for the active timeline/ruler configuration.
 class TimeRangeControllerBall extends StatelessWidget {
@@ -591,10 +681,10 @@ class TimeRangeControllerBall extends StatelessWidget {
           width: _buttonSize,
           height: _buttonSize,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.42),
+            color: Colors.white.withValues(alpha: 0.66),
             borderRadius: BorderRadius.circular(_borderRadius),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.72),
+              color: Colors.white.withValues(alpha: 0.84),
               width: 1,
             ),
             boxShadow: [
@@ -634,10 +724,10 @@ Widget _buildGlassPanel(Widget child, {EdgeInsets? padding}) {
       child: Container(
         padding: padding,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.42),
+          color: Colors.white.withValues(alpha: 0.66),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.72),
+            color: Colors.white.withValues(alpha: 0.84),
             width: 1,
           ),
           boxShadow: [
