@@ -129,6 +129,10 @@ class _SettingsBodyState extends State<SettingsBody> {
         LabelTile(
           label: context.tr("general.version.title"),
           position: LabelTilePosition.middle,
+          prefix: const _SettingsTileIcon(
+            icon: Icons.info_outline_rounded,
+            yellow: true,
+          ),
           trailing: updateUrl != null
               ? badges.Badge(
                   badgeStyle: badges.BadgeStyle(
@@ -172,12 +176,14 @@ class _SettingsBodyState extends State<SettingsBody> {
         LabelTile(
           label: context.tr("general.map_settings.title"),
           position: LabelTilePosition.middle,
+          prefix: const _SettingsTileIcon(icon: Icons.map_outlined),
           trailing: LabelTileContent(showArrow: true),
           onTap: () => navigatorPush(context, page: const MapSettingsPage()),
         ),
         LabelTile(
           label: context.tr("general.advanced_settings.title"),
           position: LabelTilePosition.bottom,
+          prefix: const _SettingsTileIcon(icon: Icons.tune_rounded),
           trailing: LabelTileContent(showArrow: true),
           onTap: () => navigatorPush(context, page: AdvancedSettingsPage()),
         ),
@@ -203,12 +209,19 @@ class _SettingsBodyState extends State<SettingsBody> {
         LabelTile(
           label: context.tr("data.import_data.title"),
           position: LabelTilePosition.middle,
+          prefix: const _SettingsTileIcon(
+            icon: Icons.file_download_outlined,
+          ),
           trailing: LabelTileContent(showArrow: true),
           onTap: () => _showImportDataCard(context),
         ),
         LabelTile(
           label: context.tr("data.export_data.export_all"),
           position: LabelTilePosition.bottom,
+          prefix: const _SettingsTileIcon(
+            icon: Icons.file_upload_outlined,
+            yellow: true,
+          ),
           onTap: () async {
             if (gpsManager.recordingStatus != GpsRecordingStatus.none) {
               await showCommonDialog(
@@ -260,6 +273,10 @@ class _SettingsBodyState extends State<SettingsBody> {
         LabelTile(
           label: context.tr("unexpected_exit_notification.setting_title"),
           position: LabelTilePosition.bottom,
+          prefix: const _SettingsTileIcon(
+            icon: Icons.notifications_active_outlined,
+            yellow: true,
+          ),
           trailing: Switch(
             value: _isUnexpectedExitNotificationEnabled,
             onChanged: (value) async {
@@ -302,6 +319,7 @@ class _SettingsBodyState extends State<SettingsBody> {
         LabelTile(
           label: context.tr("privacy.name"),
           position: LabelTilePosition.middle,
+          prefix: const _SettingsTileIcon(icon: Icons.shield_outlined),
           trailing: LabelTileContent(rightIcon: Icons.open_in_new),
           onTap: () async {
             await launchUrlString(context.tr("privacy.url"),
@@ -311,6 +329,10 @@ class _SettingsBodyState extends State<SettingsBody> {
         LabelTile(
           label: context.tr("contact_us.title"),
           position: LabelTilePosition.bottom,
+          prefix: const _SettingsTileIcon(
+            icon: Icons.forum_outlined,
+            yellow: true,
+          ),
           trailing: LabelTileContent(rightIcon: Icons.arrow_forward_ios),
           onTap: () => navigatorPush(context, page: ContactUsPage()),
         ),
@@ -379,6 +401,36 @@ class _SettingsBodyState extends State<SettingsBody> {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SettingsTileIcon extends StatelessWidget {
+  const _SettingsTileIcon({
+    required this.icon,
+    this.yellow = false,
+  });
+
+  final IconData icon;
+  final bool yellow;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: yellow ? StyleConstants.softYellow : StyleConstants.softGreen,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(
+          icon,
+          size: 17,
+          color: yellow ? StyleConstants.deepYellow : StyleConstants.deepGreen,
+        ),
       ),
     );
   }
