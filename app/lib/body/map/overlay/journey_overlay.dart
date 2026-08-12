@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/body/journey/journey_body.dart';
 import 'package:memolanes/body/journey/journey_info_page.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
@@ -201,73 +202,54 @@ class _JourneyPickerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.14),
-            blurRadius: 24,
-            spreadRadius: -8,
-            offset: const Offset(0, 9),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(22),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-          child: Material(
-            color: Colors.white.withValues(alpha: 0.74),
-            child: InkWell(
-              onTap: onPressed,
-              borderRadius: BorderRadius.circular(22),
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 50),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 11,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.82),
+    return LiquidGlassSurface(
+      borderRadius: BorderRadius.circular(22),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(22),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 50),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 11,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: StyleConstants.softGreen.withValues(alpha: 0.72),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.54),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.route_rounded,
+                    size: 17,
+                    color: StyleConstants.deepGreen,
                   ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: const BoxDecoration(
-                        color: StyleConstants.softGreen,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.route_rounded,
-                        size: 17,
-                        color: StyleConstants.deepGreen,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      context.tr('journey.choose_journey'),
-                      style: const TextStyle(
-                        color: StyleConstants.deepGreen,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    const Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      size: 19,
-                      color: StyleConstants.deepGreen,
-                    ),
-                  ],
+                const SizedBox(width: 10),
+                Text(
+                  context.tr('journey.choose_journey'),
+                  style: const TextStyle(
+                    color: StyleConstants.deepGreen,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 5),
+                const Icon(
+                  Icons.keyboard_arrow_up_rounded,
+                  size: 19,
+                  color: StyleConstants.deepGreen,
+                ),
+              ],
             ),
           ),
         ),

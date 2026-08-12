@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
@@ -307,42 +307,25 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
   }
 
   Widget _buildModeMenu() {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.12),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.66),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.84),
-                width: 1,
-              ),
-            ),
-            child: PointerInterceptor(
-              child: _TimeMachineViewModeAndLayerMenu(
-                currentViewMode: _viewMode,
-                onViewModeSelect: _onViewModeSelected,
-                currentRulerMode: _rulerMode,
-                onRulerModeSelect: _onRulerModeSelected,
-                selectedJourneyKinds: widget.selectedJourneyKinds,
-                onJourneyKindsChanged: widget.onJourneyKindsChanged,
-              ),
-            ),
-          ),
+    return LiquidGlassSurface(
+      borderRadius: BorderRadius.circular(12),
+      backgroundAlpha: 0.66,
+      borderAlpha: 0.84,
+      blurSigma: 24,
+      reflectionAlpha: 0.12,
+      shadowAlpha: 0.12,
+      shadowBlurRadius: 18,
+      shadowSpreadRadius: 0,
+      shadowOffset: const Offset(0, 6),
+      padding: const EdgeInsets.all(16),
+      child: PointerInterceptor(
+        child: _TimeMachineViewModeAndLayerMenu(
+          currentViewMode: _viewMode,
+          onViewModeSelect: _onViewModeSelected,
+          currentRulerMode: _rulerMode,
+          onRulerModeSelect: _onRulerModeSelected,
+          selectedJourneyKinds: widget.selectedJourneyKinds,
+          onJourneyKindsChanged: widget.onJourneyKindsChanged,
         ),
       ),
     );
@@ -675,39 +658,26 @@ class TimeRangeControllerBall extends StatelessWidget {
       ],
     );
 
-    return ClipRRect(
+    return LiquidGlassSurface(
       borderRadius: BorderRadius.circular(_borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          width: _buttonSize,
-          height: _buttonSize,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.66),
-            borderRadius: BorderRadius.circular(_borderRadius),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.84),
-              width: 1,
+      backgroundAlpha: 0.66,
+      borderAlpha: 0.84,
+      blurSigma: 24,
+      reflectionAlpha: 0.12,
+      shadowAlpha: 0.12,
+      shadowBlurRadius: 18,
+      shadowSpreadRadius: 0,
+      shadowOffset: const Offset(0, 6),
+      child: SizedBox(
+        width: _buttonSize,
+        height: _buttonSize,
+        child: Center(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: content,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: StyleConstants.inkColor.withValues(alpha: 0.12),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: content,
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -719,30 +689,18 @@ class TimeRangeControllerBall extends StatelessWidget {
 const double _kPickerBlockHeight = 60.0;
 
 Widget _buildGlassPanel(Widget child, {EdgeInsets? padding}) {
-  return ClipRRect(
+  return LiquidGlassSurface(
     borderRadius: BorderRadius.circular(12),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-      child: Container(
-        padding: padding,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.66),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.84),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: StyleConstants.inkColor.withValues(alpha: 0.1),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: child,
-      ),
-    ),
+    backgroundAlpha: 0.66,
+    borderAlpha: 0.84,
+    blurSigma: 24,
+    reflectionAlpha: 0.12,
+    shadowAlpha: 0.1,
+    shadowBlurRadius: 18,
+    shadowSpreadRadius: 0,
+    shadowOffset: const Offset(0, 6),
+    padding: padding,
+    child: child,
   );
 }
 

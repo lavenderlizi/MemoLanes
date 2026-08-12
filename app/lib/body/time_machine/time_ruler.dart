@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 /// Time dimension: year / month / day / any.
@@ -232,29 +232,17 @@ class _DayRulerData extends _RulerData {
 
 // --- Ruler UI ---
 
-Widget _rulerContainer(Widget child) => ClipRRect(
+Widget _rulerContainer(Widget child) => LiquidGlassSurface(
       borderRadius: BorderRadius.circular(12),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.66),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.84),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: StyleConstants.inkColor.withValues(alpha: 0.1),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: child,
-        ),
-      ),
+      backgroundAlpha: 0.66,
+      borderAlpha: 0.84,
+      blurSigma: 24,
+      reflectionAlpha: 0.12,
+      shadowAlpha: 0.1,
+      shadowBlurRadius: 18,
+      shadowSpreadRadius: 0,
+      shadowOffset: const Offset(0, 6),
+      child: child,
     );
 
 /// Time ruler: horizontal scroll list that snaps to ticks (year / month / day).

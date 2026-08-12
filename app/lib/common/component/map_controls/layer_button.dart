@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -37,29 +38,21 @@ class LayerButton extends StatelessWidget {
       ),
       content: PointerInterceptor(child: const LayerPopupContent()),
       child: PointerInterceptor(
-          child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.76),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.78)),
-          boxShadow: [
-            BoxShadow(
-              color: StyleConstants.inkColor.withValues(alpha: 0.14),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
+        child: LiquidGlassSurface(
+          circular: true,
+          child: const SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Icon(
+                Icons.layers,
+                color: StyleConstants.deepGreen,
+                size: 20,
+              ),
             ),
-          ],
-        ),
-        child: Center(
-          child: Icon(
-            Icons.layers,
-            color: StyleConstants.deepGreen,
-            size: 20,
           ),
         ),
-      )),
+      ),
     );
   }
 }

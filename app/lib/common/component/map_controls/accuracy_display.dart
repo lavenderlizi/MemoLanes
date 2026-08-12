@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:provider/provider.dart';
@@ -73,55 +74,45 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
               final hasData = position != null;
               final accuracyLevel = getAccuracyLevel(accuracy);
 
-              return Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: hasData ? 0.76 : 0.64),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.78),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: StyleConstants.inkColor.withValues(alpha: 0.14),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => {
-                      if (hasData) {setState(() => showDetail = !showDetail)}
-                    },
-                    borderRadius: BorderRadius.circular(22),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Center(
-                          child: Text(
-                            hasData ? '${accuracy.round()}m\nACC' : 'NO\nGPS',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: hasData
-                                  ? StyleConstants.inkColor
-                                  : StyleConstants.mutedInkColor,
-                              fontSize: 10,
-                              height: 1.0,
+              return LiquidGlassSurface(
+                circular: true,
+                backgroundAlpha: hasData ? 0.36 : 0.32,
+                child: SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => {
+                        if (hasData) {setState(() => showDetail = !showDetail)}
+                      },
+                      borderRadius: BorderRadius.circular(22),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Center(
+                            child: Text(
+                              hasData ? '${accuracy.round()}m\nACC' : 'NO\nGPS',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: hasData
+                                    ? StyleConstants.inkColor
+                                    : StyleConstants.mutedInkColor,
+                                fontSize: 10,
+                                height: 1.0,
+                              ),
                             ),
                           ),
-                        ),
-                        if (hasData)
-                          CustomPaint(
-                            size: const ui.Size(44, 44),
-                            painter: AccuracyTicksPainter(
-                              filledTicks: getFilledTicks(accuracyLevel),
-                              color: getStatusColor(accuracyLevel),
+                          if (hasData)
+                            CustomPaint(
+                              size: const ui.Size(44, 44),
+                              painter: AccuracyTicksPainter(
+                                filledTicks: getFilledTicks(accuracyLevel),
+                                color: getStatusColor(accuracyLevel),
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

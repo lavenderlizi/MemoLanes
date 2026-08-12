@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/constants/style_constants.dart';
@@ -143,71 +144,62 @@ class _ActiveJourneyControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 52,
+    return LiquidGlassSurface(
+      borderRadius: BorderRadius.circular(23),
       padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.68),
-        borderRadius: BorderRadius.circular(23),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
-        boxShadow: [
-          BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.14),
-            blurRadius: 22,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 112,
-            height: 42,
-            child: FilledButton.icon(
-              onPressed: onPrimaryPressed,
-              icon: Icon(
-                isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                size: 18,
-              ),
-              label: Text(
-                context.tr(isPaused ? 'home.resume' : 'home.pause'),
-                maxLines: 1,
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: isPaused
-                    ? StyleConstants.primaryGreen.withValues(alpha: 0.78)
-                    : Colors.white.withValues(alpha: 0.56),
-                foregroundColor: isPaused
-                    ? StyleConstants.inkColor
-                    : StyleConstants.mutedInkColor,
-                textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+      child: SizedBox(
+        height: 42,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 112,
+              height: 42,
+              child: FilledButton.icon(
+                onPressed: onPrimaryPressed,
+                icon: Icon(
+                  isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                  size: 18,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                side: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.68),
+                label: Text(
+                  context.tr(isPaused ? 'home.resume' : 'home.pause'),
+                  maxLines: 1,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                style: FilledButton.styleFrom(
+                  backgroundColor: isPaused
+                      ? StyleConstants.primaryGreen.withValues(alpha: 0.3)
+                      : Colors.white.withValues(alpha: 0.18),
+                  foregroundColor: isPaused
+                      ? StyleConstants.deepGreen
+                      : StyleConstants.mutedInkColor,
+                  textStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  side: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.56),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 6),
-          IconButton.filled(
-            onPressed: onEndPressed,
-            tooltip: context.tr('common.end'),
-            style: IconButton.styleFrom(
-              backgroundColor:
-                  StyleConstants.softYellow.withValues(alpha: 0.74),
-              foregroundColor: StyleConstants.inkColor,
-              fixedSize: const Size(42, 42),
+            const SizedBox(width: 6),
+            IconButton.filled(
+              onPressed: onEndPressed,
+              tooltip: context.tr('common.end'),
+              style: IconButton.styleFrom(
+                backgroundColor:
+                    StyleConstants.softYellow.withValues(alpha: 0.58),
+                foregroundColor: StyleConstants.inkColor,
+                fixedSize: const Size(42, 42),
+              ),
+              icon: const Icon(Icons.stop_rounded, size: 20),
             ),
-            icon: const Icon(Icons.stop_rounded, size: 20),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
