@@ -164,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void>? _achievementLib;
   Future<void>? _settingsLib;
 
-  /// Keeps MapBody's State stable so that switching between tab 0 and 1 does
+  /// Keeps MapBody's State stable so that switching among tabs 0, 1 and 2 does
   /// not trigger parent rebuild and thus avoids MapBody/WebView being
   /// recreated and the web page reloading.
   final GlobalKey<MapBodyState> _mapBodyKey = GlobalKey<MapBodyState>();
@@ -246,23 +246,10 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 260),
-      reverseDuration: const Duration(milliseconds: 180),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0.018, 0),
-            end: Offset.zero,
-          ).animate(animation),
-          child: child,
-        ),
-      ),
-      child: child,
-    );
+    // Do not retain an outgoing MapBody for a page-transition animation.
+    // Re-entering a map tab before that animation ends would temporarily put
+    // the same GlobalKey in two subtrees and can crash in debug builds.
+    return child;
   }
 
   Widget _buildDeferredTabBody(int index) {

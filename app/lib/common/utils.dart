@@ -30,33 +30,37 @@ bool popCurrentRoute<T>(BuildContext context, [T? result]) {
 }
 
 Future<bool> showCommonDialog(BuildContext context, String message,
-    {hasCancel = false,
-    title,
-    confirmButtonText,
-    cancelButtonText,
-    confirmGroundColor,
-    confirmTextColor = Colors.black,
-    markdown = false}) async {
-  confirmButtonText = confirmButtonText ?? context.tr("common.ok");
-  cancelButtonText = cancelButtonText ?? context.tr("common.cancel");
-  title = title ?? context.tr("common.info");
-  confirmGroundColor = confirmGroundColor ?? StyleConstants.defaultColor;
+    {bool hasCancel = false,
+    String? title,
+    String? confirmButtonText,
+    String? cancelButtonText,
+    Color? confirmGroundColor,
+    Color confirmTextColor = Colors.black,
+    bool markdown = false}) async {
+  final resolvedConfirmButtonText =
+      confirmButtonText ?? context.tr("common.ok");
+  final resolvedCancelButtonText =
+      cancelButtonText ?? context.tr("common.cancel");
+  final dialogTitle = title ?? context.tr("common.info");
+  final usesDefaultConfirmColor = confirmGroundColor == null;
+  final resolvedConfirmGroundColor =
+      confirmGroundColor ?? StyleConstants.primaryGreen;
   final List<DialogButton> allButtons = [
     DialogButton(
-      text: confirmButtonText,
+      text: resolvedConfirmButtonText,
       onPressed: () {
         Navigator.of(context).pop(true);
       },
-      backgroundColor: confirmGroundColor,
+      backgroundColor: resolvedConfirmGroundColor,
       textColor: confirmTextColor,
     ),
     if (hasCancel)
       DialogButton(
-          text: cancelButtonText,
-          backgroundColor: confirmGroundColor == StyleConstants.defaultColor
+          text: resolvedCancelButtonText,
+          backgroundColor: usesDefaultConfirmColor
               ? Colors.grey
-              : StyleConstants.defaultColor,
-          textColor: confirmTextColor,
+              : StyleConstants.primaryGreen,
+          textColor: StyleConstants.inkColor,
           onPressed: () {
             Navigator.of(context).pop(false);
           })
@@ -67,7 +71,7 @@ Future<bool> showCommonDialog(BuildContext context, String message,
     barrierDismissible: false,
     builder: (BuildContext context) {
       return CommonDialog(
-        title: title,
+        title: dialogTitle,
         content: message,
         showCancel: hasCancel,
         buttons: allButtons,

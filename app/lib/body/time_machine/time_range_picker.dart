@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -50,13 +49,7 @@ enum TimeMachineViewMode {
 }
 
 class _TimeRangePickerState extends State<TimeRangePicker> {
-  final OverlayPortalController _modeMenuController = OverlayPortalController(
-    debugLabel: 'time-machine-mode-menu',
-  );
-  final LayerLink _modeMenuLayerLink = LayerLink();
-  final Object _modeMenuTapRegionGroup = Object();
-
-  TimeMachineViewMode _viewMode = TimeMachineViewMode.period;
+  TimeMachineViewMode _viewMode = TimeMachineViewMode.asOf;
   TimeRulerMode _rulerMode = TimeRulerMode.year;
   int _selectedYear = DateTime.now().year;
   int _selectedMonth = DateTime.now().month;
@@ -68,6 +61,12 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
   int _displayDay = DateTime.now().day;
   DateTime _fromDate = DateTime.now();
   DateTime _toDate = DateTime.now();
+
+  final OverlayPortalController _modeMenuController = OverlayPortalController(
+    debugLabel: 'time-machine-mode-menu',
+  );
+  final LayerLink _modeMenuLayerLink = LayerLink();
+  final Object _modeMenuTapRegionGroup = Object();
 
   /// Single source of truth for lower bound used by ruler/range/pickers.
   DateTime get _effectiveEarliest {
@@ -163,8 +162,8 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
       apply();
       _updateDisplay(_selectedYear, _selectedMonth, _selectedDay);
       _applyCurrentRange();
-      _notifyRange();
     });
+    _notifyRange();
   }
 
   @override
@@ -202,8 +201,8 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
                   _fromDate = _effectiveEarliest;
                 }
                 if (_toDate.isBefore(_fromDate)) _toDate = _fromDate;
-                _notifyRange();
               });
+              _notifyRange();
             },
             onToChanged: (d) {
               setState(() {
@@ -212,8 +211,8 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
                   _toDate = _effectiveEarliest;
                 }
                 if (_fromDate.isAfter(_toDate)) _fromDate = _toDate;
-                _notifyRange();
               });
+              _notifyRange();
             },
           );
 
@@ -380,7 +379,6 @@ class _TimeMachineViewModeAndLayerMenuState
   late Set<JourneyKind> _localKinds;
   late TimeMachineViewMode _localViewMode;
   late TimeRulerMode _localRulerMode;
-  Timer? _layerTimer;
 
   @override
   void initState() {
@@ -528,7 +526,6 @@ class _TimeMachineViewModeAndLayerMenuState
       labelKey,
       mode == _localViewMode,
       () {
-        AppHaptics.selection();
         setState(() => _localViewMode = mode);
         widget.onViewModeSelect(mode);
       },
@@ -546,7 +543,6 @@ class _TimeMachineViewModeAndLayerMenuState
           labelKey,
           rulerMode == _localRulerMode,
           () {
-            AppHaptics.selection();
             setState(() => _localRulerMode = rulerMode);
             widget.onRulerModeSelect(rulerMode);
           },
@@ -572,19 +568,9 @@ class _TimeMachineViewModeAndLayerMenuState
           }
           _localKinds = next;
         });
-        _layerTimer?.cancel();
-        _layerTimer = Timer(const Duration(milliseconds: 600), () {
-          _layerTimer = null;
-          widget.onJourneyKindsChanged?.call(_localKinds);
-        });
+        widget.onJourneyKindsChanged?.call(_localKinds);
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _layerTimer?.cancel();
-    super.dispose();
   }
 }
 

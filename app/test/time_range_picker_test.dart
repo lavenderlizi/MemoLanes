@@ -6,10 +6,42 @@ import 'package:memolanes/body/time_machine/time_range_picker.dart';
 import 'package:memolanes/common/app_translation_loader.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 
+const _loader = AppTranslationLoader();
+const _enUs = Locale('en', 'US');
+
+Widget _buildTestApp({
+  required void Function(DateTime from, DateTime to) onRangeChanged,
+}) {
+  return EasyLocalization(
+    supportedLocales: const [_enUs],
+    path: 'assets/translations',
+    assetLoader: _loader,
+    fallbackLocale: _enUs,
+    child: Builder(
+      builder: (context) => MaterialApp(
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 80),
+              child: TimeRangePicker(
+                earliestDate: DateTime(2020),
+                selectedJourneyKinds: const {JourneyKind.defaultKind},
+                onRangeChanged: onRangeChanged,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const loader = AppTranslationLoader();
-  const enUs = Locale('en', 'US');
 
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -28,32 +60,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final app = EasyLocalization(
-      supportedLocales: const [enUs],
-      path: 'assets/translations',
-      assetLoader: loader,
-      fallbackLocale: enUs,
-      child: Builder(
-        builder: (context) => MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          home: Scaffold(
-            body: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 80),
-                child: TimeRangePicker(
-                  earliestDate: DateTime(2020),
-                  selectedJourneyKinds: const {JourneyKind.defaultKind},
-                  onRangeChanged: (_, __) {},
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    final app = _buildTestApp(onRangeChanged: (_, __) {});
 
     await tester.runAsync(() async {
       await tester.pumpWidget(app);
@@ -64,10 +71,10 @@ void main() {
     await tester.tap(find.byType(TimeRangeControllerBall));
     await tester.pumpAndSettle();
 
-    final asOfText = find.text('As of');
-    expect(asOfText, findsOneWidget);
+    final periodText = find.text('Period');
+    expect(periodText, findsOneWidget);
     final menuGlass = find.ancestor(
-      of: asOfText,
+      of: periodText,
       matching: find.byType(BackdropFilter),
     );
     expect(menuGlass, findsOneWidget);
@@ -77,10 +84,28 @@ void main() {
 
     await tester.drag(find.byType(TimeRuler), const Offset(-80, 0));
     await tester.pumpAndSettle();
-    expect(asOfText, findsOneWidget);
+    expect(periodText, findsOneWidget);
 
     await tester.tapAt(const Offset(350, 20));
     await tester.pumpAndSettle();
-    expect(asOfText, findsNothing);
+    expect(periodText, findsNothing);
+  });
+
+  testWidgets('defaults to the cumulative as-of range', (tester) async {
+    final ranges = <(DateTime, DateTime)>[];
+    final currentYear = DateTime.now().year;
+    await tester.runAsync(() async {
+      await tester.pumpWidget(
+        _buildTestApp(
+          onRangeChanged: (from, to) => ranges.add((from, to)),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+    });
+    await tester.pumpAndSettle();
+
+    expect(ranges, isNotEmpty);
+    expect(ranges.last.$1, DateTime(2020));
+    expect(ranges.last.$2, DateTime(currentYear, 12, 31));
   });
 }

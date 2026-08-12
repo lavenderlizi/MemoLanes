@@ -23,7 +23,12 @@ class LiquidGlassSurface extends StatelessWidget {
     this.shadowSpreadRadius = -7,
     this.shadowOffset = const Offset(0, 9),
     this.padding,
-  });
+  })  : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
+        assert(borderAlpha >= 0 && borderAlpha <= 1),
+        assert(blurSigma >= 0),
+        assert(reflectionAlpha >= 0 && reflectionAlpha <= 1),
+        assert(shadowAlpha >= 0 && shadowAlpha <= 1),
+        assert(shadowBlurRadius >= 0);
 
   final Widget child;
   final BorderRadius borderRadius;
@@ -93,28 +98,29 @@ class LiquidGlassSurface extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
-                right: -18,
-                bottom: -20,
-                width: 92,
-                height: 58,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: Alignment.bottomRight,
-                      radius: 1,
-                      colors: [
-                        StyleConstants.primaryGreen
-                            .withValues(alpha: reflectionAlpha),
-                        StyleConstants.softGreen
-                            .withValues(alpha: reflectionAlpha * 0.36),
-                        Colors.transparent,
-                      ],
-                      stops: const [0, 0.5, 1],
+              if (reflectionAlpha > 0)
+                Positioned(
+                  right: -18,
+                  bottom: -20,
+                  width: 92,
+                  height: 58,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.bottomRight,
+                        radius: 1,
+                        colors: [
+                          StyleConstants.primaryGreen
+                              .withValues(alpha: reflectionAlpha),
+                          StyleConstants.softGreen
+                              .withValues(alpha: reflectionAlpha * 0.36),
+                          Colors.transparent,
+                        ],
+                        stops: const [0, 0.5, 1],
+                      ),
                     ),
                   ),
                 ),
-              ),
               Positioned(
                 left: circular ? 10 : 14,
                 right: circular ? 10 : 14,

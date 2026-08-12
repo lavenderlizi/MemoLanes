@@ -21,7 +21,7 @@ class JourneyBody extends StatefulWidget {
 
   /// When supplied, tapping a row selects it instead of opening the details
   /// page. This lets the existing calendar/list work inside the map picker.
-  final Future<bool?> Function(JourneyHeader journey)? onJourneySelected;
+  final Future<void> Function(JourneyHeader journey)? onJourneySelected;
 
   /// Removes the full-page heading and tightens spacing for the floating map
   /// picker. The calendar remains above a separately scrollable journey list.
@@ -48,6 +48,8 @@ class _JourneyBodyState extends State<JourneyBody> {
   late List<int> _monthsWithJourneyList;
   late List<int> _daysWithJourneyList;
   bool _isLoadingFirstDate = true;
+  int _journeyListRequestId = 0;
+  int _calendarRequestId = 0;
 
   bool get _isSelectionMode => widget.onJourneySelected != null;
   bool get _isCompactPicker => _isSelectionMode && widget.compactPicker;
@@ -84,11 +86,12 @@ class _JourneyBodyState extends State<JourneyBody> {
   }
 
   void _updateJourneyHeaderList() async {
+    final requestId = ++_journeyListRequestId;
     final journeyHeaderList = await api.listJourneyOnDate(
         year: _selectedDate.year,
         month: _selectedDate.month,
         day: _selectedDate.day);
-    if (!mounted) return;
+    if (!mounted || requestId != _journeyListRequestId) return;
     setState(() {
       _journeyHeaderList = journeyHeaderList.reversed.toList();
     });
@@ -187,6 +190,7 @@ class _JourneyBodyState extends State<JourneyBody> {
       },
       onDisplayedMonthChanged: (value) async {
         AppHaptics.selection();
+        final requestId = ++_calendarRequestId;
         DateTime jumpToDate =
             DateTime(value.year, value.month, _selectedDate.day);
         DateTime jumpToDateMonthLastDay =
@@ -200,15 +204,15 @@ class _JourneyBodyState extends State<JourneyBody> {
         if (firstDate.isAfter(jumpToDate)) {
           jumpToDate = firstDate;
         }
-        if (value.year != _selectedDate.year) {
-          _monthsWithJourneyList =
-              await api.monthsWithJourney(year: jumpToDate.year);
-        }
-
-        _daysWithJourneyList = await api.daysWithJourney(
+        final monthsWithJourneys = value.year != _selectedDate.year
+            ? await api.monthsWithJourney(year: jumpToDate.year)
+            : _monthsWithJourneyList;
+        final daysWithJourneys = await api.daysWithJourney(
             month: jumpToDate.month, year: jumpToDate.year);
-        if (!mounted) return;
+        if (!mounted || requestId != _calendarRequestId) return;
         setState(() {
+          _monthsWithJourneyList = monthsWithJourneys;
+          _daysWithJourneyList = daysWithJourneys;
           _selectedDate = jumpToDate;
         });
         _updateJourneyHeaderList();
@@ -252,16 +256,7 @@ class _JourneyBodyState extends State<JourneyBody> {
             final onJourneySelected = widget.onJourneySelected;
             if (onJourneySelected != null) {
               AppHaptics.selection();
-              final refresh = await onJourneySelected(journeyHeader);
-              if (refresh == true) {
-                _yearsWithJourneyList = await api.yearsWithJourney();
-                _monthsWithJourneyList =
-                    await api.monthsWithJourney(year: _selectedDate.year);
-                _daysWithJourneyList = await api.daysWithJourney(
-                    year: _selectedDate.year, month: _selectedDate.month);
-                if (!mounted) return;
-                _updateJourneyHeaderList();
-              }
+              await onJourneySelected(journeyHeader);
               return;
             }
             navigatorPush(
@@ -421,7 +416,7 @@ class _JourneyBodyState extends State<JourneyBody> {
     } else {
       final isLandscape =
           MediaQuery.of(context).orientation == Orientation.landscape;
-      if (isLandscape && !_isCompactPicker) {
+      if (isLandscape) {
         return _buildLandscapeBody(firstDate);
       }
       return Padding(

@@ -398,8 +398,8 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
         FilledButton(
           onPressed: _submit,
           style: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.defaultColor,
-            foregroundColor: Colors.black,
+            backgroundColor: StyleConstants.primaryGreen,
+            foregroundColor: StyleConstants.inkColor,
           ),
           child: Text(context.tr('common.export')),
         ),

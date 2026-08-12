@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_info_edit_page.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
@@ -10,7 +11,6 @@ import 'package:memolanes/common/component/capsule_style_overlay_app_bar.dart';
 import 'package:memolanes/common/component/cards/card_label_tile.dart';
 import 'package:memolanes/common/component/cards/line_painter.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
-import 'package:memolanes/common/component/common_export.dart';
 import 'package:memolanes/common/component/safe_area_wrapper.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
@@ -23,7 +23,6 @@ import 'package:memolanes/src/rust/api/edit_session.dart' show EditSession;
 import 'package:memolanes/src/rust/api/import.dart';
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -162,40 +161,8 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
     await _refreshJourneyInfo();
   }
 
-  Future<CommonExportResult> _generateExportFile(
-      JourneyHeader journeyHeader, CommonExportFormat exportFormat) async {
-    final tmpDir = await getTemporaryDirectory();
-    final dateStr = naiveDateToString(date: journeyHeader.journeyDate);
-    final filePath =
-        "${tmpDir.path}/$dateStr-${journeyHeader.revision}.${exportFormat.extension}";
-    final exportType = switch (exportFormat) {
-      CommonExportFormat.mldx => api.ExportType.mldx,
-      CommonExportFormat.fwss => api.ExportType.fwss,
-      CommonExportFormat.gpx => api.ExportType.gpx,
-      CommonExportFormat.kml => api.ExportType.kml,
-    };
-
-    final exportResult = await api.exportJourney(
-        targetFilepath: filePath,
-        journeyId: journeyHeader.id,
-        exportType: exportType);
-    return CommonExportResult.create(exportResult, filePath);
-  }
-
   void _export() async {
-    final supportsVectorExport =
-        _journeyHeader.journeyType != JourneyType.bitmap;
-    await showCommonExportWithFormatPicker(
-      context: context,
-      title: context.tr("data.export_data.export_journey_title"),
-      formats: [
-        CommonExportFormat.mldx,
-        CommonExportFormat.fwss,
-        if (supportsVectorExport) CommonExportFormat.kml,
-        if (supportsVectorExport) CommonExportFormat.gpx,
-      ],
-      exportFile: (format) => _generateExportFile(_journeyHeader, format),
-    );
+    await showJourneyExportPicker(context, _journeyHeader);
   }
 
   @override

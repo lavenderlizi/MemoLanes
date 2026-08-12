@@ -1,15 +1,14 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/journey/journey_body.dart';
+import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
-import 'package:memolanes/common/component/common_export.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/constants/style_constants.dart';
@@ -19,7 +18,6 @@ import 'package:memolanes/src/rust/api/import.dart' show JourneyInfo;
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 /// Journeys keeps the current map visible without Record mode's three map
@@ -52,15 +50,15 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
     setState(() => _pickerOpen = !_pickerOpen);
   }
 
-  Future<bool?> _openJourneyDetails(JourneyHeader journey) async {
-    if (_isLoadingJourney) return false;
+  Future<void> _openJourneyDetails(JourneyHeader journey) async {
+    if (_isLoadingJourney) return;
     setState(() => _isLoadingJourney = true);
 
     try {
       final rendererAndBounds = await api.getMapRendererProxyForJourney(
         journeyId: journey.id,
       );
-      if (!mounted) return false;
+      if (!mounted) return;
       widget.onJourneyMapChanged(
         rendererAndBounds.$1,
         rendererAndBounds.$2,
@@ -74,7 +72,6 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
     } finally {
       if (mounted) setState(() => _isLoadingJourney = false);
     }
-    return false;
   }
 
   void _returnToPicker() {
@@ -140,42 +137,10 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
     _returnToPicker();
   }
 
-  Future<CommonExportResult> _generateExportFile(
-    JourneyHeader journey,
-    CommonExportFormat format,
-  ) async {
-    final tmpDir = await getTemporaryDirectory();
-    final date = naiveDateToString(date: journey.journeyDate);
-    final path = '${tmpDir.path}/$date-${journey.revision}.${format.extension}';
-    final exportType = switch (format) {
-      CommonExportFormat.mldx => api.ExportType.mldx,
-      CommonExportFormat.fwss => api.ExportType.fwss,
-      CommonExportFormat.gpx => api.ExportType.gpx,
-      CommonExportFormat.kml => api.ExportType.kml,
-    };
-    final result = await api.exportJourney(
-      targetFilepath: path,
-      journeyId: journey.id,
-      exportType: exportType,
-    );
-    return CommonExportResult.create(result, path);
-  }
-
   Future<void> _exportSelectedJourney() async {
     final selected = _selectedJourney;
     if (selected == null) return;
-    final supportsVector = selected.journeyType != JourneyType.bitmap;
-    await showCommonExportWithFormatPicker(
-      context: context,
-      title: context.tr('data.export_data.export_journey_title'),
-      formats: [
-        CommonExportFormat.mldx,
-        CommonExportFormat.fwss,
-        if (supportsVector) CommonExportFormat.kml,
-        if (supportsVector) CommonExportFormat.gpx,
-      ],
-      exportFile: (format) => _generateExportFile(selected, format),
-    );
+    await showJourneyExportPicker(context, selected);
   }
 
   Future<void> _openTrackEditor() async {
@@ -232,6 +197,8 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
     final preferredHeight =
         (mediaQuery.size.height * 0.62).clamp(390.0, 530.0).toDouble();
     final pickerHeight = math.min(preferredHeight, availableHeight);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final pickerMaxWidth = isLandscape ? 720.0 : 480.0;
     final selectedJourney = _selectedJourney;
 
     return Stack(
@@ -283,7 +250,13 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
                         key: const ValueKey('journey-picker'),
                         alignment: Alignment.bottomCenter,
                         child: SizedBox(
-                          width: math.min(mediaQuery.size.width - 32, 480.0),
+                          width: math.min(
+                            mediaQuery.size.width -
+                                viewPadding.left -
+                                viewPadding.right -
+                                32,
+                            pickerMaxWidth,
+                          ),
                           height: pickerHeight,
                           child: PointerInterceptor(
                             child: _JourneyPickerCard(
@@ -324,7 +297,7 @@ class _JourneyPickerCard extends StatelessWidget {
   });
 
   final VoidCallback onClose;
-  final Future<bool?> Function(JourneyHeader journey) onJourneySelected;
+  final Future<void> Function(JourneyHeader journey) onJourneySelected;
   final bool isLoading;
 
   @override
@@ -412,27 +385,19 @@ class _JourneyPanelSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.18),
-            blurRadius: 32,
-            spreadRadius: -8,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-          child: Material(
-            color: Colors.white.withValues(alpha: 0.9),
-            child: child,
-          ),
-        ),
+    return LiquidGlassSurface(
+      borderRadius: BorderRadius.circular(26),
+      backgroundAlpha: 0.9,
+      borderAlpha: 0.8,
+      blurSigma: 28,
+      reflectionAlpha: 0,
+      shadowAlpha: 0.18,
+      shadowBlurRadius: 32,
+      shadowSpreadRadius: -8,
+      shadowOffset: const Offset(0, 12),
+      child: Material(
+        color: Colors.transparent,
+        child: child,
       ),
     );
   }
