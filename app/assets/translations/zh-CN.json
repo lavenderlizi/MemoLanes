@@ -282,7 +282,8 @@
       "delete_backup_data": "删除备份数据"
     },
     "import_data": {
-      "title": "导入数据"
+      "title": "导入数据",
+      "description": "选择要导入的数据来源与格式。"
     },
     "export_data": {
       "export_all": "导出所有数据",

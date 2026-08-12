@@ -171,7 +171,7 @@ Future<bool> showCommonExport(
       contentPadding: EdgeInsets.only(
         left: 20.0,
         right: 20.0,
-        bottom: 12.0 + MediaQuery.of(context).padding.bottom,
+        bottom: 16.0,
       ),
       barrierColor: const Color(0x99000000),
       backgroundColor: _exportActionSheetBackgroundColor,

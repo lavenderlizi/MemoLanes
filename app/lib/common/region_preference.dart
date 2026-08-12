@@ -104,13 +104,9 @@ Future<achievement.Worldview?> showWorldviewPicker(
   BuildContext context, {
   required achievement.Worldview selectedWorldview,
 }) {
-  return showModalBottomSheet<achievement.Worldview>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (context) {
-      return _RegionPickerSheet(selectedWorldview: selectedWorldview);
-    },
+  return showSetupCard<achievement.Worldview>(
+    context,
+    child: _RegionPickerSheet(selectedWorldview: selectedWorldview),
   );
 }
 
@@ -122,10 +118,9 @@ class _RegionPickerSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SetupBottomSheet(
-      title: '',
-      showTitle: false,
+      title: context.tr("privacy.region_title"),
       maxHeightFactor: 0.55,
-      contentPadding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
+      contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
       child: Column(
         children: [
           for (final worldview in _worldviewDisplayOrder)
@@ -141,8 +136,8 @@ class _RegionPickerSheet extends StatelessWidget {
                     ? Icons.check_circle
                     : Icons.circle_outlined,
                 color: worldview == selectedWorldview
-                    ? StyleConstants.defaultColor
-                    : const Color(0x99FFFFFF),
+                    ? StyleConstants.deepGreen
+                    : StyleConstants.mutedInkColor.withValues(alpha: 0.55),
               ),
             ),
         ],

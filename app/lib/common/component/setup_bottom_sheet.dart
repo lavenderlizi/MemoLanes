@@ -1,6 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:memolanes/common/component/cards/line_painter.dart';
 import 'package:memolanes/constants/style_constants.dart';
+
+Future<T?> showSetupCard<T>(
+  BuildContext context, {
+  required Widget child,
+  bool barrierDismissible = true,
+  Color? barrierColor,
+}) {
+  return showDialog<T>(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierColor: barrierColor,
+    builder: (dialogContext) => Dialog(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: SizedBox(width: double.infinity, child: child),
+      ),
+    ),
+  );
+}
 
 class SetupBottomSheet extends StatelessWidget {
   const SetupBottomSheet({
@@ -29,25 +50,23 @@ class SetupBottomSheet extends StatelessWidget {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * maxHeightFactor,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16.0),
-          topRight: Radius.circular(16.0),
-        ),
+      decoration: BoxDecoration(
+        color: StyleConstants.canvasColor,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: StyleConstants.lineColor),
+        boxShadow: [
+          BoxShadow(
+            color: StyleConstants.inkColor.withValues(alpha: 0.18),
+            blurRadius: 32,
+            spreadRadius: -8,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Center(
-              child: CustomPaint(
-                size: const Size(40.0, 4.0),
-                painter: LinePainter(color: const Color(0xFFB5B5B5)),
-              ),
-            ),
-          ),
+          const SizedBox(height: 14),
           if (showTitle)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
@@ -58,8 +77,8 @@ class SetupBottomSheet extends StatelessWidget {
                     child: Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                        color: StyleConstants.inkColor,
+                        fontSize: 17,
                         fontWeight: FontWeight.w600,
                       ),
                       textAlign: TextAlign.center,
@@ -127,19 +146,34 @@ class SetupTile extends StatelessWidget {
           minHeight == null ? null : BoxConstraints(minHeight: minHeight!),
       padding: contentPadding,
       decoration: BoxDecoration(
-        color: const Color(0x1AFFFFFF),
-        borderRadius: BorderRadius.circular(10),
-        border: selected
-            ? Border.all(color: StyleConstants.defaultColor)
-            : Border.all(color: Colors.transparent),
+        color: selected
+            ? StyleConstants.softGreen.withValues(alpha: 0.82)
+            : StyleConstants.surfaceColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color:
+              selected ? StyleConstants.primaryGreen : StyleConstants.lineColor,
+          width: selected ? 1.4 : 1,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: StyleConstants.defaultColor,
-            size: 22,
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: selected
+                  ? StyleConstants.primaryGreen.withValues(alpha: 0.32)
+                  : StyleConstants.softGreen,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              icon,
+              color: StyleConstants.deepGreen,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -154,9 +188,9 @@ class SetupTile extends StatelessWidget {
                       child: Text(
                         title,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: StyleConstants.inkColor,
                           fontSize: 15,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -174,7 +208,7 @@ class SetupTile extends StatelessWidget {
                     child: Text(
                       subtitle!,
                       style: const TextStyle(
-                        color: Color(0xFFB0B0B0),
+                        color: StyleConstants.mutedInkColor,
                         fontSize: 12,
                       ),
                     ),
@@ -192,7 +226,7 @@ class SetupTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(14),
         child: tile,
       ),
     );

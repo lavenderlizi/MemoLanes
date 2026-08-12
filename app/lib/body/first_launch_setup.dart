@@ -33,17 +33,12 @@ Future<void> _showPrivacyAndRegionSheet(
   // A little weird, but shouldn't happen.
   if (!context.mounted) return;
 
-  final accepted = await showModalBottomSheet<_FirstLaunchAccepted>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    isDismissible: false,
-    enableDrag: false,
-    builder: (context) {
-      return FirstLaunchSetupSheet(
-        initialPrivacyAccepted: privacyAlreadyAccepted,
-      );
-    },
+  final accepted = await showSetupCard<_FirstLaunchAccepted>(
+    context,
+    barrierDismissible: false,
+    child: FirstLaunchSetupSheet(
+      initialPrivacyAccepted: privacyAlreadyAccepted,
+    ),
   );
 
   if (accepted == null) {
@@ -140,8 +135,9 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
         OutlinedButton(
           onPressed: _onDisagree,
           style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white,
-            side: const BorderSide(color: Color(0xFFB5B5B5)),
+            foregroundColor: StyleConstants.deepGreen,
+            backgroundColor: StyleConstants.surfaceColor,
+            side: const BorderSide(color: StyleConstants.lineColor),
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
           child: Text(context.tr("privacy.disagree_and_exit")),
@@ -149,8 +145,8 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
         FilledButton(
           onPressed: _privacyAccepted ? _onContinue : null,
           style: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.defaultColor,
-            foregroundColor: Colors.black,
+            backgroundColor: StyleConstants.primaryGreen,
+            foregroundColor: StyleConstants.deepGreen,
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
           child: Text(context.tr("common.continue")),
@@ -164,7 +160,7 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
             child: Text(
               context.tr("privacy.setup_desc"),
               style: const TextStyle(
-                color: Color(0xFFB0B0B0),
+                color: StyleConstants.mutedInkColor,
                 fontSize: 13,
                 height: 1.35,
               ),
@@ -178,7 +174,7 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
             minHeight: _setupTileMinHeight,
             trailing: const Icon(
               Icons.keyboard_arrow_right,
-              color: Color(0x99FFFFFF),
+              color: StyleConstants.mutedInkColor,
             ),
           ),
           const SizedBox(height: 2),
@@ -208,7 +204,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
+          color: StyleConstants.deepGreen,
           fontSize: 15,
           fontWeight: FontWeight.w600,
         ),
@@ -258,8 +254,8 @@ class _PrivacyAgreementTile extends StatelessWidget {
       trailing: Checkbox(
         value: accepted,
         onChanged: (value) => onChanged(value ?? false),
-        activeColor: StyleConstants.defaultColor,
-        checkColor: Colors.black,
+        activeColor: StyleConstants.primaryGreen,
+        checkColor: StyleConstants.deepGreen,
       ),
     );
   }

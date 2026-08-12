@@ -9,7 +9,7 @@ class BasicBottomSheet extends StatelessWidget {
     this.title,
     this.actions,
     this.leading,
-    this.showHandle = true,
+    this.showHandle = false,
     this.showTitle = true,
     this.maxHeightFactor,
     this.contentPadding = EdgeInsets.zero,
@@ -36,18 +36,14 @@ class BasicBottomSheet extends StatelessWidget {
             ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16.0),
-          topRight: Radius.circular(16.0),
-        ),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: Offstage(
-              offstage: !showHandle,
+          if (showHandle)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Center(
                 child: CustomPaint(
                   size: const Size(40.0, 4.0),
@@ -56,8 +52,9 @@ class BasicBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ),
+            )
+          else
+            SizedBox(height: showTitle && title != null ? 12 : 8),
           if (showTitle && title != null)
             Padding(
               padding:
@@ -101,30 +98,53 @@ Future<T?> showBasicBottomSheet<T>(
   String? title,
   Widget? actions,
   Widget? leading,
-  bool showHandle = true,
+  bool showHandle = false,
   bool showTitle = true,
   double? maxHeightFactor,
   EdgeInsetsGeometry contentPadding = EdgeInsets.zero,
   Color? barrierColor,
   Color backgroundColor = StyleConstants.canvasColor,
 }) {
-  return showModalBottomSheet<T>(
+  return showDialog<T>(
     context: context,
-    backgroundColor: Colors.transparent,
     barrierColor: barrierColor,
-    isScrollControlled: true,
-    isDismissible: true,
-    builder: (context) {
-      return BasicBottomSheet(
-        title: title,
-        actions: actions,
-        leading: leading,
-        showHandle: showHandle,
-        showTitle: showTitle,
-        maxHeightFactor: maxHeightFactor,
-        contentPadding: contentPadding,
-        backgroundColor: backgroundColor,
-        child: child,
+    barrierDismissible: true,
+    builder: (dialogContext) {
+      final mediaQuery = MediaQuery.of(dialogContext);
+      final heightFactor = maxHeightFactor ?? 0.78;
+      return Dialog(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 440,
+            maxHeight: mediaQuery.size.height * heightFactor,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: StyleConstants.inkColor.withValues(alpha: 0.18),
+                  blurRadius: 32,
+                  spreadRadius: -8,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+            ),
+            child: BasicBottomSheet(
+              title: title,
+              actions: actions,
+              leading: leading,
+              showHandle: showHandle,
+              showTitle: showTitle,
+              contentPadding: contentPadding,
+              backgroundColor: backgroundColor,
+              child: child,
+            ),
+          ),
+        ),
       );
     },
   );
@@ -133,7 +153,7 @@ Future<T?> showBasicBottomSheet<T>(
 void showBasicCard(
   BuildContext context, {
   required Widget child,
-  bool showHandle = true,
+  bool showHandle = false,
 }) {
   showBasicBottomSheet<void>(
     context,
@@ -149,7 +169,7 @@ Future<T?> showBasicCardWithResult<T>(
   required Widget child,
   String? primaryButtonText,
   VoidCallback? onPrimaryPressed,
-  bool showHandle = true,
+  bool showHandle = false,
   bool showLeading = true,
 }) {
   return showBasicBottomSheet<T>(

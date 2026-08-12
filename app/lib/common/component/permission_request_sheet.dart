@@ -11,7 +11,7 @@ import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// Shows the unified permission request bottom sheet (layout + copy only).
+/// Shows the unified permission request card (layout + copy only).
 ///
 /// Completes after the sheet is closed.
 Future<void> showPermissionRequestSheet(
@@ -19,14 +19,9 @@ Future<void> showPermissionRequestSheet(
 ) async {
   final permissions = PermissionService();
   unawaited(permissions.logPermissionState('sheet_open'));
-  await showModalBottomSheet<void>(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    isDismissible: true,
-    builder: (context) {
-      return _PermissionRequestSheetContent();
-    },
+  await showSetupCard<void>(
+    context,
+    child: _PermissionRequestSheetContent(),
   );
   await permissions.logPermissionState('sheet_close');
 }
@@ -193,7 +188,11 @@ class _PermissionRequestSheetContentState
       title: context.tr("permission_sheet.title"),
       maxHeightFactor: 0.6,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios,
+          color: StyleConstants.deepGreen,
+          size: 20,
+        ),
         onPressed: _closeSheet,
         style: IconButton.styleFrom(
           padding: const EdgeInsets.all(8),
@@ -204,8 +203,9 @@ class _PermissionRequestSheetContentState
         OutlinedButton(
           onPressed: _onSkip,
           style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white,
-            side: const BorderSide(color: Color(0xFFB5B5B5)),
+            foregroundColor: StyleConstants.deepGreen,
+            backgroundColor: StyleConstants.surfaceColor,
+            side: const BorderSide(color: StyleConstants.lineColor),
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
           child: Text(context.tr("permission_sheet.skip")),
@@ -213,8 +213,8 @@ class _PermissionRequestSheetContentState
         FilledButton(
           onPressed: _onEnableAll,
           style: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.defaultColor,
-            foregroundColor: Colors.black,
+            backgroundColor: StyleConstants.primaryGreen,
+            foregroundColor: StyleConstants.deepGreen,
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
           child: Text(context.tr("permission_sheet.enable_all")),
@@ -436,7 +436,7 @@ class _PermissionInfoIcon extends StatelessWidget {
       child: const Icon(
         Icons.info_outline,
         size: 18.0,
-        color: Color(0x99FFFFFF),
+        color: StyleConstants.mutedInkColor,
       ),
     );
     if (tooltip != null && tooltip!.isNotEmpty) {
