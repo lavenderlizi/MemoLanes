@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/setup_bottom_sheet.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/common/region_preference.dart';
@@ -132,24 +133,14 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
       title: context.tr("privacy.setup_title"),
       maxHeightFactor: 0.75,
       actions: [
-        OutlinedButton(
+        AppButton(
+          label: context.tr("privacy.disagree_and_exit"),
           onPressed: _onDisagree,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: StyleConstants.deepGreen,
-            backgroundColor: StyleConstants.surfaceColor,
-            side: const BorderSide(color: StyleConstants.lineColor),
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-          child: Text(context.tr("privacy.disagree_and_exit")),
+          variant: AppButtonVariant.secondary,
         ),
-        FilledButton(
+        AppButton(
+          label: context.tr("common.continue"),
           onPressed: _privacyAccepted ? _onContinue : null,
-          style: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.primaryGreen,
-            foregroundColor: StyleConstants.deepGreen,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-          child: Text(context.tr("common.continue")),
         ),
       ],
       child: Column(

@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:memolanes/common/component/setup_bottom_sheet.dart';
 import 'package:memolanes/common/log.dart';
@@ -200,24 +201,14 @@ class _PermissionRequestSheetContentState
         ),
       ),
       actions: [
-        OutlinedButton(
+        AppButton(
+          label: context.tr("permission_sheet.skip"),
           onPressed: _onSkip,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: StyleConstants.deepGreen,
-            backgroundColor: StyleConstants.surfaceColor,
-            side: const BorderSide(color: StyleConstants.lineColor),
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-          child: Text(context.tr("permission_sheet.skip")),
+          variant: AppButtonVariant.secondary,
         ),
-        FilledButton(
+        AppButton(
+          label: context.tr("permission_sheet.enable_all"),
           onPressed: _onEnableAll,
-          style: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.primaryGreen,
-            foregroundColor: StyleConstants.deepGreen,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-          ),
-          child: Text(context.tr("permission_sheet.enable_all")),
         ),
       ],
       child: Column(

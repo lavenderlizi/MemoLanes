@@ -124,6 +124,129 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           margin: EdgeInsets.zero,
         ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(
+            elevation: 0,
+            backgroundColor: StyleConstants.primaryGreen,
+            foregroundColor: StyleConstants.deepGreen,
+            minimumSize: const Size(0, 44),
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: StyleConstants.surfaceColor,
+            foregroundColor: StyleConstants.deepGreen,
+            minimumSize: const Size(0, 44),
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: StyleConstants.lineColor),
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: StyleConstants.deepGreen,
+            minimumSize: const Size(0, 44),
+            side: const BorderSide(color: StyleConstants.lineColor),
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: StyleConstants.deepGreen,
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+        dialogTheme: DialogThemeData(
+          backgroundColor: StyleConstants.canvasColor,
+          surfaceTintColor: Colors.transparent,
+          titleTextStyle: const TextStyle(
+            color: StyleConstants.deepGreen,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+          ),
+          contentTextStyle: const TextStyle(
+            color: StyleConstants.inkColor,
+            fontSize: 14,
+            height: 1.42,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: StyleConstants.lineColor),
+          ),
+        ),
+        datePickerTheme: DatePickerThemeData(
+          backgroundColor: StyleConstants.canvasColor,
+          surfaceTintColor: Colors.transparent,
+          headerBackgroundColor: StyleConstants.softGreen,
+          headerForegroundColor: StyleConstants.deepGreen,
+          weekdayStyle: const TextStyle(
+            color: StyleConstants.mutedInkColor,
+            fontWeight: FontWeight.w700,
+          ),
+          todayBorder: const BorderSide(color: StyleConstants.primaryGreen),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: StyleConstants.lineColor),
+          ),
+          cancelButtonStyle: OutlinedButton.styleFrom(
+            foregroundColor: StyleConstants.deepGreen,
+            side: const BorderSide(color: StyleConstants.lineColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          confirmButtonStyle: FilledButton.styleFrom(
+            backgroundColor: StyleConstants.primaryGreen,
+            foregroundColor: StyleConstants.deepGreen,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+        timePickerTheme: TimePickerThemeData(
+          backgroundColor: StyleConstants.canvasColor,
+          dialBackgroundColor: StyleConstants.surfaceColor,
+          dialHandColor: StyleConstants.primaryGreen,
+          hourMinuteColor: StyleConstants.softGreen,
+          entryModeIconColor: StyleConstants.deepGreen,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+            side: const BorderSide(color: StyleConstants.lineColor),
+          ),
+          cancelButtonStyle: OutlinedButton.styleFrom(
+            foregroundColor: StyleConstants.deepGreen,
+            side: const BorderSide(color: StyleConstants.lineColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+          confirmButtonStyle: FilledButton.styleFrom(
+            backgroundColor: StyleConstants.primaryGreen,
+            foregroundColor: StyleConstants.deepGreen,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
         switchTheme: SwitchThemeData(
           thumbColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)

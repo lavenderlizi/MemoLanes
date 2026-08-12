@@ -443,21 +443,18 @@ class _ImportDataHeaderIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 6),
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: StyleConstants.softGreen,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        alignment: Alignment.center,
-        child: const Icon(
-          Icons.file_download_outlined,
-          color: StyleConstants.deepGreen,
-          size: 21,
-        ),
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: StyleConstants.softGreen,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.file_download_outlined,
+        color: StyleConstants.deepGreen,
+        size: 21,
       ),
     );
   }

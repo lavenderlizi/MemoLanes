@@ -1,0 +1,228 @@
+import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/constants/style_constants.dart';
+
+enum AppDialogSurfaceStyle { solid, glass }
+
+class AppDialogHeaderIcon extends StatelessWidget {
+  const AppDialogHeaderIcon(
+      {super.key, required this.icon, this.yellow = false});
+
+  final IconData icon;
+  final bool yellow;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: yellow ? StyleConstants.softYellow : StyleConstants.softGreen,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        icon,
+        color: yellow ? StyleConstants.deepYellow : StyleConstants.deepGreen,
+        size: 21,
+      ),
+    );
+  }
+}
+
+class AppDialogSurface extends StatelessWidget {
+  const AppDialogSurface({
+    super.key,
+    required this.child,
+    this.style = AppDialogSurfaceStyle.solid,
+    this.borderRadius = const BorderRadius.all(Radius.circular(24)),
+    this.backgroundColor,
+  });
+
+  final Widget child;
+  final AppDialogSurfaceStyle style;
+  final BorderRadius borderRadius;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    if (style == AppDialogSurfaceStyle.glass) {
+      return LiquidGlassSurface(
+        borderRadius: borderRadius,
+        backgroundAlpha: 0.84,
+        borderAlpha: 0.72,
+        blurSigma: 32,
+        reflectionAlpha: 0.1,
+        shadowAlpha: 0.18,
+        shadowBlurRadius: 32,
+        shadowSpreadRadius: -8,
+        shadowOffset: const Offset(0, 12),
+        child: Material(color: Colors.transparent, child: child),
+      );
+    }
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor ?? StyleConstants.canvasColor,
+        borderRadius: borderRadius,
+        border: Border.all(color: StyleConstants.lineColor),
+        boxShadow: [
+          BoxShadow(
+            color: StyleConstants.inkColor.withValues(alpha: 0.18),
+            blurRadius: 32,
+            spreadRadius: -8,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Material(color: Colors.transparent, child: child),
+      ),
+    );
+  }
+}
+
+class AppDialogCard extends StatelessWidget {
+  const AppDialogCard({
+    super.key,
+    required this.child,
+    this.title,
+    this.subtitle,
+    this.leading,
+    this.actions,
+    this.showHeader = true,
+    this.surfaceStyle = AppDialogSurfaceStyle.solid,
+    this.maxHeightFactor = 0.78,
+    this.contentPadding = const EdgeInsets.fromLTRB(20, 12, 20, 18),
+    this.backgroundColor,
+  });
+
+  final Widget child;
+  final String? title;
+  final String? subtitle;
+  final Widget? leading;
+  final Widget? actions;
+  final bool showHeader;
+  final AppDialogSurfaceStyle surfaceStyle;
+  final double maxHeightFactor;
+  final EdgeInsetsGeometry contentPadding;
+  final Color? backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * maxHeightFactor,
+      ),
+      child: AppDialogSurface(
+        style: surfaceStyle,
+        backgroundColor: backgroundColor,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showHeader && title != null) ...[
+              const SizedBox(height: 14),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    SizedBox(width: 44, child: leading),
+                    Expanded(
+                      child: Text(
+                        title!,
+                        style: const TextStyle(
+                          color: StyleConstants.deepGreen,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(width: 44),
+                  ],
+                ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    subtitle!,
+                    style: const TextStyle(
+                      color: StyleConstants.mutedInkColor,
+                      fontSize: 13,
+                      height: 1.35,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ] else
+              const SizedBox(height: 8),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: contentPadding,
+                child: child,
+              ),
+            ),
+            if (actions != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: actions!,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AppDialogActions extends StatelessWidget {
+  const AppDialogActions({
+    super.key,
+    required this.children,
+    this.spacing = 10,
+  });
+
+  final List<Widget> children;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) SizedBox(width: spacing),
+          Expanded(child: children[i]),
+        ],
+      ],
+    );
+  }
+}
+
+Future<T?> showAppDialog<T>(
+  BuildContext context, {
+  required Widget child,
+  bool barrierDismissible = true,
+  Color? barrierColor,
+  double maxWidth = 420,
+  EdgeInsets insetPadding =
+      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+}) {
+  return showDialog<T>(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierColor:
+        barrierColor ?? StyleConstants.inkColor.withValues(alpha: 0.22),
+    builder: (dialogContext) => Dialog(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      insetPadding: insetPadding,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: SizedBox(width: double.infinity, child: child),
+      ),
+    ),
+  );
+}

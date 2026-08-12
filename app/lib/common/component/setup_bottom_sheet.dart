@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 Future<T?> showSetupCard<T>(
@@ -7,19 +8,12 @@ Future<T?> showSetupCard<T>(
   bool barrierDismissible = true,
   Color? barrierColor,
 }) {
-  return showDialog<T>(
-    context: context,
+  return showAppDialog<T>(
+    context,
     barrierDismissible: barrierDismissible,
     barrierColor: barrierColor,
-    builder: (dialogContext) => Dialog(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 440),
-        child: SizedBox(width: double.infinity, child: child),
-      ),
-    ),
+    maxWidth: 440,
+    child: child,
   );
 }
 
@@ -46,68 +40,16 @@ class SetupBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * maxHeightFactor,
-      ),
-      decoration: BoxDecoration(
-        color: StyleConstants.canvasColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: StyleConstants.lineColor),
-        boxShadow: [
-          BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.18),
-            blurRadius: 32,
-            spreadRadius: -8,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 14),
-          if (showTitle)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
-              child: Row(
-                children: [
-                  leading ?? const SizedBox(width: 48),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        color: StyleConstants.inkColor,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-            ),
-          Flexible(
-            child: SingleChildScrollView(
-              padding: contentPadding,
-              child: child,
-            ),
-          ),
-          if (actions.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-              child: Row(
-                children: [
-                  for (var i = 0; i < actions.length; i++) ...[
-                    if (i > 0) const SizedBox(width: 12),
-                    Expanded(child: actions[i]),
-                  ],
-                ],
-              ),
-            ),
-        ],
-      ),
+    return AppDialogCard(
+      title: title,
+      leading: leading,
+      showHeader: showTitle,
+      maxHeightFactor: maxHeightFactor,
+      contentPadding: contentPadding,
+      actions: actions.isEmpty
+          ? null
+          : AppDialogActions(spacing: 10, children: actions),
+      child: child,
     );
   }
 }

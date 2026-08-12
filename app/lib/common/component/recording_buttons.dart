@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/utils.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
 
@@ -100,31 +100,12 @@ class _StartJourneyButton extends StatelessWidget {
     return SizedBox(
       width: 164,
       height: 52,
-      child: FilledButton(
+      child: AppButton(
+        label: context.tr('home.start_new_journey'),
         onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: StyleConstants.primaryGreen.withValues(alpha: 0.78),
-          foregroundColor: StyleConstants.inkColor,
-          elevation: 8,
-          shadowColor: StyleConstants.deepGreen.withValues(alpha: 0.22),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(
-              color: Colors.white.withValues(alpha: 0.68),
-            ),
-          ),
-        ),
-        child: Text(
-          context.tr('home.start_new_journey'),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.1,
-          ),
-        ),
+        size: AppButtonSize.large,
+        backgroundAlpha: 0.78,
+        expand: true,
       ),
     );
   }
@@ -155,48 +136,24 @@ class _ActiveJourneyControls extends StatelessWidget {
             SizedBox(
               width: 112,
               height: 42,
-              child: FilledButton.icon(
+              child: AppButton(
+                label: context.tr(isPaused ? 'home.resume' : 'home.pause'),
                 onPressed: onPrimaryPressed,
-                icon: Icon(
-                  isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                  size: 18,
-                ),
-                label: Text(
-                  context.tr(isPaused ? 'home.resume' : 'home.pause'),
-                  maxLines: 1,
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: isPaused
-                      ? StyleConstants.primaryGreen.withValues(alpha: 0.3)
-                      : Colors.white.withValues(alpha: 0.18),
-                  foregroundColor: isPaused
-                      ? StyleConstants.deepGreen
-                      : StyleConstants.mutedInkColor,
-                  textStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  side: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.56),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+                icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                variant: isPaused
+                    ? AppButtonVariant.tonal
+                    : AppButtonVariant.secondary,
+                size: AppButtonSize.compact,
+                backgroundAlpha: isPaused ? 0.56 : 0.5,
+                expand: true,
               ),
             ),
             const SizedBox(width: 6),
-            IconButton.filled(
+            AppIconButton(
               onPressed: onEndPressed,
               tooltip: context.tr('common.end'),
-              style: IconButton.styleFrom(
-                backgroundColor:
-                    StyleConstants.softYellow.withValues(alpha: 0.58),
-                foregroundColor: StyleConstants.inkColor,
-                fixedSize: const Size(42, 42),
-              ),
-              icon: const Icon(Icons.stop_rounded, size: 20),
+              icon: Icons.stop_rounded,
+              variant: AppButtonVariant.danger,
             ),
           ],
         ),

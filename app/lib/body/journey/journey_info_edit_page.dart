@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/body/settings/import_data_page.dart' show ImportType;
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/cards/card_label_tile.dart';
@@ -11,7 +12,6 @@ import 'package:memolanes/common/component/scroll_views/single_child_scroll_view
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
 import 'package:memolanes/common/utils.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -259,17 +259,13 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () => _saveData(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: StyleConstants.primaryGreen,
-              foregroundColor: Colors.black,
-              fixedSize: Size(280, 42),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0),
-              ),
+          SizedBox(
+            width: 280,
+            child: AppButton(
+              label: context.tr("common.save"),
+              onPressed: () => _saveData(context),
+              expand: true,
             ),
-            child: Text(context.tr("common.save")),
           ),
         ],
       ),
@@ -279,6 +275,8 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   void _showJourneyKindCard(BuildContext context) {
     showBasicCard(
       context,
+      title: context.tr("journey.journey_kind"),
+      icon: Icons.layers_outlined,
       child: OptionCard(
         children: [
           CardLabelTile(
@@ -315,6 +313,8 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   void _showJourneyPreprocessorCard(BuildContext context) {
     showBasicCard(
       context,
+      title: context.tr("journey.preprocessor"),
+      icon: Icons.tune_rounded,
       child: OptionCard(
         children: [
           CardLabelTile(

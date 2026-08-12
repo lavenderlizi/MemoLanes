@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/common_dialog.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/body/settings/mldx_import_page.dart';
 import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/constants/style_constants.dart';
@@ -43,32 +44,30 @@ Future<bool> showCommonDialog(BuildContext context, String message,
       cancelButtonText ?? context.tr("common.cancel");
   final dialogTitle = title ?? context.tr("common.info");
   final usesDefaultConfirmColor = confirmGroundColor == null;
-  final resolvedConfirmGroundColor =
-      confirmGroundColor ?? StyleConstants.primaryGreen;
   final List<DialogButton> allButtons = [
+    if (hasCancel)
+      DialogButton(
+        text: resolvedCancelButtonText,
+        variant: AppButtonVariant.secondary,
+        onPressed: () {
+          Navigator.of(context).pop(false);
+        },
+      ),
     DialogButton(
       text: resolvedConfirmButtonText,
+      variant: usesDefaultConfirmColor
+          ? AppButtonVariant.primary
+          : AppButtonVariant.danger,
       onPressed: () {
         Navigator.of(context).pop(true);
       },
-      backgroundColor: resolvedConfirmGroundColor,
-      textColor: confirmTextColor,
     ),
-    if (hasCancel)
-      DialogButton(
-          text: resolvedCancelButtonText,
-          backgroundColor: usesDefaultConfirmColor
-              ? Colors.grey
-              : StyleConstants.primaryGreen,
-          textColor: StyleConstants.inkColor,
-          onPressed: () {
-            Navigator.of(context).pop(false);
-          })
   ];
 
   var result = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
+    barrierColor: StyleConstants.inkColor.withValues(alpha: 0.22),
     builder: (BuildContext context) {
       return CommonDialog(
         title: dialogTitle,

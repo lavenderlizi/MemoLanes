@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_file_saver/flutter_file_saver.dart';
+import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/common/log.dart';
@@ -96,10 +98,10 @@ Future<void> showCommonExportWithFormatPicker({
           (format) => format == defaultFormat,
           orElse: () => formats.first,
         );
-  final selectedFormat = await showDialog<CommonExportFormat>(
-    context: context,
+  final selectedFormat = await showAppDialog<CommonExportFormat>(
+    context,
     barrierDismissible: false,
-    builder: (_) => _ExportFormatDialog(
+    child: _ExportFormatDialog(
       title: title,
       formats: formats,
       initialFormat: initialFormat,
@@ -357,13 +359,24 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      scrollable: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+    return AppDialogCard(
+      title: widget.title,
+      maxHeightFactor: 0.78,
+      contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+      actions: AppDialogActions(
+        children: [
+          AppButton(
+            label: context.tr('common.cancel'),
+            variant: AppButtonVariant.secondary,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          AppButton(
+            label: context.tr('common.export'),
+            onPressed: _submit,
+          ),
+        ],
       ),
-      title: Text(widget.title),
-      content: AnimatedSize(
+      child: AnimatedSize(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
         alignment: Alignment.topCenter,
@@ -389,21 +402,6 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
           ),
         ),
       ),
-      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(context.tr('common.cancel')),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          style: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.primaryGreen,
-            foregroundColor: StyleConstants.inkColor,
-          ),
-          child: Text(context.tr('common.export')),
-        ),
-      ],
     );
   }
 }

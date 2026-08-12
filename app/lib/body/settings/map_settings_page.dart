@@ -40,6 +40,8 @@ class _MapSettingsPageState extends State<MapSettingsPage> {
   void _showMapStylePicker() {
     showBasicCard(
       context,
+      title: context.tr("general.map_settings.style"),
+      icon: Icons.map_outlined,
       child: OptionCard(
         children: [
           for (int i = 0; i < MapStyle.all.length; i++) ...[

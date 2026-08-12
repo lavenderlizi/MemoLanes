@@ -8,6 +8,8 @@ import 'package:memolanes/body/journey/journey_body.dart';
 import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/utils.dart';
@@ -385,20 +387,9 @@ class _JourneyPanelSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LiquidGlassSurface(
-      borderRadius: BorderRadius.circular(26),
-      backgroundAlpha: 0.9,
-      borderAlpha: 0.8,
-      blurSigma: 28,
-      reflectionAlpha: 0,
-      shadowAlpha: 0.18,
-      shadowBlurRadius: 32,
-      shadowSpreadRadius: -8,
-      shadowOffset: const Offset(0, 12),
-      child: Material(
-        color: Colors.transparent,
-        child: child,
-      ),
+    return AppDialogSurface(
+      style: AppDialogSurfaceStyle.glass,
+      child: child,
     );
   }
 }
@@ -625,38 +616,30 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
           insetPadding: const EdgeInsets.symmetric(horizontal: 42),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 340),
-            child: _JourneyPanelSurface(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      context.tr('journey.journey_kind'),
-                      style: const TextStyle(
-                        color: StyleConstants.deepGreen,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    _EditChoiceTile(
-                      icon: Icons.landscape_outlined,
-                      title: context.tr('journey_kind.default'),
-                      selected: _journeyKind == JourneyKind.defaultKind,
-                      onTap: () => Navigator.of(dialogContext)
-                          .pop(JourneyKind.defaultKind),
-                    ),
-                    const SizedBox(height: 8),
-                    _EditChoiceTile(
-                      icon: Icons.flight_rounded,
-                      title: context.tr('journey_kind.flight'),
-                      selected: _journeyKind == JourneyKind.flight,
-                      onTap: () =>
-                          Navigator.of(dialogContext).pop(JourneyKind.flight),
-                    ),
-                  ],
-                ),
+            child: AppDialogCard(
+              title: context.tr('journey.journey_kind'),
+              surfaceStyle: AppDialogSurfaceStyle.glass,
+              maxHeightFactor: 0.5,
+              contentPadding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _EditChoiceTile(
+                    icon: Icons.landscape_outlined,
+                    title: context.tr('journey_kind.default'),
+                    selected: _journeyKind == JourneyKind.defaultKind,
+                    onTap: () => Navigator.of(dialogContext)
+                        .pop(JourneyKind.defaultKind),
+                  ),
+                  const SizedBox(height: 8),
+                  _EditChoiceTile(
+                    icon: Icons.flight_rounded,
+                    title: context.tr('journey_kind.flight'),
+                    selected: _journeyKind == JourneyKind.flight,
+                    onTap: () =>
+                        Navigator.of(dialogContext).pop(JourneyKind.flight),
+                  ),
+                ],
               ),
             ),
           ),
@@ -818,9 +801,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                         child: _JourneyActionButton(
                           icon: Icons.check_rounded,
                           label: context.tr('common.save'),
-                          foregroundColor: StyleConstants.deepGreen,
-                          backgroundColor: StyleConstants.primaryGreen
-                              .withValues(alpha: 0.72),
+                          variant: AppButtonVariant.primary,
                           onPressed: _saving ? null : _save,
                           loading: _saving,
                         ),
@@ -841,9 +822,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                           child: _JourneyActionButton(
                             icon: Icons.edit_outlined,
                             label: context.tr('common.edit'),
-                            foregroundColor: StyleConstants.deepGreen,
-                            backgroundColor: StyleConstants.primaryGreen
-                                .withValues(alpha: 0.48),
+                            variant: AppButtonVariant.tonal,
                             onPressed: widget.onEdit,
                           ),
                         ),
@@ -852,9 +831,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                           child: _JourneyActionButton(
                             icon: Icons.delete_outline_rounded,
                             label: context.tr('common.delete'),
-                            foregroundColor: const Color(0xFF9A3347),
-                            backgroundColor:
-                                const Color(0xFFFFE8EC).withValues(alpha: 0.76),
+                            variant: AppButtonVariant.danger,
                             onPressed: widget.onDelete,
                           ),
                         ),
@@ -960,51 +937,26 @@ class _JourneyActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onPressed,
-    this.foregroundColor = StyleConstants.deepGreen,
-    this.backgroundColor = const Color(0xA8FFFFFF),
+    this.variant = AppButtonVariant.secondary,
     this.loading = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
-  final Color foregroundColor;
-  final Color backgroundColor;
+  final AppButtonVariant variant;
   final bool loading;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 38,
-      child: FilledButton.tonalIcon(
-        onPressed: onPressed,
-        icon: loading
-            ? SizedBox.square(
-                dimension: 15,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: foregroundColor,
-                ),
-              )
-            : Icon(icon, size: 16),
-        label: Flexible(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        style: FilledButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13),
-          ),
-        ),
-      ),
+    return AppButton(
+      label: label,
+      icon: icon,
+      variant: variant,
+      size: AppButtonSize.compact,
+      onPressed: onPressed,
+      loading: loading,
+      expand: true,
     );
   }
 }
@@ -1176,9 +1128,7 @@ class _CompactJourneyDateDialogState extends State<_CompactJourneyDateDialog> {
                       child: _JourneyActionButton(
                         icon: Icons.check_rounded,
                         label: MaterialLocalizations.of(context).okButtonLabel,
-                        foregroundColor: StyleConstants.deepGreen,
-                        backgroundColor:
-                            StyleConstants.primaryGreen.withValues(alpha: 0.56),
+                        variant: AppButtonVariant.primary,
                         onPressed: () =>
                             Navigator.of(context).pop(_selectedDate),
                       ),
@@ -1412,9 +1362,7 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
                       child: _JourneyActionButton(
                         icon: Icons.check_rounded,
                         label: localizations.okButtonLabel,
-                        foregroundColor: StyleConstants.deepGreen,
-                        backgroundColor:
-                            StyleConstants.primaryGreen.withValues(alpha: 0.56),
+                        variant: AppButtonVariant.primary,
                         onPressed: () => Navigator.of(context).pop(
                           TimeOfDay(hour: _hour, minute: _minute),
                         ),
@@ -1446,38 +1394,26 @@ class _JourneyEditChoiceDialog extends StatelessWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 38),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360),
-        child: LiquidGlassSurface(
-          borderRadius: BorderRadius.circular(24),
-          backgroundAlpha: 0.84,
-          blurSigma: 32,
-          reflectionAlpha: 0.12,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.tr('common.edit'),
-                  style: const TextStyle(
-                    color: StyleConstants.deepGreen,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _EditChoiceTile(
-                  icon: Icons.description_outlined,
-                  title: context.tr('journey.journey_info_edit_page_title'),
-                  onTap: () => onSelected(_JourneyEditChoice.information),
-                ),
-                const SizedBox(height: 8),
-                _EditChoiceTile(
-                  icon: Icons.edit_road_rounded,
-                  title: context.tr('journey.editor.page_title'),
-                  onTap: () => onSelected(_JourneyEditChoice.track),
-                ),
-              ],
-            ),
+        child: AppDialogCard(
+          title: context.tr('common.edit'),
+          surfaceStyle: AppDialogSurfaceStyle.glass,
+          maxHeightFactor: 0.5,
+          contentPadding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _EditChoiceTile(
+                icon: Icons.description_outlined,
+                title: context.tr('journey.journey_info_edit_page_title'),
+                onTap: () => onSelected(_JourneyEditChoice.information),
+              ),
+              const SizedBox(height: 8),
+              _EditChoiceTile(
+                icon: Icons.edit_road_rounded,
+                title: context.tr('journey.editor.page_title'),
+                onTap: () => onSelected(_JourneyEditChoice.track),
+              ),
+            ],
           ),
         ),
       ),

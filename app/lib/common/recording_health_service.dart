@@ -4,9 +4,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/common_dialog.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/log.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -95,12 +97,14 @@ class _RecordingHealthAlert {
       final openHelp = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
+        barrierColor: StyleConstants.inkColor.withValues(alpha: 0.22),
         builder: (dialogContext) => CommonDialog(
           title: context.tr('common.info'),
           content: context.tr('recording_health.freeze_warning'),
           buttons: [
             DialogButton(
               text: context.tr('recording_health.view_help'),
+              variant: AppButtonVariant.tonal,
               onPressed: () => Navigator.of(dialogContext).pop(true),
             ),
             DialogButton(

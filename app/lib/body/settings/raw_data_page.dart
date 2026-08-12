@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/cards/card_label_tile.dart';
@@ -75,6 +76,8 @@ class _RawDataPage extends State<RawDataPage> {
   void _showExportCard(BuildContext context, String filePath) {
     showBasicCard(
       context,
+      title: context.tr("common.export"),
+      icon: Icons.ios_share_rounded,
       child: OptionCard(
         children: [
           CardLabelTile(
@@ -122,7 +125,11 @@ class _RawDataPage extends State<RawDataPage> {
                   onTap: () {
                     _showExportCard(context, item.path);
                   },
-                  trailing: ElevatedButton(
+                  trailing: AppIconButton(
+                    icon: Icons.delete_outline_rounded,
+                    tooltip: context.tr("common.delete"),
+                    variant: AppButtonVariant.danger,
+                    size: 38,
                     onPressed: () async {
                       if (await showCommonDialog(
                           context, context.tr("journey.delete_journey_message"),
@@ -135,7 +142,6 @@ class _RawDataPage extends State<RawDataPage> {
                         _loadList();
                       }
                     },
-                    child: const Icon(Icons.delete),
                   ),
                 );
               }).toList(),

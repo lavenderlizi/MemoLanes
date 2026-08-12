@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_info_edit_page.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
@@ -269,42 +270,36 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              ElevatedButton(
-                                onPressed: _export,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFFFFFF),
-                                  foregroundColor: Colors.black,
-                                  fixedSize: Size(100, 42),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                  ),
+                              SizedBox(
+                                width: 100,
+                                child: AppButton(
+                                  label: context.tr("common.export"),
+                                  icon: Icons.ios_share_rounded,
+                                  variant: AppButtonVariant.secondary,
+                                  size: AppButtonSize.compact,
+                                  onPressed: _export,
                                 ),
-                                child: Text(context.tr("common.export")),
                               ),
-                              ElevatedButton(
-                                onPressed: () async => _showEditMenu(context),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: StyleConstants.primaryGreen,
-                                  foregroundColor: Colors.black,
-                                  fixedSize: Size(100, 42),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                  ),
+                              SizedBox(
+                                width: 100,
+                                child: AppButton(
+                                  label: context.tr("common.edit"),
+                                  icon: Icons.edit_outlined,
+                                  variant: AppButtonVariant.tonal,
+                                  size: AppButtonSize.compact,
+                                  onPressed: () async => _showEditMenu(context),
                                 ),
-                                child: Text(context.tr("common.edit")),
                               ),
-                              ElevatedButton(
-                                onPressed: () async =>
-                                    await _deleteJourneyInfo(context),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFEC4162),
-                                  foregroundColor: Colors.black,
-                                  fixedSize: Size(100, 42),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                  ),
+                              SizedBox(
+                                width: 100,
+                                child: AppButton(
+                                  label: context.tr("common.delete"),
+                                  icon: Icons.delete_outline_rounded,
+                                  variant: AppButtonVariant.danger,
+                                  size: AppButtonSize.compact,
+                                  onPressed: () async =>
+                                      await _deleteJourneyInfo(context),
                                 ),
-                                child: Text(context.tr("common.delete")),
                               ),
                             ],
                           ),
@@ -334,6 +329,8 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
   void _showEditMenu(BuildContext context) {
     showBasicCard(
       context,
+      title: context.tr("common.edit"),
+      icon: Icons.edit_outlined,
       child: OptionCard(
         children: [
           CardLabelTile(
