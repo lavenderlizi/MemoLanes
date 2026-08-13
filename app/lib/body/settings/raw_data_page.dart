@@ -20,13 +20,33 @@ class RawDataSwitch extends StatefulWidget {
 
 class _RawDataSwitchState extends State<RawDataSwitch> {
   bool enabled = false;
+  bool _busy = true;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
-    api.getRawDataMode().then((value) => setState(() {
-          enabled = value;
-        }));
+    _loadMode();
+  }
+
+  Future<void> _loadMode() async {
+    final value = await api.getRawDataMode();
+    if (!mounted) return;
+    setState(() {
+      enabled = value;
+      _busy = false;
+    });
+  }
+
+  Future<void> _setMode(bool value) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await api.toggleRawDataMode(enable: value);
+      if (!mounted) return;
+      setState(() => enabled = value);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -38,12 +58,7 @@ class _RawDataSwitchState extends State<RawDataSwitch> {
         position: LabelTilePosition.single,
         trailing: Switch(
           value: enabled,
-          onChanged: (bool value) async {
-            await api.toggleRawDataMode(enable: value);
-            setState(() {
-              enabled = value;
-            });
-          },
+          onChanged: _busy ? null : _setMode,
         ),
       ),
     );
@@ -66,11 +81,10 @@ class _RawDataPage extends State<RawDataPage> {
     _loadList();
   }
 
-  void _loadList() async {
-    var list = await api.listAllRawData();
-    setState(() {
-      items = list;
-    });
+  Future<void> _loadList() async {
+    final list = await api.listAllRawData();
+    if (!mounted) return;
+    setState(() => items = list);
   }
 
   void _showExportCard(BuildContext context, String filePath) {
@@ -136,10 +150,9 @@ class _RawDataPage extends State<RawDataPage> {
                           hasCancel: true,
                           title: context.tr("journey.delete_journey_title"),
                           confirmButtonText: context.tr("common.delete"),
-                          confirmGroundColor: Colors.red,
-                          confirmTextColor: Colors.white)) {
+                          confirmVariant: AppButtonVariant.danger)) {
                         await api.deleteRawDataFile(filename: item.name);
-                        _loadList();
+                        await _loadList();
                       }
                     },
                   ),

@@ -9,7 +9,6 @@ Future<T?> showBasicBottomSheet<T>(
   String? title,
   Widget? actions,
   Widget? leading,
-  bool showHandle = false,
   bool showTitle = true,
   double? maxHeightFactor,
   EdgeInsetsGeometry contentPadding = EdgeInsets.zero,
@@ -36,13 +35,11 @@ Future<T?> showBasicBottomSheet<T>(
 void showBasicCard(
   BuildContext context, {
   required Widget child,
-  bool showHandle = false,
   String? title,
   IconData? icon,
 }) {
   showBasicBottomSheet<void>(
     context,
-    showHandle: showHandle,
     title: title,
     leading: icon == null ? null : AppDialogHeaderIcon(icon: icon),
     showTitle: title != null,
@@ -57,13 +54,11 @@ Future<T?> showBasicCardWithResult<T>(
   required Widget child,
   String? primaryButtonText,
   VoidCallback? onPrimaryPressed,
-  bool showHandle = false,
   bool showLeading = true,
 }) {
   return showBasicBottomSheet<T>(
     context,
     title: title,
-    showHandle: showHandle,
     showTitle: true,
     maxHeightFactor: 0.75,
     leading: showLeading

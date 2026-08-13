@@ -5,10 +5,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/common_dialog.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/log.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -94,22 +94,21 @@ class _RecordingHealthAlert {
       final helpUrl = await _helpUrl();
       if (!context.mounted) return;
 
-      final openHelp = await showDialog<bool>(
-        context: context,
+      final openHelp = await showAppDialog<bool>(
+        context,
         barrierDismissible: false,
-        barrierColor: StyleConstants.inkColor.withValues(alpha: 0.22),
-        builder: (dialogContext) => CommonDialog(
+        child: CommonDialog(
           title: context.tr('common.info'),
           content: context.tr('recording_health.freeze_warning'),
           buttons: [
             DialogButton(
               text: context.tr('recording_health.view_help'),
               variant: AppButtonVariant.tonal,
-              onPressed: () => Navigator.of(dialogContext).pop(true),
+              onPressed: () => Navigator.of(context).pop(true),
             ),
             DialogButton(
               text: context.tr('common.ok'),
-              onPressed: () => Navigator.of(dialogContext).pop(false),
+              onPressed: () => Navigator.of(context).pop(false),
             ),
           ],
         ),

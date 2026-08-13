@@ -10,11 +10,11 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class DialogButton {
-  DialogButton({
+  const DialogButton({
     required this.text,
-    VoidCallback? onPressed,
+    required this.onPressed,
     this.variant = AppButtonVariant.primary,
-  }) : onPressed = onPressed ?? (() {});
+  });
 
   final String text;
   final VoidCallback onPressed;
@@ -22,21 +22,18 @@ class DialogButton {
 }
 
 class CommonDialog extends StatelessWidget {
-  CommonDialog({
+  const CommonDialog({
     super.key,
     required this.title,
     required this.content,
-    List<DialogButton>? buttons,
-    bool? showCancel,
-    this.customCancelButton,
+    this.buttons = const [],
     this.markdown = false,
-  }) : buttons = buttons ?? [];
+  });
 
   final String title;
   final String content;
   final bool markdown;
   final List<DialogButton> buttons;
-  final DialogButton? customCancelButton;
 
   @override
   Widget build(BuildContext context) {
@@ -71,34 +68,26 @@ class CommonDialog extends StatelessWidget {
     };
 
     return PointerInterceptor(
-      child: Dialog(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: AppDialogCard(
-            title: title,
-            maxHeightFactor: 0.78,
-            contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
-            actions: buttons.isEmpty
-                ? null
-                : AppDialogActions(
-                    children: [
-                      for (final button in buttons)
-                        AppButton(
-                          label: button.text,
-                          variant: button.variant,
-                          onPressed: () {
-                            AppHaptics.selection();
-                            button.onPressed();
-                          },
-                        ),
-                    ],
-                  ),
-            child: messageBody,
-          ),
-        ),
+      child: AppDialogCard(
+        title: title,
+        maxHeightFactor: 0.78,
+        contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+        actions: buttons.isEmpty
+            ? null
+            : AppDialogActions(
+                children: [
+                  for (final button in buttons)
+                    AppButton(
+                      label: button.text,
+                      variant: button.variant,
+                      onPressed: () {
+                        AppHaptics.selection();
+                        button.onPressed();
+                      },
+                    ),
+                ],
+              ),
+        child: messageBody,
       ),
     );
   }

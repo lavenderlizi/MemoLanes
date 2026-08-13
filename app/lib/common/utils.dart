@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/common_dialog.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/body/settings/mldx_import_page.dart';
 import 'package:memolanes/common/loading_manager.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/import.dart';
 import 'package:memolanes/common/log.dart';
 
@@ -35,15 +35,13 @@ Future<bool> showCommonDialog(BuildContext context, String message,
     String? title,
     String? confirmButtonText,
     String? cancelButtonText,
-    Color? confirmGroundColor,
-    Color confirmTextColor = Colors.black,
+    AppButtonVariant confirmVariant = AppButtonVariant.primary,
     bool markdown = false}) async {
   final resolvedConfirmButtonText =
       confirmButtonText ?? context.tr("common.ok");
   final resolvedCancelButtonText =
       cancelButtonText ?? context.tr("common.cancel");
   final dialogTitle = title ?? context.tr("common.info");
-  final usesDefaultConfirmColor = confirmGroundColor == null;
   final List<DialogButton> allButtons = [
     if (hasCancel)
       DialogButton(
@@ -55,28 +53,22 @@ Future<bool> showCommonDialog(BuildContext context, String message,
       ),
     DialogButton(
       text: resolvedConfirmButtonText,
-      variant: usesDefaultConfirmColor
-          ? AppButtonVariant.primary
-          : AppButtonVariant.danger,
+      variant: confirmVariant,
       onPressed: () {
         Navigator.of(context).pop(true);
       },
     ),
   ];
 
-  var result = await showDialog<bool>(
-    context: context,
+  final result = await showAppDialog<bool>(
+    context,
     barrierDismissible: false,
-    barrierColor: StyleConstants.inkColor.withValues(alpha: 0.22),
-    builder: (BuildContext context) {
-      return CommonDialog(
-        title: dialogTitle,
-        content: message,
-        showCancel: hasCancel,
-        buttons: allButtons,
-        markdown: markdown,
-      );
-    },
+    child: CommonDialog(
+      title: dialogTitle,
+      content: message,
+      buttons: allButtons,
+      markdown: markdown,
+    ),
   );
   return result ?? false;
 }

@@ -5,6 +5,26 @@ enum AppButtonVariant { primary, secondary, tonal, danger }
 
 enum AppButtonSize { compact, regular, large }
 
+extension on AppButtonVariant {
+  Color get backgroundColor => switch (this) {
+        AppButtonVariant.primary => StyleConstants.primaryGreen,
+        AppButtonVariant.secondary => StyleConstants.surfaceColor,
+        AppButtonVariant.tonal => StyleConstants.softGreen,
+        AppButtonVariant.danger => const Color(0xFFC7485D),
+      };
+
+  Color get foregroundColor => switch (this) {
+        AppButtonVariant.danger => Colors.white,
+        _ => StyleConstants.deepGreen,
+      };
+
+  BorderSide? get side => switch (this) {
+        AppButtonVariant.secondary =>
+          const BorderSide(color: StyleConstants.lineColor),
+        _ => null,
+      };
+}
+
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
@@ -16,7 +36,7 @@ class AppButton extends StatelessWidget {
     this.expand = false,
     this.loading = false,
     this.backgroundAlpha = 1,
-  });
+  }) : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1);
 
   final String label;
   final VoidCallback? onPressed;
@@ -26,24 +46,6 @@ class AppButton extends StatelessWidget {
   final bool expand;
   final bool loading;
   final double backgroundAlpha;
-
-  Color get _backgroundColor => switch (variant) {
-        AppButtonVariant.primary => StyleConstants.primaryGreen,
-        AppButtonVariant.secondary => StyleConstants.surfaceColor,
-        AppButtonVariant.tonal => StyleConstants.softGreen,
-        AppButtonVariant.danger => const Color(0xFFC7485D),
-      };
-
-  Color get _foregroundColor => switch (variant) {
-        AppButtonVariant.danger => Colors.white,
-        _ => StyleConstants.deepGreen,
-      };
-
-  BorderSide? get _side => switch (variant) {
-        AppButtonVariant.secondary =>
-          const BorderSide(color: StyleConstants.lineColor),
-        _ => null,
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -67,14 +69,20 @@ class AppButton extends StatelessWidget {
       AppButtonSize.regular => 16.0,
       AppButtonSize.large => 18.0,
     };
+    final iconSize = switch (size) {
+      AppButtonSize.compact => 16.0,
+      AppButtonSize.regular => 18.0,
+      AppButtonSize.large => 20.0,
+    };
     final style = FilledButton.styleFrom(
       elevation: 0,
-      backgroundColor: _backgroundColor.withValues(alpha: backgroundAlpha),
-      foregroundColor: _foregroundColor,
+      backgroundColor:
+          variant.backgroundColor.withValues(alpha: backgroundAlpha),
+      foregroundColor: variant.foregroundColor,
       disabledBackgroundColor: StyleConstants.lineColor,
       disabledForegroundColor:
           StyleConstants.mutedInkColor.withValues(alpha: 0.62),
-      side: _side,
+      side: variant.side,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       textStyle: TextStyle(
         fontSize: fontSize,
@@ -90,22 +98,19 @@ class AppButton extends StatelessWidget {
             dimension: size == AppButtonSize.compact ? 15 : 17,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: _foregroundColor,
+              color: variant.foregroundColor,
             ),
           )
         : icon == null
             ? null
             : Icon(
                 icon,
-                size: size == AppButtonSize.compact
-                    ? 16
-                    : size == AppButtonSize.large
-                        ? 20
-                        : 18,
+                size: iconSize,
               );
+    final effectiveOnPressed = loading ? null : onPressed;
     final button = iconWidget == null
         ? FilledButton(
-            onPressed: onPressed,
+            onPressed: effectiveOnPressed,
             style: style,
             child: Text(
               label,
@@ -114,15 +119,13 @@ class AppButton extends StatelessWidget {
             ),
           )
         : FilledButton.icon(
-            onPressed: onPressed,
+            onPressed: effectiveOnPressed,
             style: style,
             icon: iconWidget,
-            label: Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            label: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           );
 
@@ -142,7 +145,7 @@ class AppIconButton extends StatelessWidget {
     this.tooltip,
     this.variant = AppButtonVariant.tonal,
     this.size = 42,
-  });
+  }) : assert(size > 0);
 
   final IconData icon;
   final VoidCallback? onPressed;
@@ -152,27 +155,15 @@ class AppIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = switch (variant) {
-      AppButtonVariant.primary => StyleConstants.primaryGreen,
-      AppButtonVariant.secondary => StyleConstants.surfaceColor,
-      AppButtonVariant.tonal => StyleConstants.softGreen,
-      AppButtonVariant.danger => const Color(0xFFC7485D),
-    };
-    final foregroundColor = variant == AppButtonVariant.danger
-        ? Colors.white
-        : StyleConstants.deepGreen;
-
     return IconButton.filled(
       onPressed: onPressed,
       tooltip: tooltip,
       style: IconButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
+        backgroundColor: variant.backgroundColor,
+        foregroundColor: variant.foregroundColor,
         disabledBackgroundColor: StyleConstants.lineColor,
         fixedSize: Size.square(size),
-        side: variant == AppButtonVariant.secondary
-            ? const BorderSide(color: StyleConstants.lineColor)
-            : null,
+        side: variant.side,
       ),
       icon: Icon(icon, size: size * 0.48),
     );

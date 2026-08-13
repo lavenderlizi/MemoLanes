@@ -96,7 +96,7 @@ class AppDialogCard extends StatelessWidget {
     this.maxHeightFactor = 0.78,
     this.contentPadding = const EdgeInsets.fromLTRB(20, 12, 20, 18),
     this.backgroundColor,
-  });
+  }) : assert(maxHeightFactor > 0 && maxHeightFactor <= 1);
 
   final Widget child;
   final String? title;
@@ -183,7 +183,7 @@ class AppDialogActions extends StatelessWidget {
     super.key,
     required this.children,
     this.spacing = 10,
-  });
+  }) : assert(spacing >= 0);
 
   final List<Widget> children;
   final double spacing;
@@ -210,6 +210,7 @@ Future<T?> showAppDialog<T>(
   EdgeInsets insetPadding =
       const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
 }) {
+  assert(maxWidth > 0);
   return showDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,

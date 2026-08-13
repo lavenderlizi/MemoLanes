@@ -98,15 +98,16 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
         break;
       }
     }
+    if (!mounted || _selectedJourney?.id != selected.id) return;
     if (latest == null) {
-      if (mounted) _returnToPicker();
+      _returnToPicker();
       return;
     }
 
     final rendererAndBounds = await api.getMapRendererProxyForJourney(
       journeyId: latest.id,
     );
-    if (!mounted) return;
+    if (!mounted || _selectedJourney?.id != selected.id) return;
     widget.onJourneyMapChanged(
       rendererAndBounds.$1,
       rendererAndBounds.$2,
@@ -130,8 +131,7 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
       hasCancel: true,
       title: context.tr('journey.delete_journey_title'),
       confirmButtonText: context.tr('common.delete'),
-      confirmGroundColor: const Color(0xFFDC526A),
-      confirmTextColor: Colors.white,
+      confirmVariant: AppButtonVariant.danger,
     );
     if (!shouldDelete) return;
     await api.deleteJourney(journeyId: selected.id);

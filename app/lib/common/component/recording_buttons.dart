@@ -25,8 +25,7 @@ class _RecordingButtonsState extends State<RecordingButtons> {
       hasCancel: true,
       title: context.tr('home.end_journey_title'),
       confirmButtonText: context.tr('common.end'),
-      confirmGroundColor: const Color(0xFFC84A45),
-      confirmTextColor: Colors.white,
+      confirmVariant: AppButtonVariant.danger,
     );
 
     if (shouldEndJourney) {

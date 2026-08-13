@@ -46,8 +46,9 @@ class _SettingsBodyState extends State<SettingsBody> {
     _loadVersion();
   }
 
-  void _loadVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (!mounted) return;
     setState(() {
       _version =
           '${packageInfo.version} (${packageInfo.buildNumber}) [${api.shortCommitHash()}]';
@@ -85,12 +86,11 @@ class _SettingsBodyState extends State<SettingsBody> {
     }
   }
 
-  Future<void> _loadNotificationStatus() async {
-    setState(() {
-      _isUnexpectedExitNotificationEnabled = MMKVUtil.getBool(
-          MMKVKey.isUnexpectedExitNotificationEnabled,
-          defaultValue: true);
-    });
+  void _loadNotificationStatus() {
+    _isUnexpectedExitNotificationEnabled = MMKVUtil.getBool(
+      MMKVKey.isUnexpectedExitNotificationEnabled,
+      defaultValue: true,
+    );
   }
 
   @override
@@ -279,13 +279,13 @@ class _SettingsBodyState extends State<SettingsBody> {
             value: _isUnexpectedExitNotificationEnabled,
             onChanged: (value) async {
               final status = await Permission.notification.status;
+              if (!context.mounted) return;
               if (value) {
                 if (!status.isGranted) {
                   setState(() {
                     _isUnexpectedExitNotificationEnabled = false;
                   });
 
-                  if (!context.mounted) return;
                   await showCommonDialog(
                     context,
                     context.tr(

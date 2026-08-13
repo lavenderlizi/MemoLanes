@@ -105,7 +105,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
     }
   }
 
-  void _trackingModeButton() async {
+  Future<void> _trackingModeButton() async {
     final newMode = _currentTrackingMode == TrackingMode.off
         ? TrackingMode.displayAndTracking
         : TrackingMode.off;
@@ -114,6 +114,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
         return;
       }
     }
+    if (!mounted) return;
     setState(() {
       _currentTrackingMode = newMode;
     });

@@ -107,8 +107,7 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
         hasCancel: true,
         title: context.tr("journey.delete_journey_title"),
         confirmButtonText: context.tr("common.delete"),
-        confirmGroundColor: Colors.red,
-        confirmTextColor: Colors.white)) {
+        confirmVariant: AppButtonVariant.danger)) {
       await api.deleteJourney(journeyId: _journeyHeader.id);
       if (!context.mounted) return;
       popCurrentRoute(context, true);
@@ -116,7 +115,6 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
   }
 
   Future<void> _editJourneyInfo(BuildContext context) async {
-    var trackEdited = false;
     final result = await navigatorPush(
       context,
       page: Scaffold(
@@ -140,7 +138,7 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
     );
 
     // `JourneyInfoEditPage` pops with `true` when metadata is saved.
-    if (result == true || trackEdited) {
+    if (result == true && mounted) {
       await _refreshJourneyInfo();
     }
   }
@@ -159,10 +157,11 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
       context,
       page: JourneyTrackEditPage(editSession: session),
     );
+    if (!mounted) return;
     await _refreshJourneyInfo();
   }
 
-  void _export() async {
+  Future<void> _export() async {
     await showJourneyExportPicker(context, _journeyHeader);
   }
 

@@ -85,7 +85,7 @@ class _JourneyBodyState extends State<JourneyBody> {
     });
   }
 
-  void _updateJourneyHeaderList() async {
+  Future<void> _updateJourneyHeaderList() async {
     final requestId = ++_journeyListRequestId;
     final journeyHeaderList = await api.listJourneyOnDate(
         year: _selectedDate.year,
