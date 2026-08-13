@@ -5,8 +5,6 @@ import 'package:memolanes/body/journey/editor/journey_editor_map_view.dart';
 import 'package:memolanes/body/journey/editor/journey_track_edit_mode_bar.dart';
 import 'package:memolanes/body/journey/editor/top_persistent_toast.dart';
 import 'package:memolanes/common/component/capsule_style_overlay_app_bar.dart';
-import 'package:memolanes/common/component/frosted_bar_container.dart';
-import 'package:memolanes/common/component/frosted_bar_item.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -39,6 +37,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   OperationMode _mode = OperationMode.move;
   bool _canUndo = false;
   bool _isLinkedDrawEnabled = false;
+  bool _isDrawModeMenuOpen = false;
   String? _linkedDrawErrorTrKey;
 
   bool _zoomOk = false;
@@ -211,26 +210,38 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   void _handleModeChange(OperationMode mode) {
     final shouldClearLinkedError = _linkedDrawErrorTrKey != null;
 
-    if (mode == OperationMode.edit) {
-      final switchedFromLinked = _isLinkedDrawEnabled;
-      if (switchedFromLinked) {
-        setState(() {
-          _isLinkedDrawEnabled = false;
-        });
-      }
-
-      if (_mode == OperationMode.edit) {
-        if (shouldClearLinkedError || switchedFromLinked) {
-          _showToast(
-            _EditorToastRequest.syncCurrentState,
-            clearLinkedDrawError: shouldClearLinkedError,
-          );
-        }
-        return;
-      }
+    if (_isDrawModeMenuOpen) {
+      setState(() {
+        _isDrawModeMenuOpen = false;
+      });
     }
 
     _applyMode(mode, clearLinkedDrawError: shouldClearLinkedError);
+  }
+
+  void _handleDrawToolPressed() {
+    final shouldOpenMenu = !_isDrawModeMenuOpen;
+    final isDrawMode =
+        _mode == OperationMode.edit || _mode == OperationMode.editReadonly;
+
+    if (!isDrawMode) {
+      _applyMode(
+        OperationMode.edit,
+        clearLinkedDrawError: _linkedDrawErrorTrKey != null,
+      );
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _isDrawModeMenuOpen = shouldOpenMenu;
+    });
+  }
+
+  void _dismissDrawModeMenu() {
+    if (!mounted || !_isDrawModeMenuOpen) return;
+    setState(() {
+      _isDrawModeMenuOpen = false;
+    });
   }
 
   void _handleDrawEntrySelected(DrawEntryMode mode) {
@@ -239,6 +250,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
 
     setState(() {
       _isLinkedDrawEnabled = mode == DrawEntryMode.linked;
+      _isDrawModeMenuOpen = false;
     });
 
     if (wasMode == OperationMode.edit) {
@@ -349,11 +361,6 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    const double drawModeBarExtent = 60;
-    final screenSize = MediaQuery.of(context).size;
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -379,183 +386,84 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
         body: Stack(
           children: [
             if (_mapRendererProxy != null)
-              JourneyEditorMapView(
-                key: _mapWebviewKey,
-                mapRendererProxy: _mapRendererProxy!,
-                initialMapBounds: _initialMapBounds,
-                onSelectionBox: _onSelectionBox,
-                onDrawPath: _onDrawPath,
-                onMapZoomChanged: _handleMapZoomUpdate,
+              Listener(
+                onPointerDown: (_) => _dismissDrawModeMenu(),
+                child: JourneyEditorMapView(
+                  key: _mapWebviewKey,
+                  mapRendererProxy: _mapRendererProxy!,
+                  initialMapBounds: _initialMapBounds,
+                  onSelectionBox: _onSelectionBox,
+                  onDrawPath: _onDrawPath,
+                  onMapZoomChanged: _handleMapZoomUpdate,
+                ),
               )
             else
               const Center(child: CircularProgressIndicator()),
             CapsuleStyleOverlayAppBar.overlayBar(
               title: context.tr("journey.editor.page_title"),
             ),
-            if (_mode == OperationMode.edit ||
-                _mode == OperationMode.editReadonly)
-              Positioned.fill(
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Spacer(),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: isLandscape ? 16 : screenSize.height * 0.08,
-                          ),
-                          child: PointerInterceptor(
-                            child: FrostedBarContainer(
-                              axis: Axis.vertical,
-                              extent: drawModeBarExtent,
-                              mainAxisPadding: 0,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  _DrawModeItemSlot(
-                                    barExtent: drawModeBarExtent,
-                                    child: _DrawEntryModeButton(
-                                      icon: Icons.draw_rounded,
-                                      label: context
-                                          .tr('journey.editor.free_draw'),
-                                      tooltip: context
-                                          .tr('journey.editor.free_draw'),
-                                      isSelected: !_isLinkedDrawEnabled,
-                                      onPressed: () => _handleDrawEntrySelected(
-                                        DrawEntryMode.freehand,
-                                      ),
-                                    ),
-                                  ),
-                                  _DrawModeItemSlot(
-                                    barExtent: drawModeBarExtent,
-                                    child: _DrawEntryModeButton(
-                                      icon: Icons.link_rounded,
-                                      label: context.tr(
-                                        'journey.editor.linked_draw',
-                                      ),
-                                      tooltip: context
-                                          .tr('journey.editor.linked_draw'),
-                                      isSelected: _isLinkedDrawEnabled,
-                                      onPressed: () => _handleDrawEntrySelected(
-                                        DrawEntryMode.linked,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 172),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
               child: SafeArea(
                 minimum: const EdgeInsets.all(ModeSwitchBar.safeAreaMinimum),
-                child: ModeSwitchBar(
-                  currentMode: _mode,
-                  onModeChanged: _handleModeChange,
-                  canUndo: _canUndo,
-                  onUndo: () async {
-                    await _editSession.undo();
-                    if (!mounted) return;
-                    await _mapWebviewKey.currentState?.manualRefresh();
-                    _refreshCanUndo();
-                  },
-                  canSave: _canUndo,
-                  onSave: () async {
-                    if (!_canUndo) {
-                      Navigator.of(context).pop(false);
-                      return;
-                    }
-                    _showToast(_EditorToastRequest.clear);
+                child: PointerInterceptor(
+                  child: ModeSwitchBar(
+                    currentMode: _mode,
+                    onModeChanged: _handleModeChange,
+                    currentDrawMode: _isLinkedDrawEnabled
+                        ? DrawEntryMode.linked
+                        : DrawEntryMode.freehand,
+                    isDrawMenuOpen: _isDrawModeMenuOpen,
+                    onDrawPressed: _handleDrawToolPressed,
+                    onDrawModeChanged: _handleDrawEntrySelected,
+                    canUndo: _canUndo,
+                    onUndo: () async {
+                      _dismissDrawModeMenu();
+                      await _editSession.undo();
+                      if (!mounted) return;
+                      await _mapWebviewKey.currentState?.manualRefresh();
+                      _refreshCanUndo();
+                    },
+                    canSave: _canUndo,
+                    onSave: () async {
+                      _dismissDrawModeMenu();
+                      if (!_canUndo) {
+                        Navigator.of(context).pop(false);
+                        return;
+                      }
+                      _showToast(_EditorToastRequest.clear);
 
-                    final shouldSave = await showCommonDialog(
-                      context,
-                      context.tr("common.save_confirm"),
-                      title: context.tr("common.save"),
-                      hasCancel: true,
-                    );
-                    if (!context.mounted) return;
-                    if (!shouldSave) {
-                      _showToast(
-                        _EditorToastRequest.syncCurrentState,
-                        clearLinkedDrawError: true,
+                      final shouldSave = await showCommonDialog(
+                        context,
+                        context.tr("common.save_confirm"),
+                        title: context.tr("common.save"),
+                        hasCancel: true,
                       );
-                      return;
-                    }
+                      if (!context.mounted) return;
+                      if (!shouldSave) {
+                        _showToast(
+                          _EditorToastRequest.syncCurrentState,
+                          clearLinkedDrawError: true,
+                        );
+                        return;
+                      }
 
-                    await showLoadingDialog(
-                      asyncTask: _editSession.commit(),
-                    );
-                    if (!context.mounted) return;
-                    _showToast(_EditorToastRequest.saveSuccess);
+                      await showLoadingDialog(
+                        asyncTask: _editSession.commit(),
+                      );
+                      if (!context.mounted) return;
+                      _showToast(_EditorToastRequest.saveSuccess);
 
-                    popCurrentRoute(context, true);
-                  },
+                      popCurrentRoute(context, true);
+                    },
+                  ),
                 ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _DrawModeItemSlot extends StatelessWidget {
-  const _DrawModeItemSlot({
-    required this.barExtent,
-    required this.child,
-  });
-
-  final double barExtent;
-  final Widget child;
-
-  static const double _widthInset = 6;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: barExtent - _widthInset,
-      height: barExtent,
-      child: child,
-    );
-  }
-}
-
-class _DrawEntryModeButton extends StatelessWidget {
-  const _DrawEntryModeButton({
-    required this.icon,
-    required this.label,
-    required this.tooltip,
-    required this.isSelected,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final String tooltip;
-  final bool isSelected;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: FrostedBarItem(
-        icon: icon,
-        label: label,
-        isSelected: isSelected,
-        onTap: onPressed,
       ),
     );
   }

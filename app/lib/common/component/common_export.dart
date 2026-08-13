@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_file_saver/flutter_file_saver.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/common/log.dart';
@@ -175,7 +176,6 @@ Future<bool> showCommonExport(
         right: 20.0,
         bottom: 16.0,
       ),
-      barrierColor: const Color(0x99000000),
       backgroundColor: _exportActionSheetBackgroundColor,
       child: const _ExportActionSheetContent(),
     );
@@ -273,52 +273,15 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
     final option = format.option;
     final selected = _selectedFormat == format;
 
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: InkWell(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: AppOptionTile(
+        icon: option.icon,
+        title: option.title,
+        subtitle: option.description,
+        selected: selected,
+        trailing: AppOptionTileTrailing.selection,
         onTap: () => _selectFormat(format),
-        borderRadius: BorderRadius.circular(12.0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                option.icon,
-                color: selected
-                    ? StyleConstants.defaultColor
-                    : StyleConstants.mutedInkColor,
-              ),
-              const SizedBox(width: 12.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(option.title),
-                    const SizedBox(height: 2.0),
-                    Text(
-                      option.description,
-                      style: const TextStyle(
-                        color: StyleConstants.mutedInkColor,
-                        fontSize: 13.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12.0),
-              Icon(
-                selected
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: selected
-                    ? StyleConstants.defaultColor
-                    : StyleConstants.mutedInkColor,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -334,7 +297,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
       margin: const EdgeInsets.only(top: 6.0),
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: const Color(0x22FFC107),
+        color: StyleConstants.softYellow.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
@@ -342,7 +305,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
         children: [
           const Icon(
             Icons.info_outline,
-            color: Color(0xFFFFC107),
+            color: StyleConstants.deepYellow,
             size: 18.0,
           ),
           const SizedBox(width: 8.0),

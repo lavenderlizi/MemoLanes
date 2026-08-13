@@ -7,6 +7,7 @@ import 'package:memolanes/body/settings/advanced_settings_page.dart';
 import 'package:memolanes/body/settings/import_data_page.dart';
 import 'package:memolanes/body/settings/map_settings_page.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/common_export.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
@@ -342,7 +343,6 @@ class _SettingsBodyState extends State<SettingsBody> {
     showBasicBottomSheet<void>(
       context,
       title: context.tr("data.import_data.title"),
-      leading: const _ImportDataHeaderIcon(),
       maxHeightFactor: 0.68,
       contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
       child: Column(
@@ -357,183 +357,70 @@ class _SettingsBodyState extends State<SettingsBody> {
             ),
           ),
           const SizedBox(height: 12),
-          Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: StyleConstants.surfaceColor,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: StyleConstants.lineColor),
-              boxShadow: [
-                BoxShadow(
-                  color: StyleConstants.inkColor.withValues(alpha: 0.05),
-                  blurRadius: 18,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                _ImportDataOption(
-                  icon: Icons.inventory_2_outlined,
-                  label: context.tr("journey.import_mldx_data"),
-                  onTap: () async {
-                    // TODO: FilePicker is weird and `allowedExtensions` does not really work.
-                    // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
-                    var result = await FilePicker.pickFiles(
-                      type: FileType.any,
-                    );
-                    if (!context.mounted) return;
-                    if (result != null) {
-                      var path = result.files.single.path;
-                      if (path != null) {
-                        await importMldx(context, path);
-                      }
-                    }
-                  },
-                ),
-                const _ImportDataDivider(),
-                _ImportDataOption(
-                  icon: Icons.route_outlined,
-                  label: context.tr("journey.import_track_file"),
-                  onTap: () async {
-                    await showCommonDialog(
-                      context,
-                      context.tr("import.import_track_file.description_md"),
-                      markdown: true,
-                    );
-                    if (!context.mounted) return;
-                    await _selectImportFile(context, ImportType.vector);
-                  },
-                ),
-                const _ImportDataDivider(),
-                _ImportDataOption(
-                  icon: Icons.grid_4x4_outlined,
-                  label: context.tr("journey.import_fog_of_world_data"),
-                  onTap: () async {
-                    await showCommonDialog(
-                      context,
-                      context.tr("import.import_fow_data.description_md"),
-                      markdown: true,
-                    );
-                    if (await api.containsBitmapJourney()) {
-                      if (!context.mounted) return;
-                      await showCommonDialog(
-                        context,
-                        context.tr(
-                          "import.import_fow_data.warning_for_import_multiple_data_md",
-                        ),
-                        markdown: true,
-                      );
-                    }
-                    if (!context.mounted) return;
-                    await _selectImportFile(context, ImportType.fow);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ImportDataHeaderIcon extends StatelessWidget {
-  const _ImportDataHeaderIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: StyleConstants.softGreen,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      alignment: Alignment.center,
-      child: const Icon(
-        Icons.file_download_outlined,
-        color: StyleConstants.deepGreen,
-        size: 21,
-      ),
-    );
-  }
-}
-
-class _ImportDataOption extends StatelessWidget {
-  const _ImportDataOption({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).pop();
-          onTap();
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
+          Column(
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: StyleConstants.softGreen,
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  icon,
-                  color: StyleConstants.deepGreen,
-                  size: 20,
-                ),
+              AppOptionTile(
+                icon: Icons.inventory_2_outlined,
+                title: context.tr("journey.import_mldx_data"),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  // TODO: FilePicker is weird and `allowedExtensions` does not really work.
+                  // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
+                  var result = await FilePicker.pickFiles(
+                    type: FileType.any,
+                  );
+                  if (!context.mounted) return;
+                  if (result != null) {
+                    var path = result.files.single.path;
+                    if (path != null) {
+                      await importMldx(context, path);
+                    }
+                  }
+                },
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    color: StyleConstants.inkColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              const SizedBox(height: 8),
+              AppOptionTile(
+                icon: Icons.route_outlined,
+                title: context.tr("journey.import_track_file"),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await showCommonDialog(
+                    context,
+                    context.tr("import.import_track_file.description_md"),
+                    markdown: true,
+                  );
+                  if (!context.mounted) return;
+                  await _selectImportFile(context, ImportType.vector);
+                },
               ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: StyleConstants.mutedInkColor,
-                size: 22,
+              const SizedBox(height: 8),
+              AppOptionTile(
+                icon: Icons.grid_4x4_outlined,
+                title: context.tr("journey.import_fog_of_world_data"),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  await showCommonDialog(
+                    context,
+                    context.tr("import.import_fow_data.description_md"),
+                    markdown: true,
+                  );
+                  if (await api.containsBitmapJourney()) {
+                    if (!context.mounted) return;
+                    await showCommonDialog(
+                      context,
+                      context.tr(
+                        "import.import_fow_data.warning_for_import_multiple_data_md",
+                      ),
+                      markdown: true,
+                    );
+                  }
+                  if (!context.mounted) return;
+                  await _selectImportFile(context, ImportType.fow);
+                },
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ImportDataDivider extends StatelessWidget {
-  const _ImportDataDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(left: 64),
-      child: Divider(
-        height: 1,
-        thickness: 1,
-        color: StyleConstants.lineColor,
+        ],
       ),
     );
   }

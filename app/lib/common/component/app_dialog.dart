@@ -4,32 +4,6 @@ import 'package:memolanes/constants/style_constants.dart';
 
 enum AppDialogSurfaceStyle { solid, glass }
 
-class AppDialogHeaderIcon extends StatelessWidget {
-  const AppDialogHeaderIcon(
-      {super.key, required this.icon, this.yellow = false});
-
-  final IconData icon;
-  final bool yellow;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: yellow ? StyleConstants.softYellow : StyleConstants.softGreen,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        icon,
-        color: yellow ? StyleConstants.deepYellow : StyleConstants.deepGreen,
-        size: 21,
-      ),
-    );
-  }
-}
-
 class AppDialogSurface extends StatelessWidget {
   const AppDialogSurface({
     super.key,

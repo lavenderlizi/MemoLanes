@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 enum PopupPosition { auto, top, bottom, left, right }
 
@@ -116,12 +117,19 @@ class _PopupContent extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 50),
       decoration: contentDecoration ??
           BoxDecoration(
-            color: backgroundColor ?? Colors.black,
-            borderRadius: BorderRadius.circular(contentRadius ?? 10),
+            color: backgroundColor ?? StyleConstants.canvasColor,
+            borderRadius: BorderRadius.circular(contentRadius ?? 16),
+            border: backgroundColor == null
+                ? Border.all(color: StyleConstants.lineColor)
+                : null,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
+                color: backgroundColor == null
+                    ? StyleConstants.inkColor.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.1),
+                blurRadius: backgroundColor == null ? 18 : 10,
+                offset:
+                    backgroundColor == null ? const Offset(0, 6) : Offset.zero,
               ),
             ],
           ),

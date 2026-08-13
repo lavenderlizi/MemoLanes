@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/setup_bottom_sheet.dart';
 import 'package:memolanes/common/mmkv_util.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/achievement.dart' as achievement;
 import 'package:mutex/mutex.dart';
 
@@ -123,23 +123,20 @@ class _RegionPickerSheet extends StatelessWidget {
       contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
       child: Column(
         children: [
-          for (final worldview in _worldviewDisplayOrder)
-            SetupTile(
-              icon: regionPreferenceIcon(worldview),
-              title: regionPreferenceTitle(context, worldview),
-              selected: worldview == selectedWorldview,
-              onTap: () => Navigator.of(context).pop(worldview),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              trailing: Icon(
-                worldview == selectedWorldview
-                    ? Icons.check_circle
-                    : Icons.circle_outlined,
-                color: worldview == selectedWorldview
-                    ? StyleConstants.deepGreen
-                    : StyleConstants.mutedInkColor.withValues(alpha: 0.55),
+          for (var i = 0; i < _worldviewDisplayOrder.length; i++) ...[
+            AppOptionTile(
+              icon: regionPreferenceIcon(_worldviewDisplayOrder[i]),
+              title: regionPreferenceTitle(
+                context,
+                _worldviewDisplayOrder[i],
               ),
+              selected: _worldviewDisplayOrder[i] == selectedWorldview,
+              trailing: AppOptionTileTrailing.selection,
+              onTap: () => Navigator.of(context).pop(_worldviewDisplayOrder[i]),
             ),
+            if (i < _worldviewDisplayOrder.length - 1)
+              const SizedBox(height: 8),
+          ],
         ],
       ),
     );

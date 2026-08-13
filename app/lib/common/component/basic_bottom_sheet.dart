@@ -36,12 +36,10 @@ void showBasicCard(
   BuildContext context, {
   required Widget child,
   String? title,
-  IconData? icon,
 }) {
   showBasicBottomSheet<void>(
     context,
     title: title,
-    leading: icon == null ? null : AppDialogHeaderIcon(icon: icon),
     showTitle: title != null,
     contentPadding: EdgeInsets.fromLTRB(12, title == null ? 4 : 12, 12, 12),
     child: child,

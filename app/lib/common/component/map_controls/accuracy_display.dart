@@ -49,7 +49,7 @@ String getSignalStatus(AccuracyLevel accuracyLevel) {
 Color getStatusColor(AccuracyLevel accuracyLevel) {
   return switch (accuracyLevel) {
     AccuracyLevel.excellent => StyleConstants.primaryGreen,
-    AccuracyLevel.good => Colors.yellow,
+    AccuracyLevel.good => StyleConstants.journeyYellow,
     AccuracyLevel.fair => Colors.orange,
     AccuracyLevel.poor => Colors.red,
   };

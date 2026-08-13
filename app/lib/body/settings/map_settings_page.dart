@@ -2,8 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
-import 'package:memolanes/common/component/cards/card_label_tile.dart';
-import 'package:memolanes/common/component/cards/option_card.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
@@ -41,19 +40,21 @@ class _MapSettingsPageState extends State<MapSettingsPage> {
     showBasicCard(
       context,
       title: context.tr("general.map_settings.style"),
-      icon: Icons.map_outlined,
-      child: OptionCard(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (int i = 0; i < MapStyle.all.length; i++) ...[
-            CardLabelTile(
-              label: _labelFor(MapStyle.all[i]),
-              position: i == 0
-                  ? CardLabelTilePosition.top
-                  : i == MapStyle.all.length - 1
-                      ? CardLabelTilePosition.bottom
-                      : CardLabelTilePosition.middle,
-              onTap: () => _updateStyle(MapStyle.all[i]),
+          for (var i = 0; i < MapStyle.all.length; i++) ...[
+            AppOptionTile(
+              icon: Icons.map_outlined,
+              title: _labelFor(MapStyle.all[i]),
+              selected: _current.id == MapStyle.all[i].id,
+              trailing: AppOptionTileTrailing.selection,
+              onTap: () {
+                Navigator.of(context).pop();
+                _updateStyle(MapStyle.all[i]);
+              },
             ),
+            if (i < MapStyle.all.length - 1) const SizedBox(height: 8),
           ],
         ],
       ),

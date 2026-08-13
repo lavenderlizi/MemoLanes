@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
-import 'package:memolanes/common/component/cards/card_label_tile.dart';
-import 'package:memolanes/common/component/cards/option_card.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/common_export.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/utils.dart';
@@ -91,21 +90,23 @@ class _RawDataPage extends State<RawDataPage> {
     showBasicCard(
       context,
       title: context.tr("common.export"),
-      icon: Icons.ios_share_rounded,
-      child: OptionCard(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          CardLabelTile(
-            position: CardLabelTilePosition.top,
-            label: context.tr("general.advanced_settings.raw_data_export_csv"),
+          AppOptionTile(
+            icon: Icons.table_chart_outlined,
+            title: context.tr("general.advanced_settings.raw_data_export_csv"),
             onTap: () {
+              Navigator.of(context).pop();
               showCommonExport(context, filePath, deleteFile: false);
             },
-            top: false,
           ),
-          CardLabelTile(
-            position: CardLabelTilePosition.bottom,
-            label: context.tr("general.advanced_settings.raw_data_export_gpx"),
+          const SizedBox(height: 8),
+          AppOptionTile(
+            icon: Icons.route_outlined,
+            title: context.tr("general.advanced_settings.raw_data_export_gpx"),
             onTap: () async {
+              Navigator.of(context).pop();
               final gpxPath =
                   await api.exportRawDataGpxFile(csvFilepath: filePath);
               if (!context.mounted) return;

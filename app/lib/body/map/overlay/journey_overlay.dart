@@ -10,6 +10,7 @@ import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/utils.dart';
@@ -628,6 +629,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                     icon: Icons.landscape_outlined,
                     title: context.tr('journey_kind.default'),
                     selected: _journeyKind == JourneyKind.defaultKind,
+                    selectionMode: true,
                     onTap: () => Navigator.of(dialogContext)
                         .pop(JourneyKind.defaultKind),
                   ),
@@ -636,6 +638,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                     icon: Icons.flight_rounded,
                     title: context.tr('journey_kind.flight'),
                     selected: _journeyKind == JourneyKind.flight,
+                    selectionMode: true,
                     onTap: () =>
                         Navigator.of(dialogContext).pop(JourneyKind.flight),
                   ),
@@ -1427,60 +1430,26 @@ class _EditChoiceTile extends StatelessWidget {
     required this.title,
     required this.onTap,
     this.selected = false,
+    this.selectionMode = false,
   });
 
   final IconData icon;
   final String title;
   final VoidCallback onTap;
   final bool selected;
+  final bool selectionMode;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.5),
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: StyleConstants.softGreen.withValues(alpha: 0.84),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: Icon(
-                  icon,
-                  size: 18,
-                  color: StyleConstants.deepGreen,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: StyleConstants.deepGreen,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Icon(
-                selected ? Icons.check_rounded : Icons.chevron_right_rounded,
-                size: 20,
-                color: selected
-                    ? StyleConstants.deepGreen
-                    : StyleConstants.mutedInkColor,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return AppOptionTile(
+      icon: icon,
+      title: title,
+      selected: selected,
+      trailing: selectionMode
+          ? AppOptionTileTrailing.selection
+          : AppOptionTileTrailing.chevron,
+      backgroundAlpha: 0.5,
+      onTap: onTap,
     );
   }
 }

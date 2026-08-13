@@ -6,8 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/body/settings/import_data_page.dart' show ImportType;
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
-import 'package:memolanes/common/component/cards/card_label_tile.dart';
-import 'package:memolanes/common/component/cards/option_card.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
@@ -276,23 +275,29 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     showBasicCard(
       context,
       title: context.tr("journey.journey_kind"),
-      icon: Icons.layers_outlined,
-      child: OptionCard(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          CardLabelTile(
-            position: CardLabelTilePosition.top,
-            label: context.tr("journey_kind.default"),
+          AppOptionTile(
+            icon: Icons.landscape_outlined,
+            title: context.tr("journey_kind.default"),
+            selected: _journeyKind == JourneyKind.defaultKind,
+            trailing: AppOptionTileTrailing.selection,
             onTap: () {
+              Navigator.of(context).pop();
               setState(() {
                 _journeyKind = JourneyKind.defaultKind;
               });
             },
-            top: false,
           ),
-          CardLabelTile(
-            position: CardLabelTilePosition.bottom,
-            label: context.tr("journey_kind.flight"),
+          const SizedBox(height: 8),
+          AppOptionTile(
+            icon: Icons.flight_rounded,
+            title: context.tr("journey_kind.flight"),
+            selected: _journeyKind == JourneyKind.flight,
+            trailing: AppOptionTileTrailing.selection,
             onTap: () {
+              Navigator.of(context).pop();
               setState(() {
                 _journeyKind = JourneyKind.flight;
               });
@@ -314,35 +319,50 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     showBasicCard(
       context,
       title: context.tr("journey.preprocessor"),
-      icon: Icons.tune_rounded,
-      child: OptionCard(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          CardLabelTile(
-            position: CardLabelTilePosition.top,
-            label: context.tr("preprocessor.none"),
+          AppOptionTile(
+            icon: Icons.block_rounded,
+            title: context.tr("preprocessor.none"),
+            selected: _preprocessor == import_api.ImportPreprocessor.none,
+            trailing: AppOptionTileTrailing.selection,
             onTap: () {
+              Navigator.of(context).pop();
               _selectPreprocessor(import_api.ImportPreprocessor.none);
             },
-            top: false,
           ),
-          CardLabelTile(
-            position: CardLabelTilePosition.middle,
-            label: context.tr("preprocessor.generic"),
+          const SizedBox(height: 8),
+          AppOptionTile(
+            icon: Icons.route_outlined,
+            title: context.tr("preprocessor.generic"),
+            selected: _preprocessor == import_api.ImportPreprocessor.generic,
+            trailing: AppOptionTileTrailing.selection,
             onTap: () {
+              Navigator.of(context).pop();
               _selectPreprocessor(import_api.ImportPreprocessor.generic);
             },
           ),
-          CardLabelTile(
-            position: CardLabelTilePosition.bottom,
-            label: context.tr("preprocessor.flightTrack"),
+          const SizedBox(height: 8),
+          AppOptionTile(
+            icon: Icons.flight_takeoff_rounded,
+            title: context.tr("preprocessor.flightTrack"),
+            selected:
+                _preprocessor == import_api.ImportPreprocessor.flightTrack,
+            trailing: AppOptionTileTrailing.selection,
             onTap: () {
+              Navigator.of(context).pop();
               _selectPreprocessor(import_api.ImportPreprocessor.flightTrack);
             },
           ),
-          CardLabelTile(
-            position: CardLabelTilePosition.middle,
-            label: context.tr("preprocessor.spare"),
+          const SizedBox(height: 8),
+          AppOptionTile(
+            icon: Icons.scatter_plot_outlined,
+            title: context.tr("preprocessor.spare"),
+            selected: _preprocessor == import_api.ImportPreprocessor.spare,
+            trailing: AppOptionTileTrailing.selection,
             onTap: () {
+              Navigator.of(context).pop();
               _selectPreprocessor(import_api.ImportPreprocessor.spare);
             },
           ),

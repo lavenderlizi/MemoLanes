@@ -5,13 +5,12 @@ import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_info_edit_page.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
+import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/capsule_style_bar_content.dart';
 import 'package:memolanes/common/component/capsule_style_overlay_app_bar.dart';
-import 'package:memolanes/common/component/cards/card_label_tile.dart';
 import 'package:memolanes/common/component/cards/line_painter.dart';
-import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/safe_area_wrapper.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
@@ -329,21 +328,23 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
     showBasicCard(
       context,
       title: context.tr("common.edit"),
-      icon: Icons.edit_outlined,
-      child: OptionCard(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          CardLabelTile(
-            position: CardLabelTilePosition.top,
-            label: context.tr("journey.journey_info_edit_page_title"),
+          AppOptionTile(
+            icon: Icons.description_outlined,
+            title: context.tr("journey.journey_info_edit_page_title"),
             onTap: () {
+              Navigator.of(context).pop();
               _editJourneyInfo(context);
             },
-            top: false,
           ),
-          CardLabelTile(
-            position: CardLabelTilePosition.bottom,
-            label: context.tr("journey.editor.page_title"),
+          const SizedBox(height: 8),
+          AppOptionTile(
+            icon: Icons.edit_road_rounded,
+            title: context.tr("journey.editor.page_title"),
             onTap: () async {
+              Navigator.of(context).pop();
               _trackEdit(context);
             },
           ),
