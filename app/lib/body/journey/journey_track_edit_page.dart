@@ -38,6 +38,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   bool _canUndo = false;
   bool _isLinkedDrawEnabled = false;
   bool _isDrawModeMenuOpen = false;
+  bool _operationInProgress = false;
   String? _linkedDrawErrorTrKey;
 
   bool _zoomOk = false;
@@ -130,6 +131,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   Future<void> _loadMap() async {
     try {
       final (rendererProxy, bounds) = await _editSession.getMapRendererProxy();
+      if (!mounted) return;
       setState(() {
         _mapRendererProxy = rendererProxy;
         _initialMapBounds = bounds;
@@ -142,12 +144,32 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
     }
   }
 
-  Future<void> _refreshCanUndo() async {
-    final canUndo = _editSession.canUndo();
+  bool _beginOperation() {
+    if (!mounted || _operationInProgress) return false;
+    setState(() {
+      _operationInProgress = true;
+    });
+    return true;
+  }
+
+  void _finishOperation() {
     if (!mounted) return;
     setState(() {
-      _canUndo = canUndo;
+      _operationInProgress = false;
+      _canUndo = _editSession.canUndo();
     });
+  }
+
+  Future<void> _showOperationError() async {
+    if (!mounted) return;
+    _showToast(_EditorToastRequest.clear);
+    await showCommonDialog(
+      context,
+      context.tr("journey.editor.operation_failed"),
+    );
+    if (mounted) {
+      _showToast(_EditorToastRequest.syncCurrentState);
+    }
   }
 
   void _applyMode(
@@ -208,6 +230,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   }
 
   void _handleModeChange(OperationMode mode) {
+    if (_operationInProgress) return;
     final shouldClearLinkedError = _linkedDrawErrorTrKey != null;
 
     if (_isDrawModeMenuOpen) {
@@ -220,6 +243,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   }
 
   void _handleDrawToolPressed() {
+    if (_operationInProgress) return;
     final shouldOpenMenu = !_isDrawModeMenuOpen;
     final isDrawMode =
         _mode == OperationMode.edit || _mode == OperationMode.editReadonly;
@@ -245,6 +269,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   }
 
   void _handleDrawEntrySelected(DrawEntryMode mode) {
+    if (_operationInProgress) return;
     final wasMode = _mode;
     final wasErrorLocked = _linkedDrawErrorTrKey != null;
 
@@ -268,7 +293,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   }
 
   void _handleMapZoomUpdate(int? zoom) {
-    if (zoom == null) return;
+    if (!mounted || zoom == null) return;
 
     final nextZoomOk = zoom >= _minEditZoom;
     if (nextZoomOk == _zoomOk) return;
@@ -287,47 +312,41 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   Future<void> _onDrawPath(List<JourneyEditorDrawPoint> points) async {
     if (_mode != OperationMode.edit) return;
     if (points.length < 2) return;
-
-    if (_linkedDrawErrorTrKey != null) {
-      _clearLinkedDrawConstraintError();
-    }
-
-    final recordPoints = points.map((p) => (p.lat, p.lng)).toList();
+    if (!_beginOperation()) return;
 
     try {
+      if (_linkedDrawErrorTrKey != null) {
+        _clearLinkedDrawConstraintError();
+      }
+
+      final recordPoints =
+          points.map((p) => (p.lat, p.lng)).toList(growable: false);
       final outcome = await _editSession.addLines(
         points: recordPoints,
         snapEndpoints: _isLinkedDrawEnabled,
       );
-      if (outcome == AddLinesOutcome.linkedDrawTooFar) {
-        _showLinkedDrawConstraintToast('journey.editor.linked_draw_too_far');
-        return;
-      }
-      if (outcome == AddLinesOutcome.linkedDrawNeedsMultipleTracks) {
-        _showLinkedDrawConstraintToast(
-          'journey.editor.linked_draw_needs_multiple_tracks',
-        );
-        return;
-      }
-      if (outcome == AddLinesOutcome.linkedDrawInvalidLinkTargets) {
-        _showLinkedDrawConstraintToast(
-          'journey.editor.linked_draw_invalid_link_targets',
-        );
-        return;
+      switch (outcome) {
+        case AddLinesOutcome.added || AddLinesOutcome.ignored:
+          if (!mounted) return;
+          _showToast(_EditorToastRequest.syncCurrentState);
+          await _mapWebviewKey.currentState?.manualRefresh();
+        case AddLinesOutcome.linkedDrawTooFar:
+          _showLinkedDrawConstraintToast('journey.editor.linked_draw_too_far');
+        case AddLinesOutcome.linkedDrawNeedsMultipleTracks:
+          _showLinkedDrawConstraintToast(
+            'journey.editor.linked_draw_needs_multiple_tracks',
+          );
+        case AddLinesOutcome.linkedDrawInvalidLinkTargets:
+          _showLinkedDrawConstraintToast(
+            'journey.editor.linked_draw_invalid_link_targets',
+          );
       }
     } catch (error, stackTrace) {
       log.error("[JourneyTrackEditPage] addLines failed: $error", stackTrace);
-      if (mounted) {
-        _showToast(_EditorToastRequest.syncCurrentState);
-      }
-      return;
+      await _showOperationError();
+    } finally {
+      _finishOperation();
     }
-
-    if (!mounted) return;
-    _showToast(_EditorToastRequest.syncCurrentState);
-    await _mapWebviewKey.currentState?.manualRefresh();
-
-    _refreshCanUndo();
   }
 
   Future<void> _onSelectionBox(
@@ -337,24 +356,80 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
     double endLng,
   ) async {
     if (_mode != OperationMode.delete) return;
+    if (!_beginOperation()) return;
 
-    await _editSession.deletePointsInBox(
-      startLat: startLat,
-      startLng: startLng,
-      endLat: endLat,
-      endLng: endLng,
-    );
+    try {
+      await _editSession.deletePointsInBox(
+        startLat: startLat,
+        startLng: startLng,
+        endLat: endLat,
+        endLng: endLng,
+      );
 
-    if (!mounted) return;
-    await _mapWebviewKey.currentState?.manualRefresh();
+      if (!mounted) return;
+      await _mapWebviewKey.currentState?.manualRefresh();
+    } catch (error, stackTrace) {
+      log.error(
+        "[JourneyTrackEditPage] deletePointsInBox failed: $error",
+        stackTrace,
+      );
+      await _showOperationError();
+    } finally {
+      _finishOperation();
+    }
+  }
 
-    _refreshCanUndo();
+  Future<void> _undo() async {
+    if (!_canUndo || !_beginOperation()) return;
+    _dismissDrawModeMenu();
+    try {
+      await _editSession.undo();
+      if (!mounted) return;
+      await _mapWebviewKey.currentState?.manualRefresh();
+    } catch (error, stackTrace) {
+      log.error("[JourneyTrackEditPage] undo failed: $error", stackTrace);
+      await _showOperationError();
+    } finally {
+      _finishOperation();
+    }
+  }
+
+  Future<void> _save() async {
+    if (!_canUndo || !_beginOperation()) return;
+    _dismissDrawModeMenu();
+    _showToast(_EditorToastRequest.clear);
+
+    try {
+      final shouldSave = await showCommonDialog(
+        context,
+        context.tr("common.save_confirm"),
+        title: context.tr("common.save"),
+        hasCancel: true,
+      );
+      if (!mounted) return;
+      if (!shouldSave) {
+        _showToast(
+          _EditorToastRequest.syncCurrentState,
+          clearLinkedDrawError: true,
+        );
+        return;
+      }
+
+      await showLoadingDialog(asyncTask: _editSession.commit());
+      if (!mounted) return;
+      _showToast(_EditorToastRequest.saveSuccess);
+      popCurrentRoute(context, true);
+    } catch (error, stackTrace) {
+      log.error("[JourneyTrackEditPage] commit failed: $error", stackTrace);
+      await _showOperationError();
+    } finally {
+      _finishOperation();
+    }
   }
 
   @override
   void dispose() {
-    // If user manually pops this page while a SnackBar is visible, ensure the
-    // SnackBar is dismissed and doesn't remain on the previous page.
+    // Keep the editor's persistent overlay from leaking onto the previous page.
     _showToast(_EditorToastRequest.clear);
     super.dispose();
   }
@@ -365,6 +440,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+        if (_operationInProgress) return;
 
         if (_canUndo) {
           final shouldExit = await _confirmDiscardUnsavedChanges();
@@ -418,46 +494,8 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
                     isDrawMenuOpen: _isDrawModeMenuOpen,
                     onDrawPressed: _handleDrawToolPressed,
                     onDrawModeChanged: _handleDrawEntrySelected,
-                    canUndo: _canUndo,
-                    onUndo: () async {
-                      _dismissDrawModeMenu();
-                      await _editSession.undo();
-                      if (!mounted) return;
-                      await _mapWebviewKey.currentState?.manualRefresh();
-                      _refreshCanUndo();
-                    },
-                    canSave: _canUndo,
-                    onSave: () async {
-                      _dismissDrawModeMenu();
-                      if (!_canUndo) {
-                        Navigator.of(context).pop(false);
-                        return;
-                      }
-                      _showToast(_EditorToastRequest.clear);
-
-                      final shouldSave = await showCommonDialog(
-                        context,
-                        context.tr("common.save_confirm"),
-                        title: context.tr("common.save"),
-                        hasCancel: true,
-                      );
-                      if (!context.mounted) return;
-                      if (!shouldSave) {
-                        _showToast(
-                          _EditorToastRequest.syncCurrentState,
-                          clearLinkedDrawError: true,
-                        );
-                        return;
-                      }
-
-                      await showLoadingDialog(
-                        asyncTask: _editSession.commit(),
-                      );
-                      if (!context.mounted) return;
-                      _showToast(_EditorToastRequest.saveSuccess);
-
-                      popCurrentRoute(context, true);
-                    },
+                    onUndo: _canUndo && !_operationInProgress ? _undo : null,
+                    onSave: _canUndo && !_operationInProgress ? _save : null,
                   ),
                 ),
               ),

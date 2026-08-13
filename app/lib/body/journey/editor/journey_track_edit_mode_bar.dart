@@ -29,9 +29,7 @@ class ModeSwitchBar extends StatelessWidget {
   final bool isDrawMenuOpen;
   final VoidCallback onDrawPressed;
   final ValueChanged<DrawEntryMode> onDrawModeChanged;
-  final bool canUndo;
   final VoidCallback? onUndo;
-  final bool canSave;
   final VoidCallback? onSave;
 
   const ModeSwitchBar({
@@ -42,9 +40,7 @@ class ModeSwitchBar extends StatelessWidget {
     required this.isDrawMenuOpen,
     required this.onDrawPressed,
     required this.onDrawModeChanged,
-    this.canUndo = false,
     this.onUndo,
-    this.canSave = false,
     this.onSave,
   });
 
@@ -56,6 +52,7 @@ class ModeSwitchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final selectedModeWidth =
         MediaQuery.sizeOf(context).width < 340 ? 58.0 : 66.0;
+    final saveCallback = onSave;
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -147,7 +144,6 @@ class ModeSwitchBar extends StatelessWidget {
                     ),
                     _UndoButton(
                       label: context.tr('journey.editor.undo'),
-                      isEnabled: canUndo,
                       onTap: onUndo,
                     ),
                     const SizedBox(width: 3),
@@ -158,12 +154,12 @@ class ModeSwitchBar extends StatelessWidget {
                         icon: Icons.check_rounded,
                         size: AppButtonSize.compact,
                         expand: true,
-                        onPressed: canSave
-                            ? () {
+                        onPressed: saveCallback == null
+                            ? null
+                            : () {
                                 AppHaptics.medium();
-                                onSave?.call();
-                              }
-                            : null,
+                                saveCallback();
+                              },
                       ),
                     ),
                   ],
@@ -281,31 +277,31 @@ class _EditorModeButton extends StatelessWidget {
 class _UndoButton extends StatelessWidget {
   const _UndoButton({
     required this.label,
-    required this.isEnabled,
     required this.onTap,
   });
 
   final String label;
-  final bool isEnabled;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final tapCallback = onTap;
+
     return Semantics(
       button: true,
-      enabled: isEnabled,
+      enabled: tapCallback != null,
       label: label,
       child: Tooltip(
         message: label,
         child: SizedBox.square(
           dimension: 42,
           child: IconButton(
-            onPressed: isEnabled
-                ? () {
+            onPressed: tapCallback == null
+                ? null
+                : () {
                     AppHaptics.light();
-                    onTap?.call();
-                  }
-                : null,
+                    tapCallback();
+                  },
             style: IconButton.styleFrom(
               backgroundColor:
                   StyleConstants.surfaceColor.withValues(alpha: 0.56),

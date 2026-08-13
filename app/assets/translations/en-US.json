@@ -93,6 +93,7 @@
       "erase_mode_enabled": "Erase mode on.\nBox-select to delete tracks.",
       "bitmap_not_supported": "Editing a bitmap record (usually imported from Fog of World) is not supported.",
       "discard_changes_confirm": "Unsaved changes will be lost. Do you want to continue?",
+      "operation_failed": "Something went wrong. Please try again.",
       "zoom_too_low": "Zoom in to draw."
     },
     "no_data": "There's no data yet, go ahead and explore the world!",

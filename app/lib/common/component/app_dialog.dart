@@ -11,19 +11,21 @@ class AppDialogSurface extends StatelessWidget {
     this.style = AppDialogSurfaceStyle.solid,
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
     this.backgroundColor,
-  });
+    this.glassBackgroundAlpha = 0.84,
+  }) : assert(glassBackgroundAlpha >= 0 && glassBackgroundAlpha <= 1);
 
   final Widget child;
   final AppDialogSurfaceStyle style;
   final BorderRadius borderRadius;
   final Color? backgroundColor;
+  final double glassBackgroundAlpha;
 
   @override
   Widget build(BuildContext context) {
     if (style == AppDialogSurfaceStyle.glass) {
       return LiquidGlassSurface(
         borderRadius: borderRadius,
-        backgroundAlpha: 0.84,
+        backgroundAlpha: glassBackgroundAlpha,
         borderAlpha: 0.72,
         blurSigma: 32,
         reflectionAlpha: 0.1,

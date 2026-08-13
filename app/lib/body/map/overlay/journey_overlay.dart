@@ -306,6 +306,7 @@ class _JourneyPickerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _JourneyPanelSurface(
+      backgroundAlpha: 0.76,
       child: Stack(
         children: [
           Column(
@@ -382,14 +383,19 @@ class _JourneyPickerCard extends StatelessWidget {
 }
 
 class _JourneyPanelSurface extends StatelessWidget {
-  const _JourneyPanelSurface({required this.child});
+  const _JourneyPanelSurface({
+    required this.child,
+    this.backgroundAlpha = 0.84,
+  });
 
   final Widget child;
+  final double backgroundAlpha;
 
   @override
   Widget build(BuildContext context) {
     return AppDialogSurface(
       style: AppDialogSurfaceStyle.glass,
+      glassBackgroundAlpha: backgroundAlpha,
       child: child,
     );
   }
@@ -404,6 +410,7 @@ class _JourneyPickerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return LiquidGlassSurface(
       borderRadius: BorderRadius.circular(22),
+      backgroundAlpha: 0.36,
       child: Material(
         color: Colors.transparent,
         child: InkWell(

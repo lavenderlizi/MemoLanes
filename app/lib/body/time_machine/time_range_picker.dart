@@ -308,7 +308,7 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
   Widget _buildModeMenu() {
     return LiquidGlassSurface(
       borderRadius: BorderRadius.circular(12),
-      backgroundAlpha: 0.66,
+      backgroundAlpha: 0.60,
       borderAlpha: 0.84,
       blurSigma: 24,
       reflectionAlpha: 0.12,
@@ -646,7 +646,7 @@ class TimeRangeControllerBall extends StatelessWidget {
 
     return LiquidGlassSurface(
       borderRadius: BorderRadius.circular(_borderRadius),
-      backgroundAlpha: 0.66,
+      backgroundAlpha: 0.60,
       borderAlpha: 0.84,
       blurSigma: 24,
       reflectionAlpha: 0.12,
@@ -677,7 +677,7 @@ const double _kPickerBlockHeight = 60.0;
 Widget _buildGlassPanel(Widget child, {EdgeInsets? padding}) {
   return LiquidGlassSurface(
     borderRadius: BorderRadius.circular(12),
-    backgroundAlpha: 0.66,
+    backgroundAlpha: 0.60,
     borderAlpha: 0.84,
     blurSigma: 24,
     reflectionAlpha: 0.12,

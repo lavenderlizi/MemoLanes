@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-enum AppOptionTileTrailing { chevron, selection, none }
+enum AppOptionTileTrailing { chevron, selection }
 
 class AppOptionTile extends StatelessWidget {
   const AppOptionTile({
@@ -13,7 +13,8 @@ class AppOptionTile extends StatelessWidget {
     this.selected = false,
     this.trailing = AppOptionTileTrailing.chevron,
     this.backgroundAlpha = 0.76,
-  }) : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1);
+  })  : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
+        assert(!selected || trailing == AppOptionTileTrailing.selection);
 
   final String title;
   final VoidCallback onTap;
@@ -54,7 +55,6 @@ class AppOptionTile extends StatelessWidget {
             ),
           ),
         ),
-      AppOptionTileTrailing.none => const SizedBox.shrink(),
     };
   }
 
@@ -62,7 +62,7 @@ class AppOptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      selected: selected,
+      selected: trailing == AppOptionTileTrailing.selection ? selected : null,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -139,10 +139,8 @@ class AppOptionTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (trailing != AppOptionTileTrailing.none) ...[
-                  const SizedBox(width: 10),
-                  _buildTrailing(),
-                ],
+                const SizedBox(width: 10),
+                _buildTrailing(),
               ],
             ),
           ),

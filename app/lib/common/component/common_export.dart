@@ -273,16 +273,13 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
     final option = format.option;
     final selected = _selectedFormat == format;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: AppOptionTile(
-        icon: option.icon,
-        title: option.title,
-        subtitle: option.description,
-        selected: selected,
-        trailing: AppOptionTileTrailing.selection,
-        onTap: () => _selectFormat(format),
-      ),
+    return AppOptionTile(
+      icon: option.icon,
+      title: option.title,
+      subtitle: option.description,
+      selected: selected,
+      trailing: AppOptionTileTrailing.selection,
+      onTap: () => _selectFormat(format),
     );
   }
 
@@ -359,7 +356,10 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
                 ),
               ),
               const SizedBox(height: 6.0),
-              for (final format in widget.formats) _buildFormatOption(format),
+              for (var i = 0; i < widget.formats.length; i++) ...[
+                _buildFormatOption(widget.formats[i]),
+                if (i < widget.formats.length - 1) const SizedBox(height: 8),
+              ],
               _buildLossyWarning(),
             ],
           ),
