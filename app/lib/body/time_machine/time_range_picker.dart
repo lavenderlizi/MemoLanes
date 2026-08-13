@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/body/time_machine/time_machine_glass_surface.dart';
 import 'package:memolanes/common/app_haptics.dart';
-import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
@@ -306,16 +306,8 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
   }
 
   Widget _buildModeMenu() {
-    return LiquidGlassSurface(
-      borderRadius: BorderRadius.circular(12),
-      backgroundAlpha: 0.60,
-      borderAlpha: 0.84,
-      blurSigma: 24,
-      reflectionAlpha: 0.12,
+    return TimeMachineGlassSurface(
       shadowAlpha: 0.12,
-      shadowBlurRadius: 18,
-      shadowSpreadRadius: 0,
-      shadowOffset: const Offset(0, 6),
       padding: const EdgeInsets.all(16),
       child: PointerInterceptor(
         child: _TimeMachineViewModeAndLayerMenu(
@@ -644,16 +636,9 @@ class TimeRangeControllerBall extends StatelessWidget {
       ],
     );
 
-    return LiquidGlassSurface(
+    return TimeMachineGlassSurface(
       borderRadius: BorderRadius.circular(_borderRadius),
-      backgroundAlpha: 0.60,
-      borderAlpha: 0.84,
-      blurSigma: 24,
-      reflectionAlpha: 0.12,
       shadowAlpha: 0.12,
-      shadowBlurRadius: 18,
-      shadowSpreadRadius: 0,
-      shadowOffset: const Offset(0, 6),
       child: SizedBox(
         width: _buttonSize,
         height: _buttonSize,
@@ -675,16 +660,7 @@ class TimeRangeControllerBall extends StatelessWidget {
 const double _kPickerBlockHeight = 60.0;
 
 Widget _buildGlassPanel(Widget child, {EdgeInsets? padding}) {
-  return LiquidGlassSurface(
-    borderRadius: BorderRadius.circular(12),
-    backgroundAlpha: 0.60,
-    borderAlpha: 0.84,
-    blurSigma: 24,
-    reflectionAlpha: 0.12,
-    shadowAlpha: 0.1,
-    shadowBlurRadius: 18,
-    shadowSpreadRadius: 0,
-    shadowOffset: const Offset(0, 6),
+  return TimeMachineGlassSurface(
     padding: padding,
     child: child,
   );
