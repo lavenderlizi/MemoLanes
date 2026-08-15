@@ -103,31 +103,38 @@ class _StartJourneyButton extends StatelessWidget {
     return SizedBox(
       width: _recordingControlWidth,
       height: _recordingControlHeight,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(23),
-          boxShadow: [
-            BoxShadow(
-              color: StyleConstants.deepGreen.withValues(alpha: 0.16),
-              blurRadius: 18,
-              spreadRadius: -4,
-              offset: const Offset(0, 7),
+      child: LiquidGlassSurface(
+        borderRadius: BorderRadius.circular(23),
+        backgroundAlpha: 0.36,
+        borderAlpha: 0.62,
+        blurSigma: 28,
+        reflectionAlpha: 0.2,
+        shadowAlpha: 0.14,
+        shadowBlurRadius: 32,
+        shadowSpreadRadius: -9,
+        shadowOffset: const Offset(0, 13),
+        child: Material(
+          color: StyleConstants.primaryGreen.withValues(alpha: 0.3),
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(23),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  context.tr('home.start_new_journey'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: StyleConstants.deepGreen,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+              ),
             ),
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.48),
-              blurRadius: 8,
-              spreadRadius: -5,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: AppButton(
-          label: context.tr('home.start_new_journey'),
-          onPressed: onPressed,
-          size: AppButtonSize.large,
-          backgroundAlpha: 0.92,
-          borderRadius: 23,
-          expand: true,
+          ),
         ),
       ),
     );
