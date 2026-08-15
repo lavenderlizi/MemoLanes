@@ -43,15 +43,9 @@ class JourneyOverlay extends StatefulWidget {
 }
 
 class _JourneyOverlayState extends State<JourneyOverlay> {
-  bool _pickerOpen = false;
   bool _isLoadingJourney = false;
   bool _isEditingInformation = false;
   JourneyHeader? _selectedJourney;
-
-  void _togglePicker() {
-    AppHaptics.light();
-    setState(() => _pickerOpen = !_pickerOpen);
-  }
 
   Future<void> _openJourneyDetails(JourneyHeader journey) async {
     if (_isLoadingJourney) return;
@@ -69,7 +63,6 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
       );
       setState(() {
         _selectedJourney = journey;
-        _pickerOpen = false;
         _isEditingInformation = false;
       });
     } finally {
@@ -82,7 +75,6 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
     widget.onJourneyMapChanged(null, null, null);
     setState(() {
       _selectedJourney = null;
-      _pickerOpen = true;
       _isEditingInformation = false;
     });
   }
@@ -248,35 +240,26 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
                       ),
                     ),
                   )
-                : _pickerOpen
-                    ? Align(
-                        key: const ValueKey('journey-picker'),
-                        alignment: Alignment.bottomCenter,
-                        child: SizedBox(
-                          width: math.min(
-                            mediaQuery.size.width -
-                                viewPadding.left -
-                                viewPadding.right -
-                                32,
-                            pickerMaxWidth,
-                          ),
-                          height: pickerHeight,
-                          child: PointerInterceptor(
-                            child: _JourneyPickerCard(
-                              onClose: _togglePicker,
-                              onJourneySelected: _openJourneyDetails,
-                              isLoading: _isLoadingJourney,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Align(
-                        key: const ValueKey('journey-picker-button'),
-                        alignment: Alignment.bottomCenter,
-                        child: PointerInterceptor(
-                          child: _JourneyPickerButton(onPressed: _togglePicker),
+                : Align(
+                    key: const ValueKey('journey-picker'),
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      width: math.min(
+                        mediaQuery.size.width -
+                            viewPadding.left -
+                            viewPadding.right -
+                            32,
+                        pickerMaxWidth,
+                      ),
+                      height: pickerHeight,
+                      child: PointerInterceptor(
+                        child: _JourneyPickerCard(
+                          onJourneySelected: _openJourneyDetails,
+                          isLoading: _isLoadingJourney,
                         ),
                       ),
+                    ),
+                  ),
           ),
         ),
         if (selectedJourney != null)
@@ -294,12 +277,10 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
 
 class _JourneyPickerCard extends StatelessWidget {
   const _JourneyPickerCard({
-    required this.onClose,
     required this.onJourneySelected,
     required this.isLoading,
   });
 
-  final VoidCallback onClose;
   final Future<void> Function(JourneyHeader journey) onJourneySelected;
   final bool isLoading;
 
@@ -339,17 +320,7 @@ class _JourneyPickerCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      onPressed: onClose,
-                      tooltip:
-                          MaterialLocalizations.of(context).closeButtonTooltip,
-                      visualDensity: VisualDensity.compact,
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        color: StyleConstants.mutedInkColor,
-                        size: 21,
-                      ),
-                    ),
+                    const SizedBox(width: 9),
                   ],
                 ),
               ),
@@ -397,70 +368,6 @@ class _JourneyPanelSurface extends StatelessWidget {
       style: AppDialogSurfaceStyle.glass,
       glassBackgroundAlpha: backgroundAlpha,
       child: child,
-    );
-  }
-}
-
-class _JourneyPickerButton extends StatelessWidget {
-  const _JourneyPickerButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return LiquidGlassSurface(
-      borderRadius: BorderRadius.circular(22),
-      backgroundAlpha: 0.36,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(22),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 50),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 11,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: StyleConstants.softGreen.withValues(alpha: 0.72),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.54),
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.route_rounded,
-                    size: 17,
-                    color: StyleConstants.deepGreen,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  context.tr('journey.choose_journey'),
-                  style: const TextStyle(
-                    color: StyleConstants.deepGreen,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.keyboard_arrow_up_rounded,
-                  size: 19,
-                  color: StyleConstants.deepGreen,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
