@@ -5,8 +5,12 @@ import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
+
+const double _recordingControlWidth = 170;
+const double _recordingControlHeight = 52;
 
 class RecordingButtons extends StatefulWidget {
   const RecordingButtons({super.key});
@@ -97,14 +101,34 @@ class _StartJourneyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 164,
-      height: 52,
-      child: AppButton(
-        label: context.tr('home.start_new_journey'),
-        onPressed: onPressed,
-        size: AppButtonSize.large,
-        backgroundAlpha: 0.78,
-        expand: true,
+      width: _recordingControlWidth,
+      height: _recordingControlHeight,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(23),
+          boxShadow: [
+            BoxShadow(
+              color: StyleConstants.deepGreen.withValues(alpha: 0.16),
+              blurRadius: 18,
+              spreadRadius: -4,
+              offset: const Offset(0, 7),
+            ),
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.48),
+              blurRadius: 8,
+              spreadRadius: -5,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: AppButton(
+          label: context.tr('home.start_new_journey'),
+          onPressed: onPressed,
+          size: AppButtonSize.large,
+          backgroundAlpha: 0.92,
+          borderRadius: 23,
+          expand: true,
+        ),
       ),
     );
   }
@@ -124,38 +148,47 @@ class _ActiveJourneyControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LiquidGlassSurface(
-      borderRadius: BorderRadius.circular(23),
-      padding: const EdgeInsets.all(5),
-      child: SizedBox(
-        height: 42,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 112,
-              height: 42,
-              child: AppButton(
-                label: context.tr(isPaused ? 'home.resume' : 'home.pause'),
-                onPressed: onPrimaryPressed,
-                icon: isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                variant: isPaused
-                    ? AppButtonVariant.tonal
-                    : AppButtonVariant.secondary,
-                size: AppButtonSize.compact,
-                backgroundAlpha: isPaused ? 0.56 : 0.5,
-                borderRadius: 18,
-                expand: true,
+    return SizedBox(
+      width: _recordingControlWidth,
+      height: _recordingControlHeight,
+      child: LiquidGlassSurface(
+        borderRadius: BorderRadius.circular(23),
+        padding: const EdgeInsets.all(5),
+        child: SizedBox(
+          height: 42,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 112,
+                height: 42,
+                child: AppButton(
+                  label: context.tr(isPaused ? 'home.resume' : 'home.pause'),
+                  onPressed: onPrimaryPressed,
+                  icon:
+                      isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                  variant: isPaused
+                      ? AppButtonVariant.tonal
+                      : AppButtonVariant.secondary,
+                  size: AppButtonSize.compact,
+                  backgroundAlpha: isPaused ? 0.56 : 0.5,
+                  borderRadius: 18,
+                  expand: true,
+                ),
               ),
-            ),
-            const SizedBox(width: 6),
-            AppIconButton(
-              onPressed: onEndPressed,
-              tooltip: context.tr('common.end'),
-              icon: Icons.stop_rounded,
-              variant: AppButtonVariant.danger,
-            ),
-          ],
+              const SizedBox(width: 6),
+              SizedBox.square(
+                dimension: 42,
+                child: AppIconButton(
+                  onPressed: onEndPressed,
+                  tooltip: context.tr('common.end'),
+                  icon: Icons.stop_rounded,
+                  variant: AppButtonVariant.danger,
+                  size: 42,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
