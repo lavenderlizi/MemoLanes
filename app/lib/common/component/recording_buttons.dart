@@ -144,6 +144,7 @@ class _ActiveJourneyControls extends StatelessWidget {
                     : AppButtonVariant.secondary,
                 size: AppButtonSize.compact,
                 backgroundAlpha: isPaused ? 0.56 : 0.5,
+                borderRadius: 18,
                 expand: true,
               ),
             ),

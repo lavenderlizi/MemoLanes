@@ -351,6 +351,10 @@ class _TimeMachineViewModeAndLayerMenu extends StatefulWidget {
 
 class _TimeMachineViewModeAndLayerMenuState
     extends State<_TimeMachineViewModeAndLayerMenu> {
+  static const double _minColumnWidth = 96;
+  static const double _maxColumnWidth = 116;
+  static const double _dividerWidth = 1;
+
   static const _viewModeKeys = [
     (TimeMachineViewMode.period, 'time_machine.menu_view_period'),
     (TimeMachineViewMode.asOf, 'time_machine.menu_view_as_of'),
@@ -396,73 +400,103 @@ class _TimeMachineViewModeAndLayerMenuState
 
   @override
   Widget build(BuildContext context) {
-    final content = IntrinsicHeight(
-      child: Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.hasBoundedWidth
+            ? constraints.maxWidth
+            : _maxColumnWidth * 3 + _dividerWidth * 2;
+        final columnWidth = ((availableWidth - _dividerWidth * 2) / 3).clamp(
+          _minColumnWidth,
+          _maxColumnWidth,
+        );
+
+        final content = IntrinsicHeight(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildMenuColumn(
+                width: columnWidth,
+                title: context.tr('time_machine.menu_title_view'),
+                children: _viewModeKeys
+                    .map((e) => _buildViewModeItem(e.$1, e.$2))
+                    .toList(),
+              ),
+              _buildColumnDivider(),
+              _buildMenuColumn(
+                width: columnWidth,
+                title: context.tr('time_machine.menu_title_granularity'),
+                children: _granularityKeys
+                    .map((e) => _buildGranularityItem(e.$1, e.$2))
+                    .toList(),
+              ),
+              _buildColumnDivider(),
+              _buildMenuColumn(
+                width: columnWidth,
+                title: context.tr('time_machine.menu_title_layer'),
+                children:
+                    _layerKeys.map((e) => _buildLayerItem(e.$1, e.$2)).toList(),
+              ),
+            ],
+          ),
+        );
+
+        // Keep the three-column grid intact on very small screens instead of
+        // compressing labels or letting selected backgrounds touch dividers.
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: content,
+        );
+      },
+    );
+  }
+
+  Widget _buildMenuColumn({
+    required double width,
+    required String title,
+    required List<Widget> children,
+  }) {
+    return SizedBox(
+      width: width,
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildColumnTitle(context.tr('time_machine.menu_title_view')),
-              ..._viewModeKeys.map((e) => _buildViewModeItem(e.$1, e.$2)),
-            ],
-          ),
-          VerticalDivider(
-            width: 1,
-            thickness: 1,
-            color: StyleConstants.lineColor,
-            indent: 8,
-            endIndent: 8,
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildColumnTitle(
-                  context.tr('time_machine.menu_title_granularity')),
-              ..._granularityKeys.map((e) => _buildGranularityItem(e.$1, e.$2)),
-            ],
-          ),
-          VerticalDivider(
-            width: 1,
-            thickness: 1,
-            color: StyleConstants.lineColor,
-            indent: 8,
-            endIndent: 8,
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildColumnTitle(context.tr('time_machine.menu_title_layer')),
-              ..._layerKeys.map((e) => _buildLayerItem(e.$1, e.$2)),
-            ],
-          ),
+          _buildColumnTitle(title),
+          ...children,
         ],
       ),
     );
+  }
 
-    // Popup may have a narrow max width (small screens). Allow horizontal scroll
-    // instead of letting the Row overflow.
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: content,
+  Widget _buildColumnDivider() {
+    return const VerticalDivider(
+      width: _dividerWidth,
+      thickness: _dividerWidth,
+      color: StyleConstants.lineColor,
+      indent: 8,
+      endIndent: 8,
     );
   }
 
   Widget _buildColumnTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 12, top: 8, bottom: 4),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: StyleConstants.mutedInkColor,
-          fontSize: 12.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.1,
+    return SizedBox(
+      height: 32,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Center(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: StyleConstants.mutedInkColor,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.1,
+            ),
+          ),
         ),
       ),
     );
@@ -480,31 +514,38 @@ class _TimeMachineViewModeAndLayerMenuState
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(9),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isSelected)
-                  const Icon(
-                    Icons.check_rounded,
-                    size: 18,
-                    color: StyleConstants.deepGreen,
-                  )
-                else
-                  const SizedBox(width: 18, height: 18),
-                const SizedBox(width: 7),
-                Text(
-                  context.tr(labelKey),
-                  style: TextStyle(
-                    color: isSelected
-                        ? StyleConstants.deepGreen
-                        : StyleConstants.deepGreen.withValues(alpha: 0.82),
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          child: SizedBox(
+            height: 40,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  if (isSelected)
+                    const Icon(
+                      Icons.check_rounded,
+                      size: 18,
+                      color: StyleConstants.deepGreen,
+                    )
+                  else
+                    const SizedBox(width: 18, height: 18),
+                  const SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      context.tr(labelKey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isSelected
+                            ? StyleConstants.deepGreen
+                            : StyleConstants.deepGreen.withValues(alpha: 0.82),
+                        fontSize: 14,
+                        fontWeight:
+                            isSelected ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

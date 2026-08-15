@@ -36,7 +36,9 @@ class AppButton extends StatelessWidget {
     this.expand = false,
     this.loading = false,
     this.backgroundAlpha = 1,
-  }) : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1);
+    this.borderRadius,
+  })  : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
+        assert(borderRadius == null || borderRadius >= 0);
 
   final String label;
   final VoidCallback? onPressed;
@@ -46,6 +48,7 @@ class AppButton extends StatelessWidget {
   final bool expand;
   final bool loading;
   final double backgroundAlpha;
+  final double? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +57,12 @@ class AppButton extends StatelessWidget {
       AppButtonSize.regular => 44.0,
       AppButtonSize.large => 52.0,
     };
-    final radius = switch (size) {
-      AppButtonSize.compact => 13.0,
-      AppButtonSize.regular => 14.0,
-      AppButtonSize.large => 24.0,
-    };
+    final radius = borderRadius ??
+        switch (size) {
+          AppButtonSize.compact => 13.0,
+          AppButtonSize.regular => 14.0,
+          AppButtonSize.large => 24.0,
+        };
     final fontSize = switch (size) {
       AppButtonSize.compact => 12.0,
       AppButtonSize.regular => 14.0,
