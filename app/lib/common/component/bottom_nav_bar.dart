@@ -98,43 +98,21 @@ class BottomNavBar extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(19),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF0F2ED)
-                                  .withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(19),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: StyleConstants.inkColor
-                                      .withValues(alpha: 0.075),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
+                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: StyleConstants.primaryGreen
+                              .withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(19),
+                          boxShadow: [
+                            BoxShadow(
+                              color: StyleConstants.deepGreen
+                                  .withValues(alpha: 0.1),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
                             ),
-                          ),
-                          Positioned(
-                            left: 10,
-                            right: 10,
-                            top: 1,
-                            height: 1,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.white.withValues(alpha: 0),
-                                    Colors.white.withValues(alpha: 0.78),
-                                    Colors.white.withValues(alpha: 0),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
