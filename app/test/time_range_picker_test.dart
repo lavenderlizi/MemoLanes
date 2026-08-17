@@ -91,6 +91,27 @@ void main() {
     expect(periodText, findsNothing);
   });
 
+  testWidgets('mode menu remains usable on a 320px viewport', (tester) async {
+    tester.view.physicalSize = const Size(320, 480);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.runAsync(() async {
+      await tester.pumpWidget(_buildTestApp(onRangeChanged: (_, __) {}));
+      await tester.pump(const Duration(seconds: 1));
+    });
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(TimeRangeControllerBall));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Period'), findsOneWidget);
+    expect(find.text('Granularity'), findsOneWidget);
+    expect(find.text('Ground'), findsOneWidget);
+  });
+
   testWidgets('defaults to the cumulative as-of range', (tester) async {
     final ranges = <(DateTime, DateTime)>[];
     final currentYear = DateTime.now().year;

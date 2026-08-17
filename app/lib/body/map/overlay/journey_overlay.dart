@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
@@ -479,16 +479,12 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
 
   Future<DateTime?> _selectDateAndTime(DateTime? current) async {
     final seed = current?.toLocal() ?? DateTime.now();
-    final date = await showDialog<DateTime>(
-      context: context,
-      barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
-      builder: (dialogContext) => PointerInterceptor(
-        child: _CompactJourneyDateDialog(
-          initialDate: _validInitialDate(seed),
-          firstDate: _firstDate,
-          lastDate: DateTime.now(),
-        ),
-      ),
+    final date = await showAppDatePickerDialog(
+      context,
+      initialDate: _validInitialDate(seed),
+      firstDate: _firstDate,
+      lastDate: DateTime.now(),
+      highlightInitialDate: true,
     );
     if (date == null || !mounted) return null;
     final time = await showDialog<TimeOfDay>(
@@ -505,16 +501,12 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
   }
 
   Future<void> _selectJourneyDate() async {
-    final selected = await showDialog<DateTime>(
-      context: context,
-      barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
-      builder: (dialogContext) => PointerInterceptor(
-        child: _CompactJourneyDateDialog(
-          initialDate: _validInitialDate(_journeyDate),
-          firstDate: _firstDate,
-          lastDate: DateTime.now(),
-        ),
-      ),
+    final selected = await showAppDatePickerDialog(
+      context,
+      initialDate: _validInitialDate(_journeyDate),
+      firstDate: _firstDate,
+      lastDate: DateTime.now(),
+      highlightInitialDate: true,
     );
     if (selected == null || !mounted) return;
     setState(() => _journeyDate = selected);
@@ -874,189 +866,6 @@ class _JourneyActionButton extends StatelessWidget {
       onPressed: onPressed,
       loading: loading,
       expand: true,
-    );
-  }
-}
-
-class _CompactJourneyDateDialog extends StatefulWidget {
-  const _CompactJourneyDateDialog({
-    required this.initialDate,
-    required this.firstDate,
-    required this.lastDate,
-  });
-
-  final DateTime initialDate;
-  final DateTime firstDate;
-  final DateTime lastDate;
-
-  @override
-  State<_CompactJourneyDateDialog> createState() =>
-      _CompactJourneyDateDialogState();
-}
-
-class _CompactJourneyDateDialogState extends State<_CompactJourneyDateDialog> {
-  late DateTime _selectedDate;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = widget.initialDate;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final config = CalendarDatePicker2Config(
-      firstDate: widget.firstDate,
-      lastDate: widget.lastDate,
-      calendarType: CalendarDatePicker2Type.single,
-      centerAlignModePicker: true,
-      controlsHeight: 38,
-      dayMaxWidth: 30,
-      dynamicCalendarRows: true,
-      disableVibration: true,
-      daySplashColor: Colors.transparent,
-      selectedDayHighlightColor: Colors.transparent,
-      dayTextStyle: const TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-      selectedDayTextStyle: const TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-      todayTextStyle: const TextStyle(
-        color: StyleConstants.deepGreen,
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-      ),
-      weekdayLabelTextStyle: const TextStyle(
-        color: StyleConstants.mutedInkColor,
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-      ),
-      controlsTextStyle: const TextStyle(
-        color: StyleConstants.deepGreen,
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-      ),
-      disabledDayTextStyle: TextStyle(
-        color: StyleConstants.mutedInkColor.withValues(alpha: 0.42),
-        fontSize: 12,
-      ),
-      lastMonthIcon: const Icon(
-        Icons.chevron_left_rounded,
-        color: StyleConstants.deepGreen,
-        size: 20,
-      ),
-      nextMonthIcon: const Icon(
-        Icons.chevron_right_rounded,
-        color: StyleConstants.deepGreen,
-        size: 20,
-      ),
-      dayBuilder: ({
-        required date,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isToday,
-      }) {
-        final isCurrentSelection = isSelected == true;
-        final isOriginalDate = DateUtils.isSameDay(date, widget.initialDate);
-
-        return Center(
-          child: Container(
-            width: 28,
-            height: 28,
-            alignment: Alignment.center,
-            decoration: isCurrentSelection
-                ? const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: StyleConstants.primaryGreen,
-                  )
-                : isOriginalDate
-                    ? BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: StyleConstants.primaryGreen,
-                          width: 2,
-                        ),
-                      )
-                    : null,
-            child: Text(
-              MaterialLocalizations.of(context).formatDecimal(date.day),
-              style: isCurrentSelection
-                  ? const TextStyle(
-                      color: StyleConstants.inkColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    )
-                  : textStyle,
-            ),
-          ),
-        );
-      },
-    );
-
-    return Dialog(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 390),
-        child: _JourneyPanelSurface(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 290,
-                  child: CalendarDatePicker2(
-                    config: config,
-                    value: [_selectedDate],
-                    onValueChanged: (dates) {
-                      final selected = dates.firstOrNull;
-                      if (selected == null) return;
-                      AppHaptics.selection();
-                      setState(() => _selectedDate = selected);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: 112,
-                      child: _JourneyActionButton(
-                        icon: Icons.close_rounded,
-                        label:
-                            MaterialLocalizations.of(context).cancelButtonLabel,
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 112,
-                      child: _JourneyActionButton(
-                        icon: Icons.check_rounded,
-                        label: MaterialLocalizations.of(context).okButtonLabel,
-                        variant: AppButtonVariant.primary,
-                        onPressed: () =>
-                            Navigator.of(context).pop(_selectedDate),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

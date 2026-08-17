@@ -1,12 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/time_machine/time_machine_glass_surface.dart';
 import 'package:memolanes/common/app_haptics.dart';
-import 'package:memolanes/common/component/app_button.dart';
-import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
@@ -771,16 +769,12 @@ class TimeRangeOverlayPicker extends StatelessWidget {
     var safeInitial = initial;
     if (safeInitial.isBefore(first)) safeInitial = first;
     if (safeInitial.isAfter(last)) safeInitial = last;
-    final picked = await showDialog<DateTime>(
-      context: context,
-      barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
-      builder: (_) => PointerInterceptor(
-        child: _TimeMachineDateDialog(
-          initialDate: safeInitial,
-          firstDate: first,
-          lastDate: last,
-        ),
-      ),
+    final picked = await showAppDatePickerDialog(
+      context,
+      initialDate: safeInitial,
+      firstDate: first,
+      lastDate: last,
+      glassBackgroundAlpha: 0.76,
     );
     if (picked != null) onChanged(picked);
   }
@@ -833,152 +827,6 @@ class _TapTile extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TimeMachineDateDialog extends StatefulWidget {
-  const _TimeMachineDateDialog({
-    required this.initialDate,
-    required this.firstDate,
-    required this.lastDate,
-  });
-
-  final DateTime initialDate;
-  final DateTime firstDate;
-  final DateTime lastDate;
-
-  @override
-  State<_TimeMachineDateDialog> createState() => _TimeMachineDateDialogState();
-}
-
-class _TimeMachineDateDialogState extends State<_TimeMachineDateDialog> {
-  late DateTime _selectedDate;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = widget.initialDate;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final localizations = MaterialLocalizations.of(context);
-    final config = CalendarDatePicker2Config(
-      firstDate: widget.firstDate,
-      lastDate: widget.lastDate,
-      calendarType: CalendarDatePicker2Type.single,
-      centerAlignModePicker: true,
-      controlsHeight: 38,
-      dayMaxWidth: 30,
-      dynamicCalendarRows: true,
-      disableVibration: true,
-      daySplashColor: Colors.transparent,
-      selectedDayHighlightColor: StyleConstants.primaryGreen,
-      dayTextStyle: const TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-      selectedDayTextStyle: const TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
-      todayTextStyle: const TextStyle(
-        color: StyleConstants.deepGreen,
-        fontSize: 12,
-        fontWeight: FontWeight.w700,
-      ),
-      weekdayLabelTextStyle: const TextStyle(
-        color: StyleConstants.mutedInkColor,
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
-      ),
-      controlsTextStyle: const TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
-      ),
-      disabledDayTextStyle: TextStyle(
-        color: StyleConstants.mutedInkColor.withValues(alpha: 0.42),
-        fontSize: 12,
-      ),
-      lastMonthIcon: const Icon(
-        Icons.chevron_left_rounded,
-        color: StyleConstants.deepGreen,
-        size: 20,
-      ),
-      nextMonthIcon: const Icon(
-        Icons.chevron_right_rounded,
-        color: StyleConstants.deepGreen,
-        size: 20,
-      ),
-    );
-
-    return Dialog(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 390),
-        child: AppDialogSurface(
-          style: AppDialogSurfaceStyle.glass,
-          glassBackgroundAlpha: 0.76,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 290,
-                  child: CalendarDatePicker2(
-                    config: config,
-                    value: [_selectedDate],
-                    onValueChanged: (dates) {
-                      final selected = dates.firstOrNull;
-                      if (selected == null) return;
-                      AppHaptics.selection();
-                      setState(() => _selectedDate = selected);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: 112,
-                      child: AppButton(
-                        label: localizations.cancelButtonLabel,
-                        icon: Icons.close_rounded,
-                        variant: AppButtonVariant.secondary,
-                        size: AppButtonSize.compact,
-                        expand: true,
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    SizedBox(
-                      width: 112,
-                      child: AppButton(
-                        label: localizations.okButtonLabel,
-                        icon: Icons.check_rounded,
-                        variant: AppButtonVariant.primary,
-                        size: AppButtonSize.compact,
-                        expand: true,
-                        onPressed: () =>
-                            Navigator.of(context).pop(_selectedDate),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
           ),
         ),
       ),

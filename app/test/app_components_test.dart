@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/common_dialog.dart';
 
@@ -138,4 +139,50 @@ void main() {
     expect(result, isTrue);
     expect(find.byType(Dialog), findsNothing);
   });
+
+  for (final width in [320.0, 360.0, 380.0]) {
+    testWidgets(
+        'date picker dialog returns its selected date at ${width.toInt()}px',
+        (tester) async {
+      tester.view.physicalSize = Size(width, 480);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final initialDate = DateTime(2024, 6, 15);
+      DateTime? result;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async {
+                  result = await showAppDatePickerDialog(
+                    context,
+                    initialDate: initialDate,
+                    firstDate: DateTime(2024),
+                    lastDate: DateTime(2024, 12, 31),
+                    highlightInitialDate: true,
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(Dialog), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(result, initialDate);
+      expect(find.byType(Dialog), findsNothing);
+    });
+  }
 }
