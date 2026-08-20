@@ -98,8 +98,20 @@ class _StartJourneyButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
+  static const _labelStyle = TextStyle(
+    color: StyleConstants.deepGreen,
+    fontSize: 17,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.1,
+  );
+  static const _triangleSize = Size(10, 12);
+  static const _minIconGap = 4.0;
+  static const _maxIconGap = 10.0;
+
   @override
   Widget build(BuildContext context) {
+    final label = context.tr('home.start_new_journey');
+
     return SizedBox(
       width: _recordingControlWidth,
       height: _recordingControlHeight,
@@ -114,24 +126,45 @@ class _StartJourneyButton extends StatelessWidget {
         shadowSpreadRadius: -9,
         shadowOffset: const Offset(0, 13),
         child: Material(
-          color: StyleConstants.primaryGreen.withValues(alpha: 0.3),
+          color: StyleConstants.primaryGreen.withValues(alpha: 0.55),
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(23),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Center(
-                child: Text(
-                  context.tr('home.start_new_journey'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: StyleConstants.deepGreen,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.1,
-                  ),
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final textPainter = TextPainter(
+                    text: TextSpan(text: label, style: _labelStyle),
+                    maxLines: 1,
+                    textDirection: Directionality.of(context),
+                    textScaler: MediaQuery.textScalerOf(context),
+                  )..layout();
+                  final leftover = constraints.maxWidth -
+                      _triangleSize.width -
+                      textPainter.width;
+                  textPainter.dispose();
+                  final gap = leftover.clamp(_minIconGap, _maxIconGap);
+                  final overflows = leftover < _minIconGap;
+                  final labelText = Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _labelStyle,
+                  );
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CustomPaint(
+                        size: _triangleSize,
+                        painter: _PlayTrianglePainter(),
+                      ),
+                      SizedBox(width: gap),
+                      if (overflows) Flexible(child: labelText) else labelText,
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -139,6 +172,26 @@ class _StartJourneyButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PlayTrianglePainter extends CustomPainter {
+  const _PlayTrianglePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, size.height / 2)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(
+      path,
+      Paint()..color = StyleConstants.deepGreen,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _ActiveJourneyControls extends StatelessWidget {
@@ -178,6 +231,7 @@ class _ActiveJourneyControls extends StatelessWidget {
                       ? AppButtonVariant.tonal
                       : AppButtonVariant.secondary,
                   size: AppButtonSize.compact,
+                  fontSize: 14,
                   backgroundAlpha: isPaused ? 0.56 : 0.5,
                   borderRadius: 18,
                   expand: true,

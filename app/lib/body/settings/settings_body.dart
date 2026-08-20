@@ -8,6 +8,7 @@ import 'package:memolanes/body/settings/import_data_page.dart';
 import 'package:memolanes/body/settings/map_settings_page.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
+import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/common_export.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
@@ -122,218 +123,254 @@ class _SettingsBodyState extends State<SettingsBody> {
         //     ),
         //   ),
         // ),
-        LabelTileTitle(
-          label: context.tr("general.title"),
-        ),
-        LabelTile(
-          label: context.tr("general.version.title"),
-          position: LabelTilePosition.middle,
-          prefix: const _SettingsTileIcon(
-            icon: Icons.info_outline_rounded,
-            yellow: true,
-          ),
-          trailing: updateUrl != null
-              ? badges.Badge(
-                  badgeStyle: badges.BadgeStyle(
-                    shape: badges.BadgeShape.square,
-                    borderRadius: BorderRadius.circular(5),
-                    padding: const EdgeInsets.all(2),
-                    badgeGradient: const badges.BadgeGradient.linear(
-                      colors: [
-                        StyleConstants.primaryGreen,
-                        StyleConstants.journeyYellow,
-                        StyleConstants.primaryGreen,
-                      ],
+        OptionCard(
+          useSafeArea: false,
+          separators: false,
+          children: [
+            LabelTileTitle(
+              label: context.tr("general.title"),
+            ),
+            LabelTile(
+              label: context.tr("general.version.title"),
+              position: LabelTilePosition.middle,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.info_outline_rounded,
+              ),
+              trailing: updateUrl != null
+                  ? badges.Badge(
+                      badgeStyle: badges.BadgeStyle(
+                        shape: badges.BadgeShape.square,
+                        borderRadius: BorderRadius.circular(5),
+                        padding: const EdgeInsets.all(2),
+                        badgeGradient: const badges.BadgeGradient.linear(
+                          colors: [
+                            StyleConstants.primaryGreen,
+                            StyleConstants.journeyYellow,
+                            StyleConstants.primaryGreen,
+                          ],
+                        ),
+                      ),
+                      badgeContent: const Text(
+                        'NEW',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      child: LabelTileContent(
+                        content: _version,
+                      ),
+                    )
+                  : LabelTileContent(
+                      content: _version,
                     ),
-                  ),
-                  badgeContent: const Text(
-                    'NEW',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  child: LabelTileContent(
-                    content: _version,
-                  ),
-                )
-              : LabelTileContent(
-                  content: _version,
-                ),
-          onTap: () async {
-            if (updateUrl != null) {
-              _launchUrl(updateUrl);
-              return;
-            }
-            await showCommonDialog(
-              context,
-              context.tr("general.version.currently_the_latest_version"),
-            );
-          },
-        ),
-        LabelTile(
-          label: context.tr("general.map_settings.title"),
-          position: LabelTilePosition.middle,
-          prefix: const _SettingsTileIcon(icon: Icons.map_outlined),
-          trailing: LabelTileContent(showArrow: true),
-          onTap: () => navigatorPush(context, page: const MapSettingsPage()),
-        ),
-        LabelTile(
-          label: context.tr("general.advanced_settings.title"),
-          position: LabelTilePosition.bottom,
-          prefix: const _SettingsTileIcon(icon: Icons.tune_rounded),
-          trailing: LabelTileContent(showArrow: true),
-          onTap: () => navigatorPush(context, page: AdvancedSettingsPage()),
-        ),
-        LabelTileTitle(
-          label: context.tr("data.title"),
-        ),
-        // TODO: This is unused, but we may use it depending on the design of
-        // import/export workflow.
-        //
-        // LabelTile(
-        //   label: context.tr("data.backup_data.title"),
-        //   position: LabelTilePosition.middle,
-        //   trailing: LabelTileContent(showArrow: true),
-        //   onTap: () => Navigator.push(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (context) {
-        //         return BackupDataScreen();
-        //       },
-        //     ),
-        //   ),
-        // ),
-        LabelTile(
-          label: context.tr("data.import_data.title"),
-          position: LabelTilePosition.middle,
-          prefix: const _SettingsTileIcon(
-            icon: Icons.file_download_outlined,
-          ),
-          trailing: LabelTileContent(showArrow: true),
-          onTap: () => _showImportDataCard(context),
-        ),
-        LabelTile(
-          label: context.tr("data.export_data.export_all"),
-          position: LabelTilePosition.bottom,
-          prefix: const _SettingsTileIcon(
-            icon: Icons.file_upload_outlined,
-            yellow: true,
-          ),
-          onTap: () async {
-            if (gpsManager.recordingStatus != GpsRecordingStatus.none) {
-              await showCommonDialog(
-                context,
-                context.tr("journey.stop_ongoing_journey"),
-              );
-              return;
-            }
-            final hasJourneys = await api.hasJourneys();
-            if (!context.mounted) return;
-            if (!hasJourneys) {
-              await showCommonDialog(
-                context,
-                context.tr("data.export_data.error.no_journeys_to_export"),
-              );
-              return;
-            }
-            await showCommonExportWithFormatPicker(
-              context: context,
-              title: context.tr("data.export_data.export_all_title"),
-              formats: const [
-                CommonExportFormat.mldx,
-                CommonExportFormat.fwss,
-              ],
-              exportFile: (format) async {
-                var tmpDir = await getTemporaryDirectory();
-                final now = DateTime.now();
-                final timestamp = DateFormat('yyyy-MM-dd-HH-mm-ss').format(now);
-                final filepath =
-                    "${tmpDir.path}/all-journeys-$timestamp.${format.extension}";
-                final exportResult = switch (format) {
-                  CommonExportFormat.mldx =>
-                    await api.generateFullArchive(targetFilepath: filepath),
-                  CommonExportFormat.fwss =>
-                    await api.exportAllJourneysAsFwss(targetFilepath: filepath),
-                  CommonExportFormat.kml ||
-                  CommonExportFormat.gpx =>
-                    throw UnsupportedError(
-                        'Unsupported export format: $format'),
-                };
-                return CommonExportResult.create(exportResult, filepath);
-              },
-            );
-          },
-        ),
-        LabelTileTitle(
-          label: context.tr("settings.other"),
-        ),
-        LabelTile(
-          label: context.tr("unexpected_exit_notification.setting_title"),
-          position: LabelTilePosition.bottom,
-          prefix: const _SettingsTileIcon(
-            icon: Icons.notifications_active_outlined,
-            yellow: true,
-          ),
-          trailing: Switch(
-            value: _isUnexpectedExitNotificationEnabled,
-            onChanged: (value) async {
-              final status = await Permission.notification.status;
-              if (!context.mounted) return;
-              if (value) {
-                if (!status.isGranted) {
-                  setState(() {
-                    _isUnexpectedExitNotificationEnabled = false;
-                  });
-
-                  await showCommonDialog(
-                    context,
-                    context.tr(
-                        "unexpected_exit_notification.notification_permission_denied"),
-                  );
-                  Geolocator.openAppSettings();
+              onTap: () async {
+                if (updateUrl != null) {
+                  _launchUrl(updateUrl);
                   return;
                 }
-              }
-              MMKVUtil.putBool(
-                  MMKVKey.isUnexpectedExitNotificationEnabled, value);
-              setState(() {
-                _isUnexpectedExitNotificationEnabled = value;
-              });
-              if (gpsManager.recordingStatus == GpsRecordingStatus.recording) {
-                if (!context.mounted) return;
                 await showCommonDialog(
+                  context,
+                  context.tr("general.version.currently_the_latest_version"),
+                );
+              },
+            ),
+            LabelTile(
+              label: context.tr("general.map_settings.title"),
+              position: LabelTilePosition.middle,
+              prefix: const _SettingsTileIcon(icon: Icons.map_outlined),
+              trailing: LabelTileContent(showArrow: true),
+              onTap: () =>
+                  navigatorPush(context, page: const MapSettingsPage()),
+            ),
+            LabelTile(
+              label: context.tr("general.advanced_settings.title"),
+              position: LabelTilePosition.bottom,
+              bottom: false,
+              prefix: const _SettingsTileIcon(icon: Icons.tune_rounded),
+              trailing: LabelTileContent(showArrow: true),
+              onTap: () => navigatorPush(context, page: AdvancedSettingsPage()),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        OptionCard(
+          useSafeArea: false,
+          separators: false,
+          children: [
+            LabelTileTitle(
+              label: context.tr("data.title"),
+            ),
+            // TODO: This is unused, but we may use it depending on the design of
+            // import/export workflow.
+            //
+            // LabelTile(
+            //   label: context.tr("data.backup_data.title"),
+            //   position: LabelTilePosition.middle,
+            //   trailing: LabelTileContent(showArrow: true),
+            //   onTap: () => Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) {
+            //         return BackupDataScreen();
+            //       },
+            //     ),
+            //   ),
+            // ),
+            LabelTile(
+              label: context.tr("data.import_data.title"),
+              position: LabelTilePosition.middle,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.file_download_outlined,
+                yellow: true,
+              ),
+              trailing: LabelTileContent(showArrow: true),
+              onTap: () => _showImportDataCard(context),
+            ),
+            LabelTile(
+              label: context.tr("data.export_data.export_all"),
+              position: LabelTilePosition.bottom,
+              bottom: false,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.file_upload_outlined,
+                yellow: true,
+              ),
+              onTap: () async {
+                if (gpsManager.recordingStatus != GpsRecordingStatus.none) {
+                  await showCommonDialog(
                     context,
-                    context.tr(
-                      "unexpected_exit_notification.change_affect_next_time",
-                    ));
-              }
-            },
-          ),
+                    context.tr("journey.stop_ongoing_journey"),
+                  );
+                  return;
+                }
+                final hasJourneys = await api.hasJourneys();
+                if (!context.mounted) return;
+                if (!hasJourneys) {
+                  await showCommonDialog(
+                    context,
+                    context.tr("data.export_data.error.no_journeys_to_export"),
+                  );
+                  return;
+                }
+                await showCommonExportWithFormatPicker(
+                  context: context,
+                  title: context.tr("data.export_data.export_all_title"),
+                  formats: const [
+                    CommonExportFormat.mldx,
+                    CommonExportFormat.fwss,
+                  ],
+                  exportFile: (format) async {
+                    var tmpDir = await getTemporaryDirectory();
+                    final now = DateTime.now();
+                    final timestamp =
+                        DateFormat('yyyy-MM-dd-HH-mm-ss').format(now);
+                    final filepath =
+                        "${tmpDir.path}/all-journeys-$timestamp.${format.extension}";
+                    final exportResult = switch (format) {
+                      CommonExportFormat.mldx =>
+                        await api.generateFullArchive(targetFilepath: filepath),
+                      CommonExportFormat.fwss => await api
+                          .exportAllJourneysAsFwss(targetFilepath: filepath),
+                      CommonExportFormat.kml ||
+                      CommonExportFormat.gpx =>
+                        throw UnsupportedError(
+                            'Unsupported export format: $format'),
+                    };
+                    return CommonExportResult.create(exportResult, filepath);
+                  },
+                );
+              },
+            ),
+          ],
         ),
-        LabelTileTitle(
-          label: context.tr("settings.about"),
+        const SizedBox(height: 14),
+        OptionCard(
+          useSafeArea: false,
+          separators: false,
+          children: [
+            LabelTileTitle(
+              label: context.tr("settings.other"),
+            ),
+            LabelTile(
+              label: context.tr("unexpected_exit_notification.setting_title"),
+              position: LabelTilePosition.bottom,
+              bottom: false,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.notifications_active_outlined,
+              ),
+              trailing: Switch(
+                value: _isUnexpectedExitNotificationEnabled,
+                onChanged: (value) async {
+                  final status = await Permission.notification.status;
+                  if (!context.mounted) return;
+                  if (value) {
+                    if (!status.isGranted) {
+                      setState(() {
+                        _isUnexpectedExitNotificationEnabled = false;
+                      });
+
+                      await showCommonDialog(
+                        context,
+                        context.tr(
+                            "unexpected_exit_notification.notification_permission_denied"),
+                      );
+                      Geolocator.openAppSettings();
+                      return;
+                    }
+                  }
+                  MMKVUtil.putBool(
+                      MMKVKey.isUnexpectedExitNotificationEnabled, value);
+                  setState(() {
+                    _isUnexpectedExitNotificationEnabled = value;
+                  });
+                  if (gpsManager.recordingStatus ==
+                      GpsRecordingStatus.recording) {
+                    if (!context.mounted) return;
+                    await showCommonDialog(
+                        context,
+                        context.tr(
+                          "unexpected_exit_notification.change_affect_next_time",
+                        ));
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-        LabelTile(
-          label: context.tr("privacy.name"),
-          position: LabelTilePosition.middle,
-          prefix: const _SettingsTileIcon(icon: Icons.shield_outlined),
-          trailing: LabelTileContent(rightIcon: Icons.open_in_new),
-          onTap: () async {
-            await launchUrlString(context.tr("privacy.url"),
-                mode: LaunchMode.externalApplication);
-          },
-        ),
-        LabelTile(
-          label: context.tr("contact_us.title"),
-          position: LabelTilePosition.bottom,
-          prefix: const _SettingsTileIcon(
-            icon: Icons.forum_outlined,
-            yellow: true,
-          ),
-          trailing: LabelTileContent(rightIcon: Icons.arrow_forward_ios),
-          onTap: () => navigatorPush(context, page: ContactUsPage()),
+        const SizedBox(height: 14),
+        OptionCard(
+          useSafeArea: false,
+          separators: false,
+          children: [
+            LabelTileTitle(
+              label: context.tr("settings.about"),
+            ),
+            LabelTile(
+              label: context.tr("privacy.name"),
+              position: LabelTilePosition.middle,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.shield_outlined,
+                yellow: true,
+              ),
+              trailing: LabelTileContent(rightIcon: Icons.open_in_new),
+              onTap: () async {
+                await launchUrlString(context.tr("privacy.url"),
+                    mode: LaunchMode.externalApplication);
+              },
+            ),
+            LabelTile(
+              label: context.tr("contact_us.title"),
+              position: LabelTilePosition.bottom,
+              bottom: false,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.forum_outlined,
+                yellow: true,
+              ),
+              trailing: LabelTileContent(rightIcon: Icons.arrow_forward_ios),
+              onTap: () => navigatorPush(context, page: ContactUsPage()),
+            ),
+          ],
         ),
       ],
     );
@@ -463,28 +500,14 @@ class _SettingsPageHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.tr('settings.page_title'),
-            style: const TextStyle(
-              color: StyleConstants.inkColor,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              height: 1.05,
-            ),
-          ),
-          const SizedBox(height: 7),
-          Text(
-            context.tr('settings.page_subtitle'),
-            style: const TextStyle(
-              color: StyleConstants.mutedInkColor,
-              fontSize: 14,
-              height: 1.4,
-            ),
-          ),
-        ],
+      child: Text(
+        context.tr('settings.page_title'),
+        style: const TextStyle(
+          color: StyleConstants.inkColor,
+          fontSize: 28,
+          fontWeight: FontWeight.w800,
+          height: 1.05,
+        ),
       ),
     );
   }

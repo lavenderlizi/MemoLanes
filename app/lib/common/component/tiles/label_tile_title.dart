@@ -11,22 +11,10 @@ class LabelTileTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = Radius.circular(16.0);
-
-    BorderRadius? borderRadius = BorderRadius.zero;
-    borderRadius = borderRadius.copyWith(
-      topLeft: radius,
-      topRight: radius,
-    );
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-      decoration: BoxDecoration(
-        color: StyleConstants.surfaceColor,
-        borderRadius: borderRadius,
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
       child: ConstrainedBox(
-        constraints: BoxConstraints(
+        constraints: const BoxConstraints(
           minWidth: double.infinity,
           maxHeight: 54.0,
         ),

@@ -6,32 +6,40 @@ class OptionCard extends StatelessWidget {
   const OptionCard({
     super.key,
     required this.children,
+    this.useSafeArea = true,
+    this.separators = true,
   });
 
   final List<Widget> children;
+  final bool useSafeArea;
+  final bool separators;
 
   @override
   Widget build(BuildContext context) {
-    return SafeAreaWrapper(
-      child: Container(
-        decoration: BoxDecoration(
-          color: StyleConstants.surfaceColor,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: StyleConstants.lineColor),
-          boxShadow: [
-            BoxShadow(
-              color: StyleConstants.inkColor.withValues(alpha: 0.055),
-              blurRadius: 20,
-              offset: const Offset(0, 7),
-            ),
-          ],
-        ),
+    final card = Container(
+      decoration: BoxDecoration(
+        color: StyleConstants.surfaceColor,
+        borderRadius: BorderRadius.circular(16.0),
+        border: Border.all(color: StyleConstants.lineColor),
+        boxShadow: [
+          BoxShadow(
+            color: StyleConstants.inkColor.withValues(alpha: 0.055),
+            blurRadius: 20,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: _withDividers(children),
+          children: separators ? _withDividers(children) : children,
         ),
       ),
     );
+
+    if (!useSafeArea) return card;
+    return SafeAreaWrapper(child: card);
   }
 
   List<Widget> _withDividers(List<Widget> widgets) {

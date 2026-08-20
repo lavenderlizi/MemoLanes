@@ -207,7 +207,6 @@
     "notification_message": "记录意外停止，请重新启动应用。"
   },
   "achievement": {
-    "page_subtitle": "把走过的地方，慢慢收藏成自己的世界",
     "title": "成就",
     "area_units": {
       "square_meters": "m²",
@@ -309,7 +308,6 @@
   },
   "settings": {
     "page_title": "设置",
-    "page_subtitle": "管理地图、数据与记录偏好",
     "other": "其他",
     "about": "关于"
   },

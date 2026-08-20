@@ -221,6 +221,7 @@ class _JourneyBodyState extends State<JourneyBody> {
   }
 
   Widget _buildJourneyHeaderList() {
+    final timeFormat = DateFormat('HH:mm:ss');
     final journeyList = ListView.builder(
       controller: _journeyListController,
       padding: EdgeInsets.only(
@@ -232,8 +233,7 @@ class _JourneyBodyState extends State<JourneyBody> {
         final journeyHeader = _journeyHeaderList[index];
         return LabelTile(
           label: journeyHeader.start != null
-              ? DateFormat("yyyy-MM-dd HH:mm:ss")
-                  .format(journeyHeader.start!.toLocal())
+              ? timeFormat.format(journeyHeader.start!.toLocal())
               : naiveDateToString(date: journeyHeader.journeyDate),
           trailing: LabelTileContent(showArrow: true),
           prefix: Padding(

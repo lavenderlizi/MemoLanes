@@ -312,31 +312,17 @@ class _AchievementPageTitle extends StatelessWidget {
     return SafeAreaWrapper(
       child: SizedBox(
         width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.tr('achievement.title'),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                color: StyleConstants.inkColor,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.tr('achievement.page_subtitle'),
-              style: const TextStyle(
-                color: StyleConstants.mutedInkColor,
-                fontSize: 14,
-                height: 1.4,
-              ),
-            ),
-          ],
+        child: Text(
+          context.tr('achievement.title'),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.left,
+          style: const TextStyle(
+            color: StyleConstants.inkColor,
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            height: 1,
+          ),
         ),
       ),
     );

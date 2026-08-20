@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/log.dart';
+import 'package:memolanes/common/map_fog_style.dart';
 import 'package:memolanes/common/map_style.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -324,13 +325,15 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
         Platform.isIOS ? 'memolanes://api' : 'https://memolanes.local/api';
 
     final style = _selectedMapStyle;
+    const fogStyle = MapFogStyle.dark;
     await controller.evaluateJavascript(source: '''
       // Set the params
       window.EXTERNAL_PARAMS = {
         cgi_endpoint: "$cgiEndpoint",
         render: "canvas",
         map_style: "${style.url}",
-        fog_density: ${style.fogOpacity},
+        fog_color: "${fogStyle.colorHex}",
+        fog_density: ${fogStyle.opacity},
         access_key: ${accessKey != null ? "\"$accessKey\"" : "null"},
         lng: $lngParam,
         lat: $latParam,

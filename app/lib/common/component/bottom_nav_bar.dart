@@ -101,8 +101,7 @@ class BottomNavBar extends StatelessWidget {
                       filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: StyleConstants.primaryGreen
-                              .withValues(alpha: 0.22),
+                          color: const Color(0xFFDDDDDD).withValues(alpha: 0.22),
                           borderRadius: BorderRadius.circular(19),
                           boxShadow: [
                             BoxShadow(

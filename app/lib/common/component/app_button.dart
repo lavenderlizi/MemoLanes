@@ -37,8 +37,10 @@ class AppButton extends StatelessWidget {
     this.loading = false,
     this.backgroundAlpha = 1,
     this.borderRadius,
+    this.fontSize,
   })  : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
-        assert(borderRadius == null || borderRadius >= 0);
+        assert(borderRadius == null || borderRadius >= 0),
+        assert(fontSize == null || fontSize > 0);
 
   final String label;
   final VoidCallback? onPressed;
@@ -49,6 +51,7 @@ class AppButton extends StatelessWidget {
   final bool loading;
   final double backgroundAlpha;
   final double? borderRadius;
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +66,12 @@ class AppButton extends StatelessWidget {
           AppButtonSize.regular => 14.0,
           AppButtonSize.large => 24.0,
         };
-    final fontSize = switch (size) {
-      AppButtonSize.compact => 12.0,
-      AppButtonSize.regular => 14.0,
-      AppButtonSize.large => 16.0,
-    };
+    final resolvedFontSize = fontSize ??
+        switch (size) {
+          AppButtonSize.compact => 12.0,
+          AppButtonSize.regular => 14.0,
+          AppButtonSize.large => 16.0,
+        };
     final horizontalPadding = switch (size) {
       AppButtonSize.compact => 10.0,
       AppButtonSize.regular => 16.0,
@@ -89,7 +93,7 @@ class AppButton extends StatelessWidget {
       side: variant.side,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       textStyle: TextStyle(
-        fontSize: fontSize,
+        fontSize: resolvedFontSize,
         fontWeight: FontWeight.w700,
       ),
       shape: RoundedRectangleBorder(
