@@ -73,6 +73,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
   bool _readyForDisplay = false;
 
   late MapStyle _selectedMapStyle;
+  late MapFogStyle _selectedMapFogStyle;
 
   // Dev server URL for loading map webview from a local dev server.
   // Usage: flutter run --dart-define=DEV_SERVER=http://ip:port
@@ -134,6 +135,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     _gpsManager.addListener(_updateLocationMarker);
     _currentRoughMapView = widget.initialMapView;
     _selectedMapStyle = _loadMapStyleFromStorage();
+    _selectedMapFogStyle = _loadMapFogStyleFromStorage();
 
     () async {
       if (Platform.isIOS) {
@@ -325,7 +327,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
         Platform.isIOS ? 'memolanes://api' : 'https://memolanes.local/api';
 
     final style = _selectedMapStyle;
-    const fogStyle = MapFogStyle.dark;
+    final fogStyle = _selectedMapFogStyle;
     await controller.evaluateJavascript(source: '''
       // Set the params
       window.EXTERNAL_PARAMS = {
@@ -367,6 +369,11 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
   MapStyle _loadMapStyleFromStorage() {
     final id = MMKVUtil.getString(MMKVKey.mapStyle);
     return MapStyle.findById(id);
+  }
+
+  MapFogStyle _loadMapFogStyleFromStorage() {
+    final id = MMKVUtil.getStringOpt(MMKVKey.mapFogMode);
+    return MapFogStyle.findById(id);
   }
 
   void _handleMapViewPush(String message) {

@@ -121,10 +121,6 @@ class _StartJourneyButton extends StatelessWidget {
         borderAlpha: 0.62,
         blurSigma: 28,
         reflectionAlpha: 0.2,
-        shadowAlpha: 0.14,
-        shadowBlurRadius: 32,
-        shadowSpreadRadius: -9,
-        shadowOffset: const Offset(0, 13),
         child: Material(
           color: StyleConstants.primaryGreen.withValues(alpha: 0.55),
           child: InkWell(

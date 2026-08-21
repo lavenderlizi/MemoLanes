@@ -5,9 +5,13 @@
 /// particular tile provider.
 class MapFogStyle {
   const MapFogStyle({
+    required this.id,
     required this.colorHex,
     required this.opacity,
   });
+
+  /// Stable identifier persisted in app preferences.
+  final String id;
 
   /// A CSS-compatible six-digit RGB color.
   final String colorHex;
@@ -15,9 +19,24 @@ class MapFogStyle {
   /// Overlay opacity in the inclusive range 0–1.
   final double opacity;
 
-  /// Low-chroma charcoal fog designed for the current light application UI.
   static const dark = MapFogStyle(
-    colorHex: '#1E2528',
+    id: 'dark',
+    colorHex: '#001A3A',
     opacity: 0.40,
   );
+
+  static const light = MapFogStyle(
+    id: 'light',
+    colorHex: '#EFF9FF',
+    opacity: 0.70,
+  );
+
+  static const all = [dark, light];
+
+  static MapFogStyle findById(String? id) {
+    return all.firstWhere(
+      (style) => style.id == id,
+      orElse: () => dark,
+    );
+  }
 }

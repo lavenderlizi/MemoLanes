@@ -1,7 +1,7 @@
 import type { RGBAColor } from "./layers/journey-layer-interface";
 
 /** Fallback used by the standalone web map when Flutter supplies no style. */
-export const DEFAULT_FOG_COLOR = "#1E2528";
+export const DEFAULT_FOG_COLOR = "#001A3A";
 export const DEFAULT_FOG_OPACITY = 0.4;
 
 const HEX_RGB_PATTERN = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i;

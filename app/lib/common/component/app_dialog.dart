@@ -12,13 +12,23 @@ class AppDialogSurface extends StatelessWidget {
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
     this.backgroundColor,
     this.glassBackgroundAlpha = 0.84,
-  }) : assert(glassBackgroundAlpha >= 0 && glassBackgroundAlpha <= 1);
+    this.shadowAlpha = 0.18,
+    this.shadowBlurRadius = 32,
+    this.shadowSpreadRadius = -8,
+    this.shadowOffset = const Offset(0, 12),
+  })  : assert(glassBackgroundAlpha >= 0 && glassBackgroundAlpha <= 1),
+        assert(shadowAlpha >= 0 && shadowAlpha <= 1),
+        assert(shadowBlurRadius >= 0);
 
   final Widget child;
   final AppDialogSurfaceStyle style;
   final BorderRadius borderRadius;
   final Color? backgroundColor;
   final double glassBackgroundAlpha;
+  final double shadowAlpha;
+  final double shadowBlurRadius;
+  final double shadowSpreadRadius;
+  final Offset shadowOffset;
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +39,10 @@ class AppDialogSurface extends StatelessWidget {
         borderAlpha: 0.72,
         blurSigma: 32,
         reflectionAlpha: 0.1,
-        shadowAlpha: 0.18,
-        shadowBlurRadius: 32,
-        shadowSpreadRadius: -8,
-        shadowOffset: const Offset(0, 12),
+        shadowAlpha: shadowAlpha,
+        shadowBlurRadius: shadowBlurRadius,
+        shadowSpreadRadius: shadowSpreadRadius,
+        shadowOffset: shadowOffset,
         child: Material(color: Colors.transparent, child: child),
       );
     }
@@ -44,10 +54,10 @@ class AppDialogSurface extends StatelessWidget {
         border: Border.all(color: StyleConstants.lineColor),
         boxShadow: [
           BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.18),
-            blurRadius: 32,
-            spreadRadius: -8,
-            offset: const Offset(0, 12),
+            color: StyleConstants.inkColor.withValues(alpha: shadowAlpha),
+            blurRadius: shadowBlurRadius,
+            spreadRadius: shadowSpreadRadius,
+            offset: shadowOffset,
           ),
         ],
       ),

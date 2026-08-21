@@ -308,7 +308,6 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
 
   Widget _buildModeMenu() {
     return TimeMachineGlassSurface(
-      shadowAlpha: 0.12,
       padding: const EdgeInsets.all(16),
       child: PointerInterceptor(
         child: _TimeMachineViewModeAndLayerMenu(
@@ -680,7 +679,6 @@ class TimeRangeControllerBall extends StatelessWidget {
 
     return TimeMachineGlassSurface(
       borderRadius: BorderRadius.circular(_borderRadius),
-      shadowAlpha: 0.12,
       child: SizedBox(
         width: _buttonSize,
         height: _buttonSize,

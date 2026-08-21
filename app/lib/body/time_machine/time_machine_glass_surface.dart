@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 /// Shared glass treatment for controls in the time-machine overlay.
 class TimeMachineGlassSurface extends StatelessWidget {
@@ -8,7 +9,7 @@ class TimeMachineGlassSurface extends StatelessWidget {
     required this.child,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     this.padding,
-    this.shadowAlpha = 0.1,
+    this.shadowAlpha = StyleConstants.mapOverlayShadowAlpha,
   }) : assert(shadowAlpha >= 0 && shadowAlpha <= 1);
 
   final Widget child;
@@ -25,9 +26,9 @@ class TimeMachineGlassSurface extends StatelessWidget {
       blurSigma: 24,
       reflectionAlpha: 0.12,
       shadowAlpha: shadowAlpha,
-      shadowBlurRadius: 18,
-      shadowSpreadRadius: 0,
-      shadowOffset: const Offset(0, 6),
+      shadowBlurRadius: StyleConstants.mapOverlayShadowBlurRadius,
+      shadowSpreadRadius: StyleConstants.mapOverlayShadowSpreadRadius,
+      shadowOffset: StyleConstants.mapOverlayShadowOffset,
       padding: padding,
       child: child,
     );

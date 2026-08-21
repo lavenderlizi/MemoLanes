@@ -38,10 +38,6 @@ class BottomNavBar extends StatelessWidget {
       borderAlpha: 0.62,
       blurSigma: 28,
       reflectionAlpha: 0.2,
-      shadowAlpha: 0.14,
-      shadowBlurRadius: 32,
-      shadowSpreadRadius: -9,
-      shadowOffset: const Offset(0, 13),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -106,9 +102,10 @@ class BottomNavBar extends StatelessWidget {
                           boxShadow: [
                             BoxShadow(
                               color: StyleConstants.deepGreen
-                                  .withValues(alpha: 0.1),
-                              blurRadius: 14,
-                              offset: const Offset(0, 6),
+                                  .withValues(alpha: 0.14),
+                              blurRadius: 12,
+                              spreadRadius: -1,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),

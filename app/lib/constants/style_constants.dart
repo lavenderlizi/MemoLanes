@@ -71,4 +71,12 @@ class StyleConstants {
   static const Color defaultColor = deepGreen;
   static const Color loadingMaskColor = Color.fromRGBO(0, 0, 0, 0.35);
   static const double overlayFloatingRadius = 16.0;
+
+  // Shared elevation for glass buttons and cards displayed over the map.
+  // A modest, compact shadow keeps light glass distinct from light fog
+  // without making the controls look like solid Material cards.
+  static const double mapOverlayShadowAlpha = 0.18;
+  static const double mapOverlayShadowBlurRadius = 26;
+  static const double mapOverlayShadowSpreadRadius = -3;
+  static const Offset mapOverlayShadowOffset = Offset(0, 8);
 }

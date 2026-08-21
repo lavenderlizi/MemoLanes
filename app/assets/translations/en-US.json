@@ -256,6 +256,11 @@
     "map_settings": {
       "title": "Map Settings",
       "style": "Map Style",
+      "fog_mode": "Fog Mode",
+      "fog_mode_name": {
+        "dark": "Dark",
+        "light": "Light"
+      },
       "style_name": {
         "maplibre": "MapLibre Demo Tile",
         "openfreemap": "OpenFreeMap"

@@ -367,6 +367,10 @@ class _JourneyPanelSurface extends StatelessWidget {
     return AppDialogSurface(
       style: AppDialogSurfaceStyle.glass,
       glassBackgroundAlpha: backgroundAlpha,
+      shadowAlpha: StyleConstants.mapOverlayShadowAlpha,
+      shadowBlurRadius: StyleConstants.mapOverlayShadowBlurRadius,
+      shadowSpreadRadius: StyleConstants.mapOverlayShadowSpreadRadius,
+      shadowOffset: StyleConstants.mapOverlayShadowOffset,
       child: child,
     );
   }

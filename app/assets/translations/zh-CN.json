@@ -256,6 +256,11 @@
     "map_settings": {
       "title": "地图设置",
       "style": "地图样式",
+      "fog_mode": "遮罩模式",
+      "fog_mode_name": {
+        "dark": "深色",
+        "light": "浅色"
+      },
       "style_name": {
         "maplibre": "MapLibre 演示瓦片",
         "openfreemap": "OpenFreeMap"

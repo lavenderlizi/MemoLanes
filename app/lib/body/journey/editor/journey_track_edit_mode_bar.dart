@@ -95,10 +95,6 @@ class ModeSwitchBar extends StatelessWidget {
               borderAlpha: 0.42,
               blurSigma: 28,
               reflectionAlpha: 0.18,
-              shadowAlpha: 0.13,
-              shadowBlurRadius: 28,
-              shadowSpreadRadius: -8,
-              shadowOffset: const Offset(0, 11),
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
               child: SizedBox(
                 height: extent - 12,
@@ -341,10 +337,6 @@ class _DrawModeMenu extends StatelessWidget {
         borderAlpha: 0.48,
         blurSigma: 28,
         reflectionAlpha: 0.14,
-        shadowAlpha: 0.12,
-        shadowBlurRadius: 24,
-        shadowSpreadRadius: -7,
-        shadowOffset: const Offset(0, 9),
         padding: const EdgeInsets.all(6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
