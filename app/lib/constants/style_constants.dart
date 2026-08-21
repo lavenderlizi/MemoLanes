@@ -19,6 +19,18 @@ class StyleConstants {
   static const Color deepYellow = Color(0xFF8B6600);
   static const Color softYellow = Color(0xFFFFF5BD);
 
+  // Active switches use the soft green surface tone used across settings.
+  // Keeping these colors role-specific lets settings controls be tuned without
+  // changing buttons, GPS status indicators, or other selected states.
+  static const Color switchActiveTrackColor = softGreen;
+  static const Color switchActiveThumbColor = deepGreen;
+  static const Color switchInactiveTrackColor = Color(0xFFDDE2DC);
+  static const Color switchInactiveThumbColor = Color(0xFF9CA59F);
+  static const Color switchTrackOutlineColor = Color(0xFFC8D1C1);
+  static const double switchActiveThumbSize = 18;
+  static const double switchInactiveThumbSize = 16;
+  static const double switchTrackOutlineWidth = 1;
+
   // navBar
   // Visual bottom inset for the floating nav bar on gesture/home-indicator
   // devices. This intentionally differs from the raw safe-area value so iOS

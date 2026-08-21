@@ -10,6 +10,7 @@ import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:path/path.dart' as p;
@@ -309,7 +310,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
           Expanded(
             child: Text(
               context.tr('data.export_data.lossy_format_warning'),
-              style: const TextStyle(fontSize: 13.0),
+              style: AppTypography.supporting,
             ),
           ),
         ],
@@ -349,9 +350,8 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   context.tr('data.export_data.format_section_title'),
-                  style: const TextStyle(
+                  style: AppTypography.sectionLabel.copyWith(
                     color: StyleConstants.mutedInkColor,
-                    fontSize: 13.0,
                   ),
                 ),
               ),

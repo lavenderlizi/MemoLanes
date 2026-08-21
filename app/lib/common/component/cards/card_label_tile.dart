@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum CardLabelTilePosition {
@@ -66,25 +67,29 @@ class CardLabelTile extends StatelessWidget {
                 onTap?.call();
               },
               borderRadius: borderRadius,
-              child: Ink(
-                height: 54.0,
-                decoration: BoxDecoration(
-                  borderRadius: borderRadius,
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Align(
-                      alignment: alignment,
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          color: StyleConstants.inkColor,
-                          fontWeight: FontWeight.w600,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 54),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Align(
+                        alignment: alignment,
+                        child: Text(
+                          label,
+                          style: AppTypography.itemTitle.copyWith(
+                            color: StyleConstants.inkColor,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum AppOptionTileTrailing { chevron, selection }
@@ -117,10 +118,8 @@ class AppOptionTile extends StatelessWidget {
                         title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: AppTypography.itemTitle.copyWith(
                           color: StyleConstants.inkColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       if (subtitle != null) ...[
@@ -129,10 +128,8 @@ class AppOptionTile extends StatelessWidget {
                           subtitle!,
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: AppTypography.caption.copyWith(
                             color: StyleConstants.mutedInkColor,
-                            fontSize: 12,
-                            height: 1.3,
                           ),
                         ),
                       ],

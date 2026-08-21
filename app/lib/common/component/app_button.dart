@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum AppButtonVariant { primary, secondary, tonal, danger }
@@ -66,12 +67,11 @@ class AppButton extends StatelessWidget {
           AppButtonSize.regular => 14.0,
           AppButtonSize.large => 24.0,
         };
-    final resolvedFontSize = fontSize ??
-        switch (size) {
-          AppButtonSize.compact => 12.0,
-          AppButtonSize.regular => 14.0,
-          AppButtonSize.large => 16.0,
-        };
+    final typeStyle = switch (size) {
+      AppButtonSize.compact => AppTypography.compactButton,
+      AppButtonSize.regular => AppTypography.button,
+      AppButtonSize.large => AppTypography.largeButton,
+    };
     final horizontalPadding = switch (size) {
       AppButtonSize.compact => 10.0,
       AppButtonSize.regular => 16.0,
@@ -92,10 +92,7 @@ class AppButton extends StatelessWidget {
           StyleConstants.mutedInkColor.withValues(alpha: 0.62),
       side: variant.side,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      textStyle: TextStyle(
-        fontSize: resolvedFontSize,
-        fontWeight: FontWeight.w700,
-      ),
+      textStyle: typeStyle.copyWith(fontSize: fontSize),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),
@@ -137,9 +134,11 @@ class AppButton extends StatelessWidget {
             ),
           );
 
-    return SizedBox(
-      width: expand ? double.infinity : null,
-      height: height,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: expand ? double.infinity : 0,
+        minHeight: height,
+      ),
       child: button,
     );
   }

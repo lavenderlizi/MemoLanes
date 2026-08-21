@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum AppDialogSurfaceStyle { solid, glass }
@@ -117,10 +118,8 @@ class AppDialogCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title!,
-                        style: const TextStyle(
+                        style: AppTypography.surfaceTitle.copyWith(
                           color: StyleConstants.deepGreen,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -135,10 +134,8 @@ class AppDialogCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
                     subtitle!,
-                    style: const TextStyle(
+                    style: AppTypography.supporting.copyWith(
                       color: StyleConstants.mutedInkColor,
-                      fontSize: 13,
-                      height: 1.35,
                     ),
                     textAlign: TextAlign.center,
                   ),

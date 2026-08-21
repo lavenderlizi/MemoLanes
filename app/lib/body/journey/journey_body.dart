@@ -106,20 +106,16 @@ class _JourneyBodyState extends State<JourneyBody> {
       selectedDayHighlightColor: StyleConstants.primaryGreen,
       controlsHeight: _isCompactPicker ? 38 : null,
       dayMaxWidth: _isCompactPicker ? 30 : null,
-      dayTextStyle: TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: _isCompactPicker ? 12 : null,
-      ),
-      weekdayLabelTextStyle: TextStyle(
-        color: StyleConstants.mutedInkColor,
-        fontSize: _isCompactPicker ? 11 : null,
-        fontWeight: FontWeight.bold,
-      ),
-      controlsTextStyle: TextStyle(
-        color: StyleConstants.inkColor,
-        fontSize: _isCompactPicker ? 13 : 15,
-        fontWeight: FontWeight.bold,
-      ),
+      dayTextStyle:
+          (_isCompactPicker ? AppTypography.caption : AppTypography.body)
+              .copyWith(color: StyleConstants.inkColor),
+      weekdayLabelTextStyle:
+          (_isCompactPicker ? AppTypography.micro : AppTypography.label)
+              .copyWith(color: StyleConstants.mutedInkColor),
+      controlsTextStyle: (_isCompactPicker
+              ? AppTypography.sectionLabel
+              : AppTypography.cardTitle)
+          .copyWith(color: StyleConstants.inkColor),
       selectableYearPredicate: (year) => _yearsWithJourneyList.contains(year),
       selectableMonthPredicate: (year, month) =>
           _monthsWithJourneyList.contains(month),
@@ -165,11 +161,9 @@ class _JourneyBodyState extends State<JourneyBody> {
         return dayWidget;
       },
       dynamicCalendarRows: true,
-      disabledDayTextStyle: TextStyle(
-        color: Colors.grey,
-        fontSize: _isCompactPicker ? 12 : null,
-        fontWeight: FontWeight.w400,
-      ),
+      disabledDayTextStyle:
+          (_isCompactPicker ? AppTypography.caption : AppTypography.body)
+              .copyWith(color: Colors.grey),
       disabledMonthTextStyle:
           const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
       disabledYearTextStyle:
@@ -399,10 +393,9 @@ class _JourneyBodyState extends State<JourneyBody> {
                       Text(
                         context.tr('journey.no_data'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: AppTypography.cardTitle.copyWith(
                           color: StyleConstants.mutedInkColor,
-                          fontSize: 15,
-                          height: 1.45,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -444,10 +437,12 @@ class _JourneyBodyState extends State<JourneyBody> {
             SizedBox(height: _isCompactPicker ? 10 : 16),
             Text(
               context.tr('journey.records_title'),
-              style: TextStyle(
+              style: (_isCompactPicker
+                      ? AppTypography.itemTitle
+                      : AppTypography.subpageTitle)
+                  .copyWith(
                 color: StyleConstants.inkColor,
-                fontSize: _isCompactPicker ? 14 : 16,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             SizedBox(height: _isCompactPicker ? 6 : 10),
@@ -473,11 +468,11 @@ class _JourneyPageHeader extends StatelessWidget {
           context.tr(selectionMode
               ? 'journey.picker_title'
               : 'journey.editor_overview_title'),
-          style: TextStyle(
+          style: (selectionMode
+                  ? AppTypography.compactPageTitle
+                  : AppTypography.pageTitle)
+              .copyWith(
             color: StyleConstants.inkColor,
-            fontSize: selectionMode ? 24 : 28,
-            fontWeight: FontWeight.w800,
-            height: 1.05,
           ),
         ),
         const SizedBox(height: 7),
@@ -485,10 +480,8 @@ class _JourneyPageHeader extends StatelessWidget {
           context.tr(selectionMode
               ? 'journey.picker_subtitle'
               : 'journey.editor_overview_subtitle'),
-          style: const TextStyle(
+          style: AppTypography.body.copyWith(
             color: StyleConstants.mutedInkColor,
-            fontSize: 14,
-            height: 1.4,
           ),
         ),
       ],

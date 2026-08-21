@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:memolanes/body/time_machine/time_machine_glass_surface.dart';
 import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 /// Time dimension: year / month / day / any.
@@ -528,12 +529,12 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
         ),
         SizedBox(height: isSelected ? 4 : 6),
         Text(label,
-            style: TextStyle(
+            style: AppTypography.micro.copyWith(
                 color: isSelected
                     ? StyleConstants.deepGreen
                     : StyleConstants.deepGreen.withValues(alpha: 0.72),
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500)),
+                fontWeight:
+                    isSelected ? FontWeight.w700 : FontWeight.w600)),
       ],
     );
   }

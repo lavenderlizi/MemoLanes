@@ -11,6 +11,7 @@ import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/safe_area_wrapper.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/gps_manager.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:provider/provider.dart';
 
@@ -131,9 +132,8 @@ class _AchievementStatsErrorCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 context.tr('achievement.source.error'),
-                style: TextStyle(
+                style: AppTypography.body.copyWith(
                   color: StyleConstants.mutedInkColor,
-                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -314,14 +314,11 @@ class _AchievementPageTitle extends StatelessWidget {
         width: double.infinity,
         child: Text(
           context.tr('achievement.title'),
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.left,
-          style: const TextStyle(
+          style: AppTypography.pageTitle.copyWith(
             color: StyleConstants.inkColor,
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            height: 1,
           ),
         ),
       ),
@@ -359,21 +356,16 @@ class _OngoingJourneyBanner extends StatelessWidget {
                 children: [
                   Text(
                     context.tr('achievement.ongoing.title'),
-                    style: TextStyle(
+                    style: AppTypography.itemTitle.copyWith(
                       color: StyleConstants.inkColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     context.tr('achievement.ongoing.description'),
-                    style: TextStyle(
+                    style: AppTypography.caption.copyWith(
                       color: StyleConstants.mutedInkColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      height: 1.3,
                     ),
                   ),
                 ],

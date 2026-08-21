@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 
 class FrostedBarItem extends StatelessWidget {
   const FrostedBarItem({
@@ -79,9 +80,9 @@ class FrostedBarItem extends StatelessWidget {
               maxLines: 1,
               softWrap: false,
               overflow: TextOverflow.fade,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              style: AppTypography.micro.copyWith(
+                fontWeight:
+                    isSelected ? FontWeight.w700 : FontWeight.w600,
                 color: contentColor,
               ),
             ),

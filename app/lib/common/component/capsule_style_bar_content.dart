@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 class CapsuleBarConstants {
   CapsuleBarConstants._();
 
-  static const double barContentHeight = 44.0;
+  static const double barContentHeight = 48.0;
   static const double barBottomInset = 4.0;
   static const double maxSafeTop = 80.0;
   static const double pillRadius = 18.0;
@@ -100,10 +101,7 @@ class CapsuleBarContent extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 5,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
                       color: _pill,
                       borderRadius:
@@ -116,10 +114,8 @@ class CapsuleBarContent extends StatelessWidget {
                         if (title != null && title!.isNotEmpty)
                           Text(
                             title!,
-                            style: TextStyle(
+                            style: AppTypography.subpageTitle.copyWith(
                               color: _fg,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -129,9 +125,8 @@ class CapsuleBarContent extends StatelessWidget {
                           const SizedBox(height: 1),
                           Text(
                             subtitle!,
-                            style: TextStyle(
+                            style: AppTypography.micro.copyWith(
                               color: _subFg,
-                              fontSize: 11,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
@@ -96,10 +97,8 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
         child: Text(
           MaterialLocalizations.of(context).formatDecimal(date.day),
           style: selected
-              ? const TextStyle(
+              ? AppTypography.caption.copyWith(
                   color: StyleConstants.inkColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
                 )
               : textStyle,
         ),
@@ -124,34 +123,24 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
       disableVibration: true,
       daySplashColor: Colors.transparent,
       selectedDayHighlightColor: Colors.transparent,
-      dayTextStyle: const TextStyle(
+      dayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.inkColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
       ),
-      selectedDayTextStyle: const TextStyle(
+      selectedDayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.inkColor,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
       ),
-      todayTextStyle: const TextStyle(
+      todayTextStyle: AppTypography.label.copyWith(
         color: StyleConstants.deepGreen,
-        fontSize: 12,
         fontWeight: FontWeight.w700,
       ),
-      weekdayLabelTextStyle: const TextStyle(
+      weekdayLabelTextStyle: AppTypography.micro.copyWith(
         color: StyleConstants.mutedInkColor,
-        fontSize: 11,
-        fontWeight: FontWeight.w700,
       ),
-      controlsTextStyle: const TextStyle(
+      controlsTextStyle: AppTypography.sectionLabel.copyWith(
         color: StyleConstants.deepGreen,
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
       ),
-      disabledDayTextStyle: TextStyle(
+      disabledDayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.mutedInkColor.withValues(alpha: 0.42),
-        fontSize: 12,
       ),
       lastMonthIcon: const Icon(
         Icons.chevron_left_rounded,

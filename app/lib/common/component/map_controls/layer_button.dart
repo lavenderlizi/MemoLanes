@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -144,12 +145,11 @@ class _LayerPopupContentState extends State<LayerPopupContent> {
             const SizedBox(width: 8),
             Text(
               text,
-              style: TextStyle(
+              style: AppTypography.itemTitle.copyWith(
                 color: isActive
                     ? StyleConstants.deepGreen
                     : StyleConstants.mutedInkColor,
-                fontSize: 14,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ],

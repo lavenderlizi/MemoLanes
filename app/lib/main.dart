@@ -110,7 +110,9 @@ class MyApp extends StatelessWidget {
           onSecondary: StyleConstants.inkColor,
           surface: StyleConstants.surfaceColor,
         ),
-        textTheme: Theme.of(context).textTheme.apply(
+        textTheme: Theme.of(context).textTheme.merge(
+              AppTypography.textTheme,
+            ).apply(
               bodyColor: StyleConstants.inkColor,
               displayColor: StyleConstants.inkColor,
             ),
@@ -130,10 +132,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: StyleConstants.primaryGreen,
             foregroundColor: StyleConstants.deepGreen,
             minimumSize: const Size(0, 44),
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
+            textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -145,10 +144,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: StyleConstants.surfaceColor,
             foregroundColor: StyleConstants.deepGreen,
             minimumSize: const Size(0, 44),
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
+            textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
               side: const BorderSide(color: StyleConstants.lineColor),
@@ -160,10 +156,7 @@ class MyApp extends StatelessWidget {
             foregroundColor: StyleConstants.deepGreen,
             minimumSize: const Size(0, 44),
             side: const BorderSide(color: StyleConstants.lineColor),
-            textStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
+            textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -172,21 +165,17 @@ class MyApp extends StatelessWidget {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: StyleConstants.deepGreen,
-            textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            textStyle: AppTypography.button,
           ),
         ),
         dialogTheme: DialogThemeData(
           backgroundColor: StyleConstants.canvasColor,
           surfaceTintColor: Colors.transparent,
-          titleTextStyle: const TextStyle(
+          titleTextStyle: AppTypography.surfaceTitle.copyWith(
             color: StyleConstants.deepGreen,
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
           ),
-          contentTextStyle: const TextStyle(
+          contentTextStyle: AppTypography.body.copyWith(
             color: StyleConstants.inkColor,
-            fontSize: 14,
-            height: 1.42,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
@@ -198,9 +187,8 @@ class MyApp extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
           headerBackgroundColor: StyleConstants.softGreen,
           headerForegroundColor: StyleConstants.deepGreen,
-          weekdayStyle: const TextStyle(
+          weekdayStyle: AppTypography.label.copyWith(
             color: StyleConstants.mutedInkColor,
-            fontWeight: FontWeight.w700,
           ),
           todayBorder: const BorderSide(color: StyleConstants.primaryGreen),
           shape: RoundedRectangleBorder(
@@ -248,15 +236,28 @@ class MyApp extends StatelessWidget {
           ),
         ),
         switchTheme: SwitchThemeData(
-          thumbColor: WidgetStateProperty.resolveWith(
-            (states) => states.contains(WidgetState.selected)
-                ? Colors.white
-                : const Color(0xFF9CA59F),
+          thumbColor: const WidgetStatePropertyAll(Colors.transparent),
+          thumbIcon: WidgetStateProperty.resolveWith(
+            (states) => Icon(
+              Icons.circle,
+              size: states.contains(WidgetState.selected)
+                  ? StyleConstants.switchActiveThumbSize
+                  : StyleConstants.switchInactiveThumbSize,
+              color: states.contains(WidgetState.selected)
+                  ? StyleConstants.switchActiveThumbColor
+                  : StyleConstants.switchInactiveThumbColor,
+            ),
           ),
           trackColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)
-                ? StyleConstants.primaryGreen
-                : const Color(0xFFDDE2DC),
+                ? StyleConstants.switchActiveTrackColor
+                : StyleConstants.switchInactiveTrackColor,
+          ),
+          trackOutlineColor: const WidgetStatePropertyAll(
+            StyleConstants.switchTrackOutlineColor,
+          ),
+          trackOutlineWidth: const WidgetStatePropertyAll(
+            StyleConstants.switchTrackOutlineWidth,
           ),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(

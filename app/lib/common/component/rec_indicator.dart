@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 class RecIndicator extends StatefulWidget {
@@ -128,13 +129,12 @@ class _RecIndicatorState extends State<RecIndicator>
                         ),
                       ),
                       const SizedBox(width: 7),
-                      const Text(
+                      Text(
                         'REC',
-                        style: TextStyle(
+                        style: AppTypography.label.copyWith(
                           color: StyleConstants.inkColor,
-                          fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 0.1,
+                          letterSpacing: 0.2,
                         ),
                       ),
                     ],

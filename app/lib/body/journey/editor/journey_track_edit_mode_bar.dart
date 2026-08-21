@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum OperationMode {
@@ -247,9 +248,8 @@ class _EditorModeButton extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.fade,
                                   softWrap: false,
-                                  style: TextStyle(
+                                  style: AppTypography.micro.copyWith(
                                     color: activeColor,
-                                    fontSize: 11,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -415,9 +415,8 @@ class _DrawModeOption extends StatelessWidget {
                       label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTypography.label.copyWith(
                         color: contentColor,
-                        fontSize: 12,
                         fontWeight:
                             isSelected ? FontWeight.w700 : FontWeight.w600,
                       ),

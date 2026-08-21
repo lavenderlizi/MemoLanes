@@ -18,6 +18,7 @@ import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/common/update_notifier.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/utils/nav_helper.dart';
@@ -150,12 +151,10 @@ class _SettingsBodyState extends State<SettingsBody> {
                           ],
                         ),
                       ),
-                      badgeContent: const Text(
+                      badgeContent: Text(
                         'NEW',
-                        style: TextStyle(
+                        style: AppTypography.badge.copyWith(
                           color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       child: LabelTileContent(
@@ -387,10 +386,8 @@ class _SettingsBodyState extends State<SettingsBody> {
         children: [
           Text(
             context.tr("data.import_data.description"),
-            style: const TextStyle(
+            style: AppTypography.supporting.copyWith(
               color: StyleConstants.mutedInkColor,
-              fontSize: 13,
-              height: 1.35,
             ),
           ),
           const SizedBox(height: 12),
@@ -502,11 +499,8 @@ class _SettingsPageHeader extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         context.tr('settings.page_title'),
-        style: const TextStyle(
+        style: AppTypography.pageTitle.copyWith(
           color: StyleConstants.inkColor,
-          fontSize: 28,
-          fontWeight: FontWeight.w800,
-          height: 1.05,
         ),
       ),
     );

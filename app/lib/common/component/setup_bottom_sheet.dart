@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 Future<T?> showSetupCard<T>(
@@ -129,10 +130,8 @@ class SetupTile extends StatelessWidget {
                     Flexible(
                       child: Text(
                         title,
-                        style: const TextStyle(
+                        style: AppTypography.cardTitle.copyWith(
                           color: StyleConstants.inkColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -149,9 +148,8 @@ class SetupTile extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       subtitle!,
-                      style: const TextStyle(
+                      style: AppTypography.caption.copyWith(
                         color: StyleConstants.mutedInkColor,
-                        fontSize: 12,
                       ),
                     ),
                   ),

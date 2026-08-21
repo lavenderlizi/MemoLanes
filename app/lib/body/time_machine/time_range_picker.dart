@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/body/time_machine/time_machine_glass_surface.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_date_picker_dialog.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
@@ -490,11 +491,8 @@ class _TimeMachineViewModeAndLayerMenuState
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AppTypography.sectionLabel.copyWith(
               color: StyleConstants.mutedInkColor,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.1,
             ),
           ),
         ),
@@ -534,13 +532,12 @@ class _TimeMachineViewModeAndLayerMenuState
                       context.tr(labelKey),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: AppTypography.itemTitle.copyWith(
                         color: isSelected
                             ? StyleConstants.deepGreen
                             : StyleConstants.deepGreen.withValues(alpha: 0.82),
-                        fontSize: 14,
                         fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w500,
+                            isSelected ? FontWeight.w700 : FontWeight.w600,
                       ),
                     ),
                   ),
@@ -627,11 +624,8 @@ class TimeRangeControllerBall extends StatelessWidget {
 
   static const double _buttonSize = 60;
   static const double _borderRadius = 12;
-  static const double _emphasisFontSize = 13;
-
-  static final TextStyle _contentStyle = TextStyle(
+  static final TextStyle _contentStyle = AppTypography.sectionLabel.copyWith(
     color: StyleConstants.deepGreen,
-    fontSize: _emphasisFontSize,
     fontWeight: FontWeight.w700,
   );
 
@@ -664,10 +658,8 @@ class TimeRangeControllerBall extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 2),
             child: Text(
               caption,
-              style: TextStyle(
+              style: AppTypography.micro.copyWith(
                 color: StyleConstants.mutedInkColor,
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -807,9 +799,8 @@ class _TapTile extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTypography.micro.copyWith(
                   color: StyleConstants.mutedInkColor,
-                  fontSize: 10,
                 ),
               ),
               const SizedBox(height: 2),
@@ -818,10 +809,8 @@ class _TapTile extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: AppTypography.label.copyWith(
                   color: StyleConstants.deepGreen,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],

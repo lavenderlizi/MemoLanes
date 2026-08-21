@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:provider/provider.dart';
 
@@ -94,12 +95,9 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                             child: Text(
                               hasData ? '${accuracy.round()}m\nACC' : 'NO\nGPS',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: hasData
-                                    ? StyleConstants.inkColor
-                                    : StyleConstants.mutedInkColor,
-                                fontSize: 10,
-                                height: 1.0,
+                              style: AppTypography.micro.copyWith(
+                                color: StyleConstants.mutedInkColor,
+                                height: 1.1,
                               ),
                             ),
                           ),
@@ -172,18 +170,15 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                           ),
                                           child: Text(
                                             '${position.accuracy.round()} m',
-                                            style: const TextStyle(
+                                            style: AppTypography.dataValue.copyWith(
                                               color: StyleConstants.inkColor,
-                                              fontSize: 32,
-                                              fontWeight: FontWeight.w400,
                                             ),
                                           ),
                                         ),
-                                        const Text(
+                                        Text(
                                           'Accuracy',
-                                          style: TextStyle(
+                                          style: AppTypography.bodyLarge.copyWith(
                                             color: StyleConstants.mutedInkColor,
-                                            fontSize: 16,
                                           ),
                                         ),
                                       ],
@@ -199,10 +194,8 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                       ),
                                       child: Text(
                                         signalStatus,
-                                        style: const TextStyle(
+                                        style: AppTypography.caption.copyWith(
                                           color: StyleConstants.inkColor,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ),
@@ -211,10 +204,8 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                 const SizedBox(height: 12),
                                 Text(
                                   '${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
-                                  style: const TextStyle(
+                                  style: AppTypography.caption.copyWith(
                                     color: StyleConstants.mutedInkColor,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 Text(
@@ -222,10 +213,8 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                       .toLocal()
                                       .toString()
                                       .substring(0, 19),
-                                  style: const TextStyle(
+                                  style: AppTypography.caption.copyWith(
                                     color: StyleConstants.mutedInkColor,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],

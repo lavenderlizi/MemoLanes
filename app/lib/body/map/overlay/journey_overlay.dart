@@ -14,6 +14,7 @@ import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/api/edit_session.dart' show EditSession;
@@ -313,10 +314,8 @@ class _JourneyPickerCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         context.tr('journey.picker_title'),
-                        style: const TextStyle(
+                        style: AppTypography.surfaceTitle.copyWith(
                           color: StyleConstants.deepGreen,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
@@ -621,10 +620,8 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                 Expanded(
                   child: Text(
                     context.tr('journey.journey_info_page_title'),
-                    style: const TextStyle(
+                    style: AppTypography.subpageTitle.copyWith(
                       color: StyleConstants.deepGreen,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -680,18 +677,16 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                   minLines: 1,
                   maxLines: 2,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(
+                  style: AppTypography.supporting.copyWith(
                     color: StyleConstants.deepGreen,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                   decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
                     hintText: context.tr('common.please_enter'),
-                    hintStyle: const TextStyle(
+                    hintStyle: AppTypography.supporting.copyWith(
                       color: StyleConstants.mutedInkColor,
-                      fontSize: 12.5,
                     ),
                   ),
                 ),
@@ -800,10 +795,8 @@ class _CompactJourneyField extends StatelessWidget {
                 width: 92,
                 child: Text(
                   label,
-                  style: const TextStyle(
+                  style: AppTypography.label.copyWith(
                     color: StyleConstants.mutedInkColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -819,10 +812,9 @@ class _CompactJourneyField extends StatelessWidget {
                             maxLines: maxLines,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.right,
-                            style: const TextStyle(
+                            style: AppTypography.supporting.copyWith(
                               color: StyleConstants.deepGreen,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -950,14 +942,13 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
               (index) => Center(
                 child: Text(
                   labelBuilder(index),
-                  style: TextStyle(
+                  style: AppTypography.pickerValue.copyWith(
                     color: index == selectedIndex
                         ? StyleConstants.deepGreen
                         : StyleConstants.mutedInkColor.withValues(alpha: 0.58),
-                    fontSize: 20,
                     fontWeight: index == selectedIndex
                         ? FontWeight.w700
-                        : FontWeight.w500,
+                        : FontWeight.w600,
                   ),
                 ),
               ),
@@ -995,10 +986,8 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
                       const SizedBox(height: 8),
                       Text(
                         localizations.timePickerDialHelpText,
-                        style: const TextStyle(
+                        style: AppTypography.surfaceTitle.copyWith(
                           color: StyleConstants.deepGreen,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -1027,13 +1016,12 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
                                 });
                               },
                             ),
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5),
                               child: Text(
                                 ':',
-                                style: TextStyle(
+                                style: AppTypography.metricTitle.copyWith(
                                   color: StyleConstants.deepGreen,
-                                  fontSize: 22,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),

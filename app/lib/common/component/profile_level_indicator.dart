@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 class ProfileLevelIndicator extends StatelessWidget {
@@ -88,10 +89,8 @@ class ProfileLevelIndicator extends StatelessWidget {
                   ),
                   child: Text(
                     'Lv. $level',
-                    style: const TextStyle(
+                    style: AppTypography.label.copyWith(
                       color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

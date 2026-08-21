@@ -9,6 +9,7 @@ import 'package:memolanes/common/component/setup_bottom_sheet.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/service/permission_service.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -297,8 +298,7 @@ class _PermissionTile extends StatelessWidget {
                   ),
                   child: Text(
                     context.tr('permission_sheet.open_system_settings'),
-                    style: TextStyle(
-                      fontSize: 13,
+                    style: AppTypography.supporting.copyWith(
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.underline,
                       decorationColor: StyleConstants.defaultColor,
@@ -397,10 +397,8 @@ class _PermissionStatusIndicator extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               label,
-              style: const TextStyle(
+              style: AppTypography.label.copyWith(
                 color: StyleConstants.defaultColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),

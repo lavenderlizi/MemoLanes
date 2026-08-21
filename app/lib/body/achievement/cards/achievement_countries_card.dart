@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/achievement/achievement_country_list_page.dart';
@@ -7,19 +5,20 @@ import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/achievement_stats_store.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/region_preference.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:provider/provider.dart';
 
 const _countryGold = Color(0xFFD4AF37);
 const _countriesGridColumnCount = 5;
-const _countryItemHeight = 75.0;
+const _countryItemHeight = 82.0;
 const _countryRowSpacing = 6.0;
 const _countryItemVerticalPadding = 2.0;
 const _countryFlagSize = 42.0;
 const _countryNameTopSpacing = 4.0;
-const _countryNameSlotHeight = 24.0;
-const _countryNameWidthFactor = 0.78;
+const _countryNameSlotHeight = 30.0;
+const _countryNameWidthFactor = 0.9;
 
 class AchievementCountriesCard extends StatelessWidget {
   const AchievementCountriesCard({super.key});
@@ -81,9 +80,8 @@ class _CountriesErrorCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 context.tr('achievement.countries.error'),
-                style: TextStyle(
+                style: AppTypography.body.copyWith(
                   color: StyleConstants.mutedInkColor,
-                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -133,9 +131,8 @@ class _CountriesHeader extends StatelessWidget {
                 ),
                 style: TextButton.styleFrom(
                   foregroundColor: _countryGold,
-                  textStyle: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
+                  textStyle: AppTypography.sectionLabel.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -154,9 +151,8 @@ class _CountriesHeader extends StatelessWidget {
             'achievement.countries.description',
             args: [count.toString()],
           ),
-          style: TextStyle(
+          style: AppTypography.body.copyWith(
             color: StyleConstants.mutedInkColor,
-            fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -280,56 +276,15 @@ class _CountryNameText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final fontSize = _fontSizeForWidth(name, constraints.maxWidth);
-        return Text(
-          name,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: StyleConstants.inkColor,
-            fontSize: fontSize,
-            fontWeight: FontWeight.w600,
-            height: 1.08,
-          ),
-        );
-      },
-    );
-  }
-
-  static double _fontSizeForWidth(String text, double maxWidth) {
-    const maxFontSize = 11.0;
-    const minFontSize = 8.0;
-    if (maxWidth <= 0 || text.isEmpty) return maxFontSize;
-
-    final longestWord = text
-        .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty)
-        .fold<String>('', (longest, word) {
-      return word.length > longest.length ? word : longest;
-    });
-    final probe = longestWord.isEmpty ? text : longestWord;
-
-    final painter = TextPainter(
-      text: TextSpan(
-        text: probe,
-        style: TextStyle(
-          fontSize: maxFontSize,
-          fontWeight: FontWeight.w600,
-          height: 1.08,
-        ),
+    return Text(
+      name,
+      textAlign: TextAlign.center,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: AppTypography.micro.copyWith(
+        color: StyleConstants.inkColor,
       ),
-      maxLines: 1,
-      textDirection: ui.TextDirection.ltr,
     );
-    painter.layout(maxWidth: double.infinity);
-
-    if (painter.width <= maxWidth) return maxFontSize;
-    return (maxFontSize * maxWidth / painter.width)
-        .clamp(minFontSize, maxFontSize)
-        .toDouble();
   }
 }
 
@@ -343,11 +298,9 @@ class _CountriesEmptyState extends StatelessWidget {
       child: Text(
         context.tr('achievement.countries.empty'),
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: AppTypography.supporting.copyWith(
           color: StyleConstants.mutedInkColor,
-          fontSize: 13,
           fontWeight: FontWeight.w500,
-          height: 1.35,
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -44,10 +45,8 @@ class CommonDialog extends StatelessWidget {
               .map(
                 (line) => Text(
                   line,
-                  style: const TextStyle(
+                  style: AppTypography.body.copyWith(
                     color: StyleConstants.inkColor,
-                    fontSize: 14,
-                    height: 1.42,
                   ),
                 ),
               )

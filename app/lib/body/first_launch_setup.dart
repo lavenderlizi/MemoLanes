@@ -7,6 +7,7 @@ import 'package:memolanes/common/component/setup_bottom_sheet.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/common/region_preference.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -150,10 +151,8 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
             padding: const EdgeInsets.only(bottom: 10),
             child: Text(
               context.tr("privacy.setup_desc"),
-              style: const TextStyle(
+              style: AppTypography.supporting.copyWith(
                 color: StyleConstants.mutedInkColor,
-                fontSize: 13,
-                height: 1.35,
               ),
             ),
           ),
@@ -194,10 +193,8 @@ class _SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8, top: 4),
       child: Text(
         text,
-        style: const TextStyle(
+        style: AppTypography.cardTitle.copyWith(
           color: StyleConstants.deepGreen,
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -233,8 +230,7 @@ class _PrivacyAgreementTile extends StatelessWidget {
           ),
           child: Text(
             context.tr("privacy.view_policy"),
-            style: TextStyle(
-              fontSize: 13,
+            style: AppTypography.supporting.copyWith(
               fontWeight: FontWeight.w600,
               decoration: TextDecoration.underline,
               decorationColor: StyleConstants.defaultColor,

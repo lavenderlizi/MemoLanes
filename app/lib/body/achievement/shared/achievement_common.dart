@@ -2,6 +2,7 @@ import 'package:country_flags/country_flags.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:memolanes/src/rust/achievement/region.dart';
@@ -176,13 +177,10 @@ class AchievementCardTitleRow extends StatelessWidget {
         Flexible(
           child: Text(
             title,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: AppTypography.metricTitle.copyWith(
               color: StyleConstants.inkColor,
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              height: 1,
             ),
           ),
         ),
@@ -202,10 +200,8 @@ class AchievementCardTitleRow extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 260),
               child: Text(
                 info,
-                style: TextStyle(
+                style: AppTypography.supporting.copyWith(
                   color: StyleConstants.inkColor,
-                  fontSize: 13,
-                  height: 1.45,
                 ),
               ),
             ),

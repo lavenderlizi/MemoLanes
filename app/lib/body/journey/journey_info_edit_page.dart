@@ -11,6 +11,8 @@ import 'package:memolanes/common/component/scroll_views/single_child_scroll_view
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -250,8 +252,8 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
                   border: InputBorder.none,
                   counterText: '',
                   hintText: context.tr("common.please_enter"),
-                  hintStyle: TextStyle(
-                    fontSize: 14.0,
+                  hintStyle: AppTypography.body.copyWith(
+                    color: StyleConstants.mutedInkColor,
                   ),
                 ),
                 textAlign: TextAlign.right,

@@ -34,9 +34,8 @@ class AchievementSourceCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 context.tr('achievement.source.description'),
-                style: TextStyle(
+                style: AppTypography.body.copyWith(
                   color: StyleConstants.mutedInkColor,
-                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -91,11 +90,9 @@ class _TotalAreaSummary extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 context.tr('achievement.overview.title'),
-                style: TextStyle(
+                style: AppTypography.sectionLabel.copyWith(
                   color: StyleConstants.mutedInkColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -318,11 +315,11 @@ class _MetricHeader extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTypography.itemTitle.copyWith(
                   color: accent,
                   fontSize: titleSize,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
                 ),
               ),
               const SizedBox(height: 6),
@@ -416,29 +413,25 @@ class _PercentText extends StatelessWidget {
         ? shareTemplate.substring(percentPlaceholderIndex + 2)
         : '';
 
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: RichText(
-        maxLines: 1,
-        text: TextSpan(
-          style: TextStyle(
-            color: StyleConstants.mutedInkColor,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-          ),
-          children: [
-            TextSpan(text: sharePrefix),
-            TextSpan(
-              text: hasPercentPlaceholder ? percentText : '',
-              style: TextStyle(
-                color: accent,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            TextSpan(text: shareSuffix),
-          ],
+    return RichText(
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: AppTypography.supporting.copyWith(
+          color: StyleConstants.mutedInkColor,
+          fontWeight: FontWeight.w600,
         ),
+        children: [
+          TextSpan(text: sharePrefix),
+          TextSpan(
+            text: hasPercentPlaceholder ? percentText : '',
+            style: TextStyle(
+              color: accent,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          TextSpan(text: shareSuffix),
+        ],
       ),
     );
   }

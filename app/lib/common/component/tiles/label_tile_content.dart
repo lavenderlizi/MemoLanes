@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 class LabelTileContent extends StatelessWidget {
@@ -32,11 +33,10 @@ class LabelTileContent extends StatelessWidget {
       ),
       child: Text(
         content,
-        style: const TextStyle(
-          fontSize: 14.0,
+        style: AppTypography.body.copyWith(
           color: StyleConstants.mutedInkColor,
         ),
-        textAlign: TextAlign.justify,
+        textAlign: TextAlign.end,
         maxLines: contentMaxLines,
         overflow: TextOverflow.ellipsis,
       ),

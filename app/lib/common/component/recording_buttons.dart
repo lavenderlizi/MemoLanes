@@ -5,6 +5,7 @@ import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
@@ -98,11 +99,9 @@ class _StartJourneyButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
-  static const _labelStyle = TextStyle(
+  static final _labelStyle = AppTypography.surfaceTitle.copyWith(
     color: StyleConstants.deepGreen,
-    fontSize: 17,
-    fontWeight: FontWeight.w500,
-    letterSpacing: 0.1,
+    fontWeight: FontWeight.w600,
   );
   static const _triangleSize = Size(10, 12);
   static const _minIconGap = 4.0;
@@ -224,11 +223,11 @@ class _ActiveJourneyControls extends StatelessWidget {
                   icon:
                       isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
                   variant: isPaused
-                      ? AppButtonVariant.tonal
+                      ? AppButtonVariant.primary
                       : AppButtonVariant.secondary,
                   size: AppButtonSize.compact,
-                  fontSize: 14,
-                  backgroundAlpha: isPaused ? 0.56 : 0.5,
+                  fontSize: 15,
+                  backgroundAlpha: isPaused ? 0.55 : 0.5,
                   borderRadius: 18,
                   expand: true,
                 ),

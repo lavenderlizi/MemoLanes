@@ -4,6 +4,7 @@ import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/safe_area_wrapper.dart';
+import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum _RegionAreaSortMode {
@@ -167,10 +168,7 @@ class _RegionAreaSortControl extends StatelessWidget {
             BorderSide(color: StyleConstants.lineColor),
           ),
           textStyle: const WidgetStatePropertyAll(
-            TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
+            AppTypography.sectionLabel,
           ),
           visualDensity: VisualDensity.compact,
         ),
@@ -228,11 +226,9 @@ class _RegionAreaListTile extends StatelessWidget {
                         item.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: AppTypography.subpageTitle.copyWith(
                           color: StyleConstants.inkColor,
-                          fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          height: 1.1,
                         ),
                       ),
                     ),
@@ -253,11 +249,8 @@ class _RegionAreaListTile extends StatelessWidget {
                     const SizedBox(width: 10),
                     Text(
                       formatPercent(item.progress, fractionDigits: 3),
-                      style: const TextStyle(
+                      style: AppTypography.label.copyWith(
                         color: StyleConstants.mutedInkColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        height: 1,
                       ),
                     ),
                   ],
@@ -287,11 +280,9 @@ class _RegionAreaText extends StatelessWidget {
         children: [
           Text(
             area.value,
-            style: const TextStyle(
+            style: AppTypography.subpageTitle.copyWith(
               color: StyleConstants.inkColor,
-              fontSize: 16,
               fontWeight: FontWeight.w800,
-              height: 1,
             ),
           ),
           const SizedBox(width: 4),
@@ -299,11 +290,8 @@ class _RegionAreaText extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 1),
             child: Text(
               area.unit,
-              style: const TextStyle(
+              style: AppTypography.micro.copyWith(
                 color: StyleConstants.mutedInkColor,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                height: 1,
               ),
             ),
           ),
@@ -327,11 +315,9 @@ class _RegionAreaListEmptyCard extends StatelessWidget {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: AppTypography.supporting.copyWith(
               color: StyleConstants.mutedInkColor,
-              fontSize: 13,
               fontWeight: FontWeight.w500,
-              height: 1.35,
             ),
           ),
         ),
