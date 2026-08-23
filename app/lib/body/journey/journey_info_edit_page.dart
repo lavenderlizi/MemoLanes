@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/body/journey/journey_info_fields.dart';
 import 'package:memolanes/body/settings/import_data_page.dart' show ImportType;
-import 'package:memolanes/common/component/basic_bottom_sheet.dart';
-import 'package:memolanes/common/component/app_option_tile.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
 import 'package:memolanes/common/utils.dart';
-import 'package:memolanes/constants/app_typography.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
 import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -137,7 +134,6 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQueryData.fromView(View.of(context)).size.width;
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: 440,
@@ -203,63 +199,20 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
           if (widget.importType != null)
             widget.importType == ImportType.fow
                 ? SizedBox.shrink()
-                : LabelTile(
-                    label: context.tr("journey.preprocessor"),
-                    infoLabelOnTap: () => showCommonDialog(
+                : ImportPreprocessorTile(
+                    value: _preprocessor,
+                    onSelected: _selectPreprocessor,
+                    onInfoTap: () => showCommonDialog(
                       context,
-                      context.tr("preprocessor.description_md"),
+                      context.tr("import.preprocessor.description_md"),
                       markdown: true,
                     ),
-                    position: LabelTilePosition.single,
-                    trailing: LabelTileContent(
-                      content: switch (_preprocessor) {
-                        import_api.ImportPreprocessor.none =>
-                          context.tr("preprocessor.none"),
-                        import_api.ImportPreprocessor.generic =>
-                          context.tr("preprocessor.generic"),
-                        import_api.ImportPreprocessor.flightTrack =>
-                          context.tr("preprocessor.flightTrack"),
-                        import_api.ImportPreprocessor.spare =>
-                          context.tr("preprocessor.spare"),
-                      },
-                      showArrow: true,
-                    ),
-                    onTap: () => _showJourneyPreprocessorCard(context),
                   ),
-          LabelTile(
-            label: context.tr("journey.journey_kind"),
-            position: LabelTilePosition.single,
-            trailing: LabelTileContent(
-                content: _journeyKind == JourneyKind.defaultKind
-                    ? context.tr("journey_kind.default")
-                    : context.tr("journey_kind.flight"),
-                showArrow: true),
-            onTap: () => _showJourneyKindCard(context),
+          JourneyKindTile(
+            value: _journeyKind,
+            onSelected: (value) => setState(() => _journeyKind = value),
           ),
-          LabelTile(
-            label: context.tr("journey.note"),
-            position: LabelTilePosition.single,
-            maxHeight: 150,
-            trailing: SizedBox(
-              width: width * 0.6,
-              child: TextField(
-                controller: _noteController,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                maxLines: 5,
-                minLines: 1,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  counterText: '',
-                  hintText: context.tr("common.please_enter"),
-                  hintStyle: AppTypography.body.copyWith(
-                    color: StyleConstants.mutedInkColor,
-                  ),
-                ),
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ),
+          JourneyNoteTile(controller: _noteController),
           SizedBox(
             width: 280,
             child: AppButton(
@@ -273,103 +226,10 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     );
   }
 
-  void _showJourneyKindCard(BuildContext context) {
-    showBasicCard(
-      context,
-      title: context.tr("journey.journey_kind"),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppOptionTile(
-            icon: Icons.landscape_outlined,
-            title: context.tr("journey_kind.default"),
-            selected: _journeyKind == JourneyKind.defaultKind,
-            trailing: AppOptionTileTrailing.selection,
-            onTap: () {
-              Navigator.of(context).pop();
-              setState(() {
-                _journeyKind = JourneyKind.defaultKind;
-              });
-            },
-          ),
-          const SizedBox(height: 8),
-          AppOptionTile(
-            icon: Icons.flight_rounded,
-            title: context.tr("journey_kind.flight"),
-            selected: _journeyKind == JourneyKind.flight,
-            trailing: AppOptionTileTrailing.selection,
-            onTap: () {
-              Navigator.of(context).pop();
-              setState(() {
-                _journeyKind = JourneyKind.flight;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   void _selectPreprocessor(import_api.ImportPreprocessor processor) {
     setState(() {
       _preprocessor = processor;
     });
     widget.previewData?.call(_preprocessor);
-  }
-
-  void _showJourneyPreprocessorCard(BuildContext context) {
-    showBasicCard(
-      context,
-      title: context.tr("journey.preprocessor"),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppOptionTile(
-            icon: Icons.block_rounded,
-            title: context.tr("preprocessor.none"),
-            selected: _preprocessor == import_api.ImportPreprocessor.none,
-            trailing: AppOptionTileTrailing.selection,
-            onTap: () {
-              Navigator.of(context).pop();
-              _selectPreprocessor(import_api.ImportPreprocessor.none);
-            },
-          ),
-          const SizedBox(height: 8),
-          AppOptionTile(
-            icon: Icons.route_outlined,
-            title: context.tr("preprocessor.generic"),
-            selected: _preprocessor == import_api.ImportPreprocessor.generic,
-            trailing: AppOptionTileTrailing.selection,
-            onTap: () {
-              Navigator.of(context).pop();
-              _selectPreprocessor(import_api.ImportPreprocessor.generic);
-            },
-          ),
-          const SizedBox(height: 8),
-          AppOptionTile(
-            icon: Icons.flight_takeoff_rounded,
-            title: context.tr("preprocessor.flightTrack"),
-            selected:
-                _preprocessor == import_api.ImportPreprocessor.flightTrack,
-            trailing: AppOptionTileTrailing.selection,
-            onTap: () {
-              Navigator.of(context).pop();
-              _selectPreprocessor(import_api.ImportPreprocessor.flightTrack);
-            },
-          ),
-          const SizedBox(height: 8),
-          AppOptionTile(
-            icon: Icons.scatter_plot_outlined,
-            title: context.tr("preprocessor.spare"),
-            selected: _preprocessor == import_api.ImportPreprocessor.spare,
-            trailing: AppOptionTileTrailing.selection,
-            onTap: () {
-              Navigator.of(context).pop();
-              _selectPreprocessor(import_api.ImportPreprocessor.spare);
-            },
-          ),
-        ],
-      ),
-    );
   }
 }

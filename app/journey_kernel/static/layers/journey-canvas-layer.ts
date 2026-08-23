@@ -1,5 +1,5 @@
 import { tileXYToLngLat } from "./utils";
-import type maplibregl from "maplibre-gl";
+import type * as maplibregl from "maplibre-gl";
 import type { CanvasSource, CanvasSourceSpecification } from "maplibre-gl";
 import type { TileBuffer } from "../../pkg/journey_kernel.js";
 import type { JourneyTileProvider } from "../journey-tile-provider";
@@ -10,6 +10,7 @@ import {
 } from "../fog-style";
 import { JOURNEY_LAYER_ID } from "./journey-layer-interface";
 import type { JourneyLayer, RGBAColor } from "./journey-layer-interface";
+import { CanvasPoleFoggyLayer } from "./canvas-pole-foggy-layer";
 
 /**
  * Tile buffer callback function type
@@ -35,6 +36,7 @@ export class JourneyCanvasLayer implements JourneyLayer {
   private journeyTileProvider: JourneyTileProvider;
   private layerId: string;
   private sourceId: string;
+  private poleLayer: CanvasPoleFoggyLayer;
   private bgColor: string;
   private fgColor: string;
   private canvas: HTMLCanvasElement;
@@ -52,6 +54,11 @@ export class JourneyCanvasLayer implements JourneyLayer {
     this.journeyTileProvider = journeyTileProvider;
     this.layerId = layerId;
     this.sourceId = `${layerId}-canvas-source`;
+    this.poleLayer = new CanvasPoleFoggyLayer(
+      map,
+      `${layerId}-canvas-poles`,
+      bgColor,
+    );
 
     let r = Math.round(bgColor[0] * 255);
     let g = Math.round(bgColor[1] * 255);
@@ -73,6 +80,10 @@ export class JourneyCanvasLayer implements JourneyLayer {
     this.ctx = ctx;
   }
 
+  setLowPowerMode(_enabled: boolean): void {
+    // Canvas rendering has no separate low-power path.
+  }
+
   initialize(): void {
     this.map.addSource(this.sourceId, this.getSourceConfig() as any);
     this.map.addLayer({
@@ -83,6 +94,11 @@ export class JourneyCanvasLayer implements JourneyLayer {
         "raster-fade-duration": 0,
       },
     });
+
+    // Canvas/Image sources deliberately disable MapLibre's globe pole mesh.
+    // The Canvas-owned pole mesh meets the texture exactly at the Mercator
+    // edge, avoiding a translucent overlap band.
+    this.map.addLayer(this.poleLayer);
 
     this._repaintCallback = (
       x: number,
@@ -215,6 +231,10 @@ export class JourneyCanvasLayer implements JourneyLayer {
   remove(): void {
     if (this.map.getLayer(this.layerId)) {
       this.map.removeLayer(this.layerId);
+    }
+
+    if (this.map.getLayer(this.poleLayer.id)) {
+      this.map.removeLayer(this.poleLayer.id);
     }
 
     if (this.map.getSource(this.sourceId)) {

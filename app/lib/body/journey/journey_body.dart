@@ -1,14 +1,17 @@
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/journey/journey_info_page.dart';
+import 'package:memolanes/body/journey/list/journey_list_calendar.dart';
+import 'package:memolanes/body/journey/list/journey_list_controller.dart';
+import 'package:memolanes/body/journey/list/journey_list_empty_state.dart';
+import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
-import 'package:memolanes/common/app_haptics.dart';
+import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/constants/index.dart';
-import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/api/utils.dart';
-import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 
@@ -20,7 +23,7 @@ class JourneyBody extends StatefulWidget {
   });
 
   /// When supplied, tapping a row selects it instead of opening the details
-  /// page. This lets the existing calendar/list work inside the map picker.
+  /// page. This lets the calendar/list work inside the map picker.
   final Future<void> Function(JourneyHeader journey)? onJourneySelected;
 
   /// Removes the full-page heading and tightens spacing for the floating map
@@ -38,18 +41,8 @@ class _JourneyBodyState extends State<JourneyBody> {
   static const _landscapeCalendarMaxWidth = 360.0;
   static const _landscapeListMinWidth = 280.0;
 
-  List<JourneyHeader> _journeyHeaderList = [];
-  final ScrollController _journeyListController = ScrollController();
-
-  DateTime _selectedDate = DateTime.now();
-  late final DateTime? _firstDate;
-  final lastDate = DateTime.now();
-  late List<int> _yearsWithJourneyList;
-  late List<int> _monthsWithJourneyList;
-  late List<int> _daysWithJourneyList;
-  bool _isLoadingFirstDate = true;
-  int _journeyListRequestId = 0;
-  int _calendarRequestId = 0;
+  late final JourneyListController _controller;
+  final ScrollController _journeyListScrollController = ScrollController();
 
   bool get _isSelectionMode => widget.onJourneySelected != null;
   bool get _isCompactPicker => _isSelectionMode && widget.compactPicker;
@@ -57,179 +50,57 @@ class _JourneyBodyState extends State<JourneyBody> {
   @override
   void initState() {
     super.initState();
-    _initialize();
-    _updateJourneyHeaderList();
+    _controller = JourneyListController()..addListener(_onControllerChanged);
+    _controller.initialize();
   }
 
   @override
   void dispose() {
-    _journeyListController.dispose();
+    _controller
+      ..removeListener(_onControllerChanged)
+      ..dispose();
+    _journeyListScrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _initialize() async {
-    NaiveDate? earliestDate = await api.earliestJourneyDate();
-    if (earliestDate != null) {
-      _firstDate = naiveDateToDateTime(earliestDate);
-    } else {
-      _firstDate = null;
-    }
-    _yearsWithJourneyList = await api.yearsWithJourney();
-    _monthsWithJourneyList =
-        await api.monthsWithJourney(year: _selectedDate.year);
-    _daysWithJourneyList = await api.daysWithJourney(
-        year: _selectedDate.year, month: _selectedDate.month);
-    if (!mounted) return;
-    setState(() {
-      _isLoadingFirstDate = false;
-    });
-  }
-
-  Future<void> _updateJourneyHeaderList() async {
-    final requestId = ++_journeyListRequestId;
-    final journeyHeaderList = await api.listJourneyOnDate(
-        year: _selectedDate.year,
-        month: _selectedDate.month,
-        day: _selectedDate.day);
-    if (!mounted || requestId != _journeyListRequestId) return;
-    setState(() {
-      _journeyHeaderList = journeyHeaderList.reversed.toList();
-    });
-  }
-
-  Widget _buildDatePickerWithValue(DateTime firstDate) {
-    final config = CalendarDatePicker2Config(
-      firstDate: firstDate,
-      lastDate: DateTime.now(),
-      centerAlignModePicker: true,
-      calendarType: CalendarDatePicker2Type.single,
-      selectedDayHighlightColor: StyleConstants.primaryGreen,
-      controlsHeight: _isCompactPicker ? 38 : null,
-      dayMaxWidth: _isCompactPicker ? 30 : null,
-      dayTextStyle:
-          (_isCompactPicker ? AppTypography.caption : AppTypography.body)
-              .copyWith(color: StyleConstants.inkColor),
-      weekdayLabelTextStyle:
-          (_isCompactPicker ? AppTypography.micro : AppTypography.label)
-              .copyWith(color: StyleConstants.mutedInkColor),
-      controlsTextStyle: (_isCompactPicker
-              ? AppTypography.sectionLabel
-              : AppTypography.cardTitle)
-          .copyWith(color: StyleConstants.inkColor),
-      selectableYearPredicate: (year) => _yearsWithJourneyList.contains(year),
-      selectableMonthPredicate: (year, month) =>
-          _monthsWithJourneyList.contains(month),
-      selectableDayPredicate: (day) => _daysWithJourneyList.contains(day.day),
-      dayBuilder: ({
-        required date,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isToday,
-      }) {
-        Widget? dayWidget;
-        if (_daysWithJourneyList.contains(date.day)) {
-          dayWidget = Container(
-            decoration: decoration,
-            child: Center(
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: [
-                  Text(
-                    MaterialLocalizations.of(context).formatDecimal(date.day),
-                    style: textStyle,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: _isCompactPicker ? 20 : 27.5,
-                    ),
-                    child: Container(
-                      height: _isCompactPicker ? 3 : 4,
-                      width: _isCompactPicker ? 3 : 4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: StyleConstants.journeyYellow,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-        return dayWidget;
-      },
-      dynamicCalendarRows: true,
-      disabledDayTextStyle:
-          (_isCompactPicker ? AppTypography.caption : AppTypography.body)
-              .copyWith(color: Colors.grey),
-      disabledMonthTextStyle:
-          const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
-      disabledYearTextStyle:
-          const TextStyle(color: Colors.grey, fontWeight: FontWeight.w400),
-      // Turn off CalendarDatePicker2's own vibration; it varies by platform.
-      // We call AppHaptics on date/month changes instead.
-      // TODO: Fix CalendarDatePicker2's built-in vibration being inconsistent
-      //       across platforms (local patch or upstream), so we can rely on it.
-      disableVibration: true,
-    );
-    return CalendarDatePicker2(
-      config: config,
-      value: [_selectedDate],
-      onValueChanged: (dates) {
-        AppHaptics.selection();
-        setState(() => _selectedDate = dates.first);
-        _updateJourneyHeaderList();
-      },
-      onDisplayedMonthChanged: (value) async {
-        AppHaptics.selection();
-        final requestId = ++_calendarRequestId;
-        DateTime jumpToDate =
-            DateTime(value.year, value.month, _selectedDate.day);
-        DateTime jumpToDateMonthLastDay =
-            DateTime(value.year, value.month + 1, 0);
-        if (_selectedDate.day > jumpToDateMonthLastDay.day) {
-          jumpToDate = jumpToDateMonthLastDay;
-        }
-        if (lastDate.isBefore(jumpToDate)) {
-          jumpToDate = lastDate;
-        }
-        if (firstDate.isAfter(jumpToDate)) {
-          jumpToDate = firstDate;
-        }
-        final monthsWithJourneys = value.year != _selectedDate.year
-            ? await api.monthsWithJourney(year: jumpToDate.year)
-            : _monthsWithJourneyList;
-        final daysWithJourneys = await api.daysWithJourney(
-            month: jumpToDate.month, year: jumpToDate.year);
-        if (!mounted || requestId != _calendarRequestId) return;
-        setState(() {
-          _monthsWithJourneyList = monthsWithJourneys;
-          _daysWithJourneyList = daysWithJourneys;
-          _selectedDate = jumpToDate;
-        });
-        _updateJourneyHeaderList();
-      },
-    );
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
   }
 
   Widget _buildJourneyHeaderList() {
+    if (!_controller.hasFilteredJourneys) {
+      return JourneyListEmptyState(
+        type: JourneyListEmptyType.filtered,
+        topAligned: true,
+        onShowAll: _showAllJourneyKinds,
+        compact: _isCompactPicker,
+      );
+    }
+    if (!_controller.hasJourneyOnSelectedDate) {
+      return JourneyListEmptyState(
+        type: JourneyListEmptyType.month,
+        topAligned: true,
+        onShowAll: _controller.selectedJourneyKinds.length == 1
+            ? _showAllJourneyKinds
+            : null,
+        compact: _isCompactPicker,
+      );
+    }
+
     final timeFormat = DateFormat('HH:mm:ss');
     final journeyList = ListView.builder(
-      controller: _journeyListController,
+      controller: _journeyListScrollController,
       padding: EdgeInsets.only(
         right: _isCompactPicker ? 12 : 0,
         bottom: _isSelectionMode ? 20 : StyleConstants.navBarSafeArea + 5,
       ),
-      itemCount: _journeyHeaderList.length,
+      itemCount: _controller.journeyHeaders.length,
       itemBuilder: (context, index) {
-        final journeyHeader = _journeyHeaderList[index];
+        final header = _controller.journeyHeaders[index];
         return LabelTile(
-          label: journeyHeader.start != null
-              ? timeFormat.format(journeyHeader.start!.toLocal())
-              : naiveDateToString(date: journeyHeader.journeyDate),
-          trailing: LabelTileContent(showArrow: true),
+          label: header.start != null
+              ? timeFormat.format(header.start!.toLocal())
+              : naiveDateToString(date: header.journeyDate),
           prefix: Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Container(
@@ -246,27 +117,23 @@ class _JourneyBodyState extends State<JourneyBody> {
               ),
             ),
           ),
+          trailing: LabelTileContent(showArrow: true),
           onTap: () async {
             final onJourneySelected = widget.onJourneySelected;
             if (onJourneySelected != null) {
               AppHaptics.selection();
-              await onJourneySelected(journeyHeader);
+              await onJourneySelected(header);
               return;
             }
+            if (!context.mounted) return;
             navigatorPush(
               context,
-              page: JourneyInfoPage(
-                journeyHeader: journeyHeader,
-              ),
+              page: JourneyInfoPage(journeyHeader: header),
             ).then((refresh) async {
-              if (refresh != null && refresh) {
-                _yearsWithJourneyList = await api.yearsWithJourney();
-                _monthsWithJourneyList =
-                    await api.monthsWithJourney(year: _selectedDate.year);
-                _daysWithJourneyList = await api.daysWithJourney(
-                    year: _selectedDate.year, month: _selectedDate.month);
-                if (!mounted) return;
-                _updateJourneyHeaderList();
+              if (refresh == true) {
+                await GlobalLoadingManager.instance.runWithLoading(
+                  () => _controller.refresh(adjustSelectedDate: true),
+                );
               }
             });
           },
@@ -289,7 +156,7 @@ class _JourneyBodyState extends State<JourneyBody> {
         ),
       ),
       child: Scrollbar(
-        controller: _journeyListController,
+        controller: _journeyListScrollController,
         thumbVisibility: true,
         trackVisibility: true,
         interactive: true,
@@ -301,10 +168,17 @@ class _JourneyBodyState extends State<JourneyBody> {
     );
   }
 
+  void _showAllJourneyKinds() {
+    unawaited(
+      GlobalLoadingManager.instance.runWithLoading(
+        _controller.showAllJourneyKinds,
+      ),
+    );
+  }
+
   Widget _buildLandscapeBody(DateTime firstDate) {
     final bottomPadding =
         _isSelectionMode ? 20.0 : StyleConstants.navBarSafeArea + 5;
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth -
@@ -330,13 +204,17 @@ class _JourneyBodyState extends State<JourneyBody> {
                 width: calendarWidth,
                 child: SingleChildScrollView(
                   padding: EdgeInsets.only(bottom: bottomPadding),
-                  child: _buildDatePickerWithValue(firstDate),
+                  child: _CalendarSurface(
+                    child: JourneyListCalendar(
+                      controller: _controller,
+                      firstDate: firstDate,
+                      compact: _isCompactPicker,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: _landscapeColumnGap),
-              Expanded(
-                child: _buildJourneyHeaderList(),
-              ),
+              Expanded(child: _buildJourneyHeaderList()),
             ],
           ),
         );
@@ -346,10 +224,11 @@ class _JourneyBodyState extends State<JourneyBody> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoadingFirstDate) {
+    if (_controller.isInitialLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    final firstDate = _firstDate;
+
+    final firstDate = _controller.firstDate;
     if (firstDate == null) {
       return Padding(
         padding: EdgeInsets.fromLTRB(
@@ -363,94 +242,73 @@ class _JourneyBodyState extends State<JourneyBody> {
           children: [
             if (!_isCompactPicker)
               _JourneyPageHeader(selectionMode: _isSelectionMode),
-            Expanded(
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 360),
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: StyleConstants.surfaceColor,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: StyleConstants.lineColor),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 58,
-                        height: 58,
-                        decoration: const BoxDecoration(
-                          color: StyleConstants.softYellow,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.map_outlined,
-                          color: StyleConstants.inkColor,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        context.tr('journey.no_data'),
-                        textAlign: TextAlign.center,
-                        style: AppTypography.cardTitle.copyWith(
-                          color: StyleConstants.mutedInkColor,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            const Expanded(
+              child: JourneyListEmptyState(type: JourneyListEmptyType.all),
             ),
-          ],
-        ),
-      );
-    } else {
-      final isLandscape =
-          MediaQuery.of(context).orientation == Orientation.landscape;
-      if (isLandscape) {
-        return _buildLandscapeBody(firstDate);
-      }
-      return Padding(
-        padding: EdgeInsets.fromLTRB(
-          _isCompactPicker ? 12 : 16,
-          _isCompactPicker ? 10 : 22,
-          _isCompactPicker ? 12 : 16,
-          0,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (!_isCompactPicker) ...[
-              _JourneyPageHeader(selectionMode: _isSelectionMode),
-              const SizedBox(height: 18),
-            ],
-            Container(
-              decoration: BoxDecoration(
-                color: StyleConstants.surfaceColor,
-                borderRadius: BorderRadius.circular(_isCompactPicker ? 18 : 22),
-                border: Border.all(color: StyleConstants.lineColor),
-              ),
-              child: _buildDatePickerWithValue(firstDate),
-            ),
-            SizedBox(height: _isCompactPicker ? 10 : 16),
-            Text(
-              context.tr('journey.records_title'),
-              style: (_isCompactPicker
-                      ? AppTypography.itemTitle
-                      : AppTypography.subpageTitle)
-                  .copyWith(
-                color: StyleConstants.inkColor,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            SizedBox(height: _isCompactPicker ? 6 : 10),
-            Expanded(child: _buildJourneyHeaderList()),
           ],
         ),
       );
     }
+
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      return _buildLandscapeBody(firstDate);
+    }
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        _isCompactPicker ? 12 : 16,
+        _isCompactPicker ? 10 : 22,
+        _isCompactPicker ? 12 : 16,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!_isCompactPicker) ...[
+            _JourneyPageHeader(selectionMode: _isSelectionMode),
+            const SizedBox(height: 18),
+          ],
+          _CalendarSurface(
+            child: JourneyListCalendar(
+              controller: _controller,
+              firstDate: firstDate,
+              compact: _isCompactPicker,
+            ),
+          ),
+          SizedBox(height: _isCompactPicker ? 10 : 16),
+          Text(
+            context.tr('journey.records_title'),
+            style: (_isCompactPicker
+                    ? AppTypography.itemTitle
+                    : AppTypography.subpageTitle)
+                .copyWith(
+              color: StyleConstants.inkColor,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: _isCompactPicker ? 6 : 10),
+          Expanded(child: _buildJourneyHeaderList()),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarSurface extends StatelessWidget {
+  const _CalendarSurface({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: StyleConstants.surfaceColor,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: StyleConstants.lineColor),
+      ),
+      child: child,
+    );
   }
 }
 
@@ -471,9 +329,7 @@ class _JourneyPageHeader extends StatelessWidget {
           style: (selectionMode
                   ? AppTypography.compactPageTitle
                   : AppTypography.pageTitle)
-              .copyWith(
-            color: StyleConstants.inkColor,
-          ),
+              .copyWith(color: StyleConstants.inkColor),
         ),
         const SizedBox(height: 7),
         Text(

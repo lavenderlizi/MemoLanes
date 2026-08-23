@@ -9,7 +9,7 @@
  * - Map style management and retry logic
  */
 
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import type {
   Map as MaplibreMap,
   RequestTransformFunction,
@@ -27,11 +27,16 @@ import {
 } from "./params";
 import { JourneyTileProvider } from "./journey-tile-provider";
 import { createFogRgba } from "./fog-style";
+import { detectMapLocale, type MapLocale } from "./map-locale";
 import { transformStyleWithProjection } from "./utils";
 import { JOURNEY_LAYER_ID } from "./layers/journey-layer-interface";
 import type { JourneyLayer } from "./layers/journey-layer-interface";
 
 const MAX_MAP_ZOOM = 14;
+
+maplibregl.setWorkerUrl(
+  new URL("./maplibre-gl-worker.js", window.location.href).toString(),
+);
 
 /**
  * Configuration options for MapController
@@ -54,6 +59,7 @@ export interface MapControllerConfig {
 export class MapController {
   private map: MaplibreMap;
   private params: ReactiveParams;
+  private readonly mapLocale: MapLocale;
   private DisableAutoRefresh: boolean;
   private currentJourneyLayer: JourneyLayer | null = null;
   private journeyTileProvider: JourneyTileProvider | null = null;
@@ -62,6 +68,7 @@ export class MapController {
 
   constructor(config: MapControllerConfig) {
     this.params = config.params;
+    this.mapLocale = detectMapLocale();
     this.DisableAutoRefresh = config.DisableAutoRefresh ?? false;
 
     // Build transform request function for Mapbox styles
@@ -154,7 +161,7 @@ export class MapController {
         );
 
         // Initial tile buffer load
-        await this.journeyTileProvider.pollForJourneyUpdates(true);
+        await this.journeyTileProvider.waitForTileBufferUpdate();
         console.log("initial tile buffer loaded");
 
         // Register hooks for reactive property changes
@@ -213,6 +220,17 @@ export class MapController {
   }
 
   /**
+   * Disable periodic journey-data polling.
+   *
+   * This can be called before initialization to prevent the polling timer from
+   * being created, or afterwards to stop an existing timer.
+   */
+  disableAutoRefresh(): void {
+    this.DisableAutoRefresh = true;
+    this.clearAutoRefreshInterval();
+  }
+
+  /**
    * Refresh map data by forcing a tile buffer update
    * This is called when the underlying data has changed (e.g., new journey data imported)
    * @returns Promise<boolean | null> - true if data was updated, false if no change, null on error
@@ -261,6 +279,7 @@ export class MapController {
       undefined, // use default layerId
       bgColor,
     );
+    newLayer.setLowPowerMode?.(this.params.lowPowerMode);
     newLayer.initialize();
 
     this.currentJourneyLayer = newLayer;
@@ -307,8 +326,14 @@ export class MapController {
             previousStyle,
             nextStyle,
             newProjection as ProjectionType,
+            this.mapLocale,
           ),
       });
+    });
+
+    this.params.on("lowPowerMode", (enabled, _oldValue) => {
+      this.currentJourneyLayer?.setLowPowerMode?.(enabled);
+      this.map.triggerRepaint();
     });
   }
 
@@ -346,6 +371,7 @@ export class MapController {
           previousStyle,
           nextStyle,
           this.params.projection,
+          this.mapLocale,
         ),
     });
   }
@@ -425,14 +451,18 @@ export class MapController {
       clearInterval(this.styleRetryIntervalId);
       this.styleRetryIntervalId = null;
     }
-    if (this.pollIntervalId) {
-      clearInterval(this.pollIntervalId);
-      this.pollIntervalId = null;
-    }
+    this.clearAutoRefreshInterval();
     if (this.currentJourneyLayer) {
       this.currentJourneyLayer.remove();
       this.currentJourneyLayer = null;
     }
     this.map.remove();
+  }
+
+  private clearAutoRefreshInterval(): void {
+    if (this.pollIntervalId !== null) {
+      clearInterval(this.pollIntervalId);
+      this.pollIntervalId = null;
+    }
   }
 }
