@@ -121,4 +121,11 @@ class StyleConstants {
   static const double mapOverlayShadowBlurRadius = 26;
   static const double mapOverlayShadowSpreadRadius = -3;
   static const Offset mapOverlayShadowOffset = Offset(0, 8);
+
+  // Calm, readable glass used by the time-machine ruler and other secondary
+  // map controls that should remain visible without looking like solid cards.
+  static const double timelineGlassBackgroundAlpha = 0.60;
+  static const double timelineGlassBorderAlpha = 0.84;
+  static const double timelineGlassBlurSigma = 24;
+  static const double timelineGlassReflectionAlpha = 0.12;
 }

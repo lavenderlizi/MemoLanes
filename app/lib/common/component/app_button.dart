@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-enum AppButtonVariant { primary, secondary, tonal, danger }
+enum AppButtonVariant {
+  primary,
+  secondary,
+  tonal,
+  dangerTonal,
+  danger,
+}
 
 enum AppButtonSize { compact, regular, large }
 
@@ -11,11 +17,13 @@ extension on AppButtonVariant {
         AppButtonVariant.primary => StyleConstants.primaryActionColor,
         AppButtonVariant.secondary => StyleConstants.surfaceColor,
         AppButtonVariant.tonal => StyleConstants.selectedSurfaceColor,
+        AppButtonVariant.dangerTonal => StyleConstants.dangerSurfaceColor,
         AppButtonVariant.danger => StyleConstants.dangerColor,
       };
 
   Color get foregroundColor => switch (this) {
         AppButtonVariant.danger => StyleConstants.onDangerColor,
+        AppButtonVariant.dangerTonal => StyleConstants.dangerInkColor,
         _ => StyleConstants.onPrimaryActionColor,
       };
 
@@ -151,13 +159,16 @@ class AppIconButton extends StatelessWidget {
     this.tooltip,
     this.variant = AppButtonVariant.tonal,
     this.size = 42,
-  }) : assert(size > 0);
+    this.backgroundAlpha = 1,
+  })  : assert(size > 0),
+        assert(backgroundAlpha >= 0 && backgroundAlpha <= 1);
 
   final IconData icon;
   final VoidCallback? onPressed;
   final String? tooltip;
   final AppButtonVariant variant;
   final double size;
+  final double backgroundAlpha;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +176,8 @@ class AppIconButton extends StatelessWidget {
       onPressed: onPressed,
       tooltip: tooltip,
       style: IconButton.styleFrom(
-        backgroundColor: variant.backgroundColor,
+        backgroundColor:
+            variant.backgroundColor.withValues(alpha: backgroundAlpha),
         foregroundColor: variant.foregroundColor,
         disabledBackgroundColor: StyleConstants.lineColor,
         disabledForegroundColor: StyleConstants.subtleInkColor,

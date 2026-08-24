@@ -21,10 +21,10 @@ class TimeMachineGlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     return LiquidGlassSurface(
       borderRadius: borderRadius,
-      backgroundAlpha: 0.60,
-      borderAlpha: 0.84,
-      blurSigma: 24,
-      reflectionAlpha: 0.12,
+      backgroundAlpha: StyleConstants.timelineGlassBackgroundAlpha,
+      borderAlpha: StyleConstants.timelineGlassBorderAlpha,
+      blurSigma: StyleConstants.timelineGlassBlurSigma,
+      reflectionAlpha: StyleConstants.timelineGlassReflectionAlpha,
       shadowAlpha: shadowAlpha,
       shadowBlurRadius: StyleConstants.mapOverlayShadowBlurRadius,
       shadowSpreadRadius: StyleConstants.mapOverlayShadowSpreadRadius,

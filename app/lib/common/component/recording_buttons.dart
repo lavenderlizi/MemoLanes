@@ -206,41 +206,97 @@ class _ActiveJourneyControls extends StatelessWidget {
     return SizedBox(
       width: _recordingControlWidth,
       height: _recordingControlHeight,
-      child: LiquidGlassSurface(
-        borderRadius: BorderRadius.circular(23),
-        padding: const EdgeInsets.all(5),
-        child: SizedBox(
-          height: 42,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 112,
-                height: 42,
-                child: AppButton(
-                  label: context.tr(isPaused ? 'home.resume' : 'home.pause'),
-                  onPressed: onPrimaryPressed,
-                  icon:
-                      isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                  variant: isPaused
-                      ? AppButtonVariant.primary
-                      : AppButtonVariant.secondary,
-                  size: AppButtonSize.compact,
-                  fontSize: 15,
-                  backgroundAlpha: isPaused ? 0.55 : 0.5,
-                  borderRadius: 18,
-                  expand: true,
-                ),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 112,
+              height: 42,
+              child: LiquidGlassSurface(
+                borderRadius: BorderRadius.circular(18),
+                backgroundAlpha: isPaused
+                    ? 0.36
+                    : StyleConstants.timelineGlassBackgroundAlpha,
+                borderAlpha: isPaused
+                    ? 0.62
+                    : StyleConstants.timelineGlassBorderAlpha,
+                blurSigma: isPaused
+                    ? 28
+                    : StyleConstants.timelineGlassBlurSigma,
+                reflectionAlpha: isPaused
+                    ? 0.2
+                    : StyleConstants.timelineGlassReflectionAlpha,
+                child: isPaused
+                    ? AppButton(
+                        label: context.tr('home.resume'),
+                        onPressed: onPrimaryPressed,
+                        icon: Icons.play_arrow_rounded,
+                        variant: AppButtonVariant.primary,
+                        size: AppButtonSize.compact,
+                        fontSize: 15,
+                        backgroundAlpha: 0.55,
+                        borderRadius: 18,
+                        expand: true,
+                      )
+                    : _PauseGlassButton(onPressed: onPrimaryPressed),
               ),
-              const SizedBox(width: 6),
-              SizedBox.square(
-                dimension: 42,
+            ),
+            const SizedBox(width: 6),
+            SizedBox.square(
+              dimension: 42,
+              child: LiquidGlassSurface(
+                circular: true,
+                backgroundAlpha: 0.36,
+                borderAlpha: 0,
+                blurSigma: 28,
+                reflectionAlpha: 0,
                 child: AppIconButton(
                   onPressed: onEndPressed,
                   tooltip: context.tr('common.end'),
                   icon: Icons.stop_rounded,
-                  variant: AppButtonVariant.danger,
+                  variant: AppButtonVariant.dangerTonal,
                   size: 42,
+                  backgroundAlpha: 0.62,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PauseGlassButton extends StatelessWidget {
+  const _PauseGlassButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(18),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.pause_rounded,
+                size: 16,
+                color: StyleConstants.deepGreen,
+              ),
+              const SizedBox(width: 7),
+              Text(
+                context.tr('home.pause'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.compactButton.copyWith(
+                  color: StyleConstants.deepGreen,
+                  fontSize: 15,
                 ),
               ),
             ],
