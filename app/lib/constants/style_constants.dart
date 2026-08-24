@@ -5,13 +5,17 @@ import 'package:memolanes/common/component/bottom_nav_bar.dart';
 class StyleConstants {
   StyleConstants._();
 
-  // MemoLanes light travel palette. The green is deliberately calm and
-  // editorial rather than the high-energy neon commonly used by fitness apps.
+  // Foundations
   static const Color canvasColor = Color(0xFFFAFBF5);
   static const Color surfaceColor = Color(0xFFFFFFFF);
   static const Color inkColor = Color(0xFF182016);
   static const Color mutedInkColor = Color(0xFF6C7567);
+  static const Color subtleInkColor = Color(0xFF9CA59F);
   static const Color lineColor = Color(0xFFE7EBD9);
+  static const Color strongLineColor = Color(0xFFC8D1C1);
+
+  // Brand and selection. The lime is deliberately reserved for compact
+  // emphasis and primary actions instead of large decorative surfaces.
   static const Color primaryGreen = Color(0xFFB8EA72);
   static const Color deepGreen = Color(0xFF2E693D);
   static const Color softGreen = Color(0xFFECF9D9);
@@ -19,14 +23,41 @@ class StyleConstants {
   static const Color deepYellow = Color(0xFF8B6600);
   static const Color softYellow = Color(0xFFFFF5BD);
 
+  static const Color primaryActionColor = primaryGreen;
+  static const Color onPrimaryActionColor = deepGreen;
+  static const Color selectedSurfaceColor = softGreen;
+
+  // Feedback colors. These are quieter than Flutter's stock red and orange,
+  // and keep status meaning separate from brand accents.
+  static const Color warningColor = journeyYellow;
+  static const Color warningInkColor = deepYellow;
+  static const Color warningSurfaceColor = softYellow;
+  static const Color dangerColor = Color(0xFFC7485D);
+  static const Color dangerInkColor = Color(0xFF8F2F42);
+  static const Color dangerSurfaceColor = Color(0xFFFBEAEC);
+  static const Color onDangerColor = surfaceColor;
+  static const Color recordingColor = Color(0xFFD95357);
+  static const Color statusExcellentColor = deepGreen;
+  static const Color statusGoodColor = deepYellow;
+  static const Color statusFairColor = Color(0xFFB56C32);
+  static const Color statusPoorColor = dangerColor;
+
+  // Achievement colors remain gold so the category keeps its own identity,
+  // while using one shared hue instead of several unrelated yellows.
+  static const Color achievementGoldColor = Color(0xFFB88722);
+  static const Color achievementGoldSurfaceStart = Color(0xFFFFF7D9);
+  static const Color achievementGoldSurfaceEnd = Color(0xFFF1E5B5);
+  static const Color profileAccentStartColor = deepGreen;
+  static const Color profileAccentEndColor = deepYellow;
+
   // Active switches use the soft green surface tone used across settings.
   // Keeping these colors role-specific lets settings controls be tuned without
   // changing buttons, GPS status indicators, or other selected states.
   static const Color switchActiveTrackColor = softGreen;
   static const Color switchActiveThumbColor = deepGreen;
   static const Color switchInactiveTrackColor = Color(0xFFDDE2DC);
-  static const Color switchInactiveThumbColor = Color(0xFF9CA59F);
-  static const Color switchTrackOutlineColor = Color(0xFFC8D1C1);
+  static const Color switchInactiveThumbColor = subtleInkColor;
+  static const Color switchTrackOutlineColor = strongLineColor;
   static const double switchActiveThumbSize = 18;
   static const double switchInactiveThumbSize = 16;
   static const double switchTrackOutlineWidth = 1;
@@ -79,9 +110,8 @@ class StyleConstants {
   static double mapPrimaryControlBottomInsetForContext(BuildContext context) =>
       navBarSafeAreaForContext(context) + mapPrimaryControlNavBarSpacing;
 
-  // colors
-  static const Color defaultColor = deepGreen;
-  static const Color loadingMaskColor = Color.fromRGBO(0, 0, 0, 0.35);
+  // Overlays
+  static const Color loadingMaskColor = Color(0x59182016);
   static const double overlayFloatingRadius = 16.0;
 
   // Shared elevation for glass buttons and cards displayed over the map.

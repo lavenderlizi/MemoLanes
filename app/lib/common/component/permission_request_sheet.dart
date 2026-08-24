@@ -294,14 +294,14 @@ class _PermissionTile extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    foregroundColor: StyleConstants.defaultColor,
+                    foregroundColor: StyleConstants.deepGreen,
                   ),
                   child: Text(
                     context.tr('permission_sheet.open_system_settings'),
                     style: AppTypography.supporting.copyWith(
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.underline,
-                      decorationColor: StyleConstants.defaultColor,
+                      decorationColor: StyleConstants.deepGreen,
                     ),
                   ),
                 ),
@@ -337,7 +337,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
         child: Center(
           child: Icon(
             Icons.check_circle,
-            color: StyleConstants.defaultColor,
+            color: StyleConstants.deepGreen,
             size: 24,
           ),
         ),
@@ -345,7 +345,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
     }
 
     if (isDenied) {
-      const color = Color(0xFFFF6B6B);
+      const color = StyleConstants.dangerColor;
       return SizedBox(
         width: 52,
         height: 40,
@@ -388,17 +388,17 @@ class _PermissionStatusIndicator extends StatelessWidget {
             height: 30,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: StyleConstants.defaultColor.withValues(alpha: 0.12),
+              color: StyleConstants.deepGreen.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                color: StyleConstants.defaultColor.withValues(alpha: 0.75),
+                color: StyleConstants.deepGreen.withValues(alpha: 0.75),
               ),
             ),
             alignment: Alignment.center,
             child: Text(
               label,
               style: AppTypography.label.copyWith(
-                color: StyleConstants.defaultColor,
+                color: StyleConstants.deepGreen,
               ),
             ),
           ),

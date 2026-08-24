@@ -6,10 +6,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
+import 'package:memolanes/src/rust/journey_header.dart';
 
 class LayerButton extends StatelessWidget {
   const LayerButton({
@@ -24,10 +26,10 @@ class LayerButton extends StatelessWidget {
       contentRadius: 24,
       barrierColor: Colors.transparent,
       contentDecoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.68),
+        color: StyleConstants.surfaceColor.withValues(alpha: 0.68),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.8),
+          color: StyleConstants.surfaceColor.withValues(alpha: 0.8),
         ),
         boxShadow: [
           BoxShadow(
@@ -91,9 +93,9 @@ class _LayerPopupContentState extends State<LayerPopupContent> {
         _buildItem(LayerOption.current, context.tr("journey_kind.current"),
             FontAwesomeIcons.locationDot),
         _buildItem(LayerOption.default_, context.tr("journey_kind.default"),
-            FontAwesomeIcons.shoePrints),
+            journeyKindIconData(JourneyKind.defaultKind)),
         _buildItem(LayerOption.flight, context.tr("journey_kind.flight"),
-            FontAwesomeIcons.planeUp),
+            journeyKindIconData(JourneyKind.flight)),
       ],
     );
   }

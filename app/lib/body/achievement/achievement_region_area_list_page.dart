@@ -226,28 +226,27 @@ class _RegionAreaListTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (showIcon) ...[
-                Container(
-                  width: 42,
-                  height: 42,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: StyleConstants.softGreen,
-                    border: Border.all(
-                      color: StyleConstants.lineColor,
-                    ),
-                  ),
-                  child: item.flagCountryCode == null
-                      ? Icon(
+                item.flagCountryCode == null
+                    ? Container(
+                        width: 42,
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: StyleConstants.softGreen,
+                          border: Border.all(
+                            color: StyleConstants.lineColor,
+                          ),
+                        ),
+                        child: const Icon(
                           Icons.public_rounded,
                           color: StyleConstants.deepGreen,
                           size: 23,
-                        )
-                      : AchievementCountryFlag(
-                          countryCode: item.flagCountryCode!,
-                          size: 34,
                         ),
-                ),
+                      )
+                    : AchievementCountryFlagBadge(
+                        countryCode: item.flagCountryCode!,
+                      ),
                 const SizedBox(width: 12),
               ],
               Expanded(

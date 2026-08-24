@@ -17,6 +17,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
     this.backgroundColor,
     this.foregroundColor,
     this.showOnlyBackButton = false,
+    this.surfaceStyle = CapsuleBarSurfaceStyle.solid,
   });
 
   final bool showOnlyBackButton;
@@ -27,6 +28,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
   final Widget? moreIcon;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final CapsuleBarSurfaceStyle surfaceStyle;
 
   @override
   Size get preferredSize =>
@@ -45,6 +47,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
     Widget? moreMenuContent,
     Widget? moreIcon,
     bool showOnlyBackButton = false,
+    CapsuleBarSurfaceStyle surfaceStyle = CapsuleBarSurfaceStyle.solid,
   }) {
     return _OverlayBarOnly(
       key: key,
@@ -55,6 +58,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
       moreMenuContent: moreMenuContent,
       moreIcon: moreIcon,
       showOnlyBackButton: showOnlyBackButton,
+      surfaceStyle: surfaceStyle,
     );
   }
 
@@ -90,6 +94,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
     Color? backgroundColor,
     Color? foregroundColor,
     bool showOnlyBackButton = false,
+    CapsuleBarSurfaceStyle surfaceStyle = CapsuleBarSurfaceStyle.solid,
   }) {
     return _CapsuleOverlayConnection(
       key: key,
@@ -101,6 +106,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
       backgroundColor: backgroundColor,
       foregroundColor: foregroundColor,
       showOnlyBackButton: showOnlyBackButton,
+      surfaceStyle: surfaceStyle,
       child: child,
     );
   }
@@ -145,6 +151,7 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
               foregroundColor ?? CapsuleBarConstants.defaultForeground,
           pillColor: pillColor,
           subtitleFg: subtitleFg,
+          surfaceStyle: surfaceStyle,
         ),
       ),
     );
@@ -161,6 +168,7 @@ class _OverlayBarOnly extends StatelessWidget {
     this.moreMenuContent,
     this.moreIcon,
     this.showOnlyBackButton = false,
+    this.surfaceStyle = CapsuleBarSurfaceStyle.solid,
   });
 
   final String? title;
@@ -170,6 +178,7 @@ class _OverlayBarOnly extends StatelessWidget {
   final Widget? moreMenuContent;
   final Widget? moreIcon;
   final bool showOnlyBackButton;
+  final CapsuleBarSurfaceStyle surfaceStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +207,7 @@ class _OverlayBarOnly extends StatelessWidget {
             foregroundColor: CapsuleBarConstants.defaultForeground,
             pillColor: CapsuleBarConstants.defaultPill,
             subtitleFg: CapsuleBarConstants.defaultSubtitleFg,
+            surfaceStyle: surfaceStyle,
           ),
         ),
       ),
@@ -217,6 +227,7 @@ class _CapsuleOverlayConnection extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.showOnlyBackButton = false,
+    this.surfaceStyle = CapsuleBarSurfaceStyle.solid,
   });
 
   final Widget child;
@@ -228,6 +239,7 @@ class _CapsuleOverlayConnection extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
   final bool showOnlyBackButton;
+  final CapsuleBarSurfaceStyle surfaceStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -253,6 +265,7 @@ class _CapsuleOverlayConnection extends StatelessWidget {
               foregroundColor ?? CapsuleBarConstants.defaultForeground,
           pillColor: CapsuleBarConstants.defaultPill,
           subtitleFg: CapsuleBarConstants.defaultSubtitleFg,
+          surfaceStyle: surfaceStyle,
         ),
       ),
     );

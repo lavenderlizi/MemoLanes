@@ -190,9 +190,9 @@ class _EditorModeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final activeColor =
-        isCaution ? StyleConstants.deepYellow : StyleConstants.deepGreen;
+        isCaution ? StyleConstants.warningInkColor : StyleConstants.deepGreen;
     final activeBackground = isCaution
-        ? StyleConstants.journeyYellow.withValues(alpha: 0.28)
+        ? StyleConstants.warningColor.withValues(alpha: 0.28)
         : StyleConstants.primaryGreen.withValues(alpha: 0.25);
 
     return Semantics(

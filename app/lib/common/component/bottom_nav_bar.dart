@@ -50,9 +50,9 @@ class BottomNavBar extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0),
+                    StyleConstants.surfaceColor.withValues(alpha: 0),
                     StyleConstants.softGreen.withValues(alpha: 0.54),
-                    Colors.white.withValues(alpha: 0),
+                    StyleConstants.surfaceColor.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -184,7 +184,7 @@ class BottomNavBar extends StatelessWidget {
               showBadge: index == 4 && hasUpdateNotification(),
               position: badges.BadgePosition.topEnd(top: -4, end: -5),
               badgeStyle: const badges.BadgeStyle(
-                badgeColor: StyleConstants.journeyYellow,
+                badgeColor: StyleConstants.warningColor,
                 padding: EdgeInsets.all(4),
               ),
               child: TweenAnimationBuilder<double>(

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
+import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/common/component/map_glass_back_button.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
+
+enum CapsuleBarSurfaceStyle { solid, mapGlass }
 
 class CapsuleBarConstants {
   CapsuleBarConstants._();
@@ -38,6 +42,8 @@ class CapsuleBarContent extends StatelessWidget {
     this.foregroundColor,
     this.pillColor,
     this.subtitleFg,
+    this.surfaceStyle = CapsuleBarSurfaceStyle.solid,
+    this.showTitleBackground = true,
   });
 
   final bool showOnlyBackButton;
@@ -52,6 +58,8 @@ class CapsuleBarContent extends StatelessWidget {
   final Color? foregroundColor;
   final Color? pillColor;
   final Color? subtitleFg;
+  final CapsuleBarSurfaceStyle surfaceStyle;
+  final bool showTitleBackground;
 
   Color get _fg => foregroundColor ?? CapsuleBarConstants.defaultForeground;
   Color get _pill => pillColor ?? CapsuleBarConstants.defaultPill;
@@ -79,6 +87,67 @@ class CapsuleBarContent extends StatelessWidget {
     );
   }
 
+  Widget _titleContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (title != null && title!.isNotEmpty)
+          Text(
+            title!,
+            style: AppTypography.subpageTitle.copyWith(color: _fg),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        if (subtitle != null && subtitle!.isNotEmpty) ...[
+          const SizedBox(height: 1),
+          Text(
+            subtitle!,
+            style: AppTypography.micro.copyWith(color: _subFg),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _titlePill() {
+    final titleContent = _titleContent();
+    if (!showTitleBackground) return titleContent;
+
+    if (surfaceStyle == CapsuleBarSurfaceStyle.mapGlass) {
+      final hasSubtitle = subtitle != null && subtitle!.isNotEmpty;
+      return LiquidGlassSurface(
+        borderRadius: BorderRadius.circular(CapsuleBarConstants.pillRadius),
+        backgroundAlpha: 0.72,
+        borderAlpha: 0.86,
+        blurSigma: 18,
+        reflectionAlpha: 0,
+        shadowAlpha: 0.12,
+        shadowBlurRadius: 18,
+        shadowSpreadRadius: 0,
+        shadowOffset: const Offset(0, 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: hasSubtitle ? 3 : 7,
+        ),
+        child: titleContent,
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: _pill,
+        borderRadius: BorderRadius.circular(CapsuleBarConstants.pillRadius),
+      ),
+      child: titleContent,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final onBackCallback = onBack ?? () => Navigator.maybePop(context);
@@ -92,50 +161,18 @@ class CapsuleBarContent extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _pillButton(
-              const Icon(Icons.arrow_back_ios_new, size: 20),
-              onBackCallback,
-            ),
+            if (surfaceStyle == CapsuleBarSurfaceStyle.mapGlass)
+              MapGlassBackButton(onPressed: onBackCallback)
+            else
+              _pillButton(
+                const Icon(Icons.arrow_back_ios_new, size: 20),
+                onBackCallback,
+              ),
             if (!showOnlyBackButton) ...[
               const SizedBox(width: 12),
               Expanded(
                 child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: _pill,
-                      borderRadius:
-                          BorderRadius.circular(CapsuleBarConstants.pillRadius),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (title != null && title!.isNotEmpty)
-                          Text(
-                            title!,
-                            style: AppTypography.subpageTitle.copyWith(
-                              color: _fg,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        if (subtitle != null && subtitle!.isNotEmpty) ...[
-                          const SizedBox(height: 1),
-                          Text(
-                            subtitle!,
-                            style: AppTypography.micro.copyWith(
-                              color: _subFg,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+                  child: _titlePill(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -161,7 +198,11 @@ class CapsuleBarContent extends StatelessWidget {
                   onMoreTap,
                 )
               else
-                const SizedBox(width: CapsuleBarConstants.iconButtonSize),
+                SizedBox(
+                  width: surfaceStyle == CapsuleBarSurfaceStyle.mapGlass
+                      ? 42
+                      : CapsuleBarConstants.iconButtonSize,
+                ),
             ],
           ],
         ),

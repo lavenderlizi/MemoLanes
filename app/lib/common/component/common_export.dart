@@ -16,8 +16,6 @@ import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
-const Color _exportActionSheetBackgroundColor = StyleConstants.canvasColor;
-
 class CommonExportOption {
   const CommonExportOption({
     required this.extension,
@@ -169,15 +167,9 @@ Future<bool> showCommonExport(
       return true;
     }
 
-    final action = await showBasicBottomSheet<_PreparedExportAction>(
+    final action = await showBasicCard<_PreparedExportAction>(
       context,
-      showTitle: false,
-      contentPadding: EdgeInsets.only(
-        left: 20.0,
-        right: 20.0,
-        bottom: 16.0,
-      ),
-      backgroundColor: _exportActionSheetBackgroundColor,
+      title: context.tr('common.export'),
       child: const _ExportActionSheetContent(),
     );
 
@@ -295,7 +287,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
       margin: const EdgeInsets.only(top: 6.0),
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: StyleConstants.softYellow.withValues(alpha: 0.72),
+        color: StyleConstants.warningSurfaceColor.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
@@ -303,7 +295,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
         children: [
           const Icon(
             Icons.info_outline,
-            color: StyleConstants.deepYellow,
+            color: StyleConstants.warningInkColor,
             size: 18.0,
           ),
           const SizedBox(width: 8.0),
@@ -374,70 +366,23 @@ enum _PreparedExportAction { save, share }
 class _ExportActionSheetContent extends StatelessWidget {
   const _ExportActionSheetContent();
 
-  Widget _buildActionButton({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required _PreparedExportAction action,
-  }) {
-    return InkWell(
-      onTap: () => Navigator.of(context).pop(action),
-      borderRadius: BorderRadius.circular(16.0),
-      child: SizedBox(
-        width: 96.0,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 56.0,
-                height: 56.0,
-                decoration: const BoxDecoration(
-                  color: StyleConstants.softGreen,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: StyleConstants.defaultColor,
-                  size: 26.0,
-                ),
-              ),
-              const SizedBox(height: 8.0),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildActionButton(
-              context: context,
-              icon: Icons.save_alt_outlined,
-              label: context.tr('common.save'),
-              action: _PreparedExportAction.save,
-            ),
-            _buildActionButton(
-              context: context,
-              icon: Icons.ios_share_outlined,
-              label: context.tr('common.share'),
-              action: _PreparedExportAction.share,
-            ),
-          ],
+        AppOptionTile(
+          icon: Icons.save_alt_outlined,
+          title: context.tr('common.save'),
+          onTap: () =>
+              Navigator.of(context).pop(_PreparedExportAction.save),
+        ),
+        const SizedBox(height: 8),
+        AppOptionTile(
+          icon: Icons.ios_share_outlined,
+          title: context.tr('common.share'),
+          onTap: () =>
+              Navigator.of(context).pop(_PreparedExportAction.share),
         ),
       ],
     );

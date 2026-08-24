@@ -102,13 +102,26 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: StyleConstants.primaryGreen,
           brightness: Brightness.light,
-          primary: StyleConstants.primaryGreen,
-          onPrimary: StyleConstants.inkColor,
-          primaryContainer: StyleConstants.softGreen,
+          primary: StyleConstants.primaryActionColor,
+          onPrimary: StyleConstants.onPrimaryActionColor,
+          primaryContainer: StyleConstants.selectedSurfaceColor,
           onPrimaryContainer: StyleConstants.deepGreen,
-          secondary: StyleConstants.journeyYellow,
+          secondary: StyleConstants.warningColor,
           onSecondary: StyleConstants.inkColor,
+          secondaryContainer: StyleConstants.warningSurfaceColor,
+          onSecondaryContainer: StyleConstants.warningInkColor,
+          error: StyleConstants.dangerColor,
+          onError: StyleConstants.onDangerColor,
+          errorContainer: StyleConstants.dangerSurfaceColor,
+          onErrorContainer: StyleConstants.dangerInkColor,
+          outline: StyleConstants.mutedInkColor,
+          outlineVariant: StyleConstants.lineColor,
           surface: StyleConstants.surfaceColor,
+          onSurface: StyleConstants.inkColor,
+          onSurfaceVariant: StyleConstants.mutedInkColor,
+          shadow: StyleConstants.inkColor,
+          scrim: StyleConstants.inkColor,
+          surfaceTint: Colors.transparent,
         ),
         textTheme: Theme.of(context).textTheme.merge(
               AppTypography.textTheme,
@@ -129,8 +142,8 @@ class MyApp extends StatelessWidget {
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             elevation: 0,
-            backgroundColor: StyleConstants.primaryGreen,
-            foregroundColor: StyleConstants.deepGreen,
+            backgroundColor: StyleConstants.primaryActionColor,
+            foregroundColor: StyleConstants.onPrimaryActionColor,
             minimumSize: const Size(0, 44),
             textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
@@ -142,7 +155,7 @@ class MyApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             elevation: 0,
             backgroundColor: StyleConstants.surfaceColor,
-            foregroundColor: StyleConstants.deepGreen,
+            foregroundColor: StyleConstants.onPrimaryActionColor,
             minimumSize: const Size(0, 44),
             textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
@@ -153,7 +166,7 @@ class MyApp extends StatelessWidget {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: StyleConstants.deepGreen,
+            foregroundColor: StyleConstants.onPrimaryActionColor,
             minimumSize: const Size(0, 44),
             side: const BorderSide(color: StyleConstants.lineColor),
             textStyle: AppTypography.button,
@@ -164,7 +177,7 @@ class MyApp extends StatelessWidget {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: StyleConstants.deepGreen,
+            foregroundColor: StyleConstants.onPrimaryActionColor,
             textStyle: AppTypography.button,
           ),
         ),
@@ -190,7 +203,7 @@ class MyApp extends StatelessWidget {
           weekdayStyle: AppTypography.label.copyWith(
             color: StyleConstants.mutedInkColor,
           ),
-          todayBorder: const BorderSide(color: StyleConstants.primaryGreen),
+          todayBorder: const BorderSide(color: StyleConstants.deepGreen),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
             side: const BorderSide(color: StyleConstants.lineColor),
@@ -203,8 +216,8 @@ class MyApp extends StatelessWidget {
             ),
           ),
           confirmButtonStyle: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.primaryGreen,
-            foregroundColor: StyleConstants.deepGreen,
+            backgroundColor: StyleConstants.primaryActionColor,
+            foregroundColor: StyleConstants.onPrimaryActionColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -213,7 +226,7 @@ class MyApp extends StatelessWidget {
         timePickerTheme: TimePickerThemeData(
           backgroundColor: StyleConstants.canvasColor,
           dialBackgroundColor: StyleConstants.surfaceColor,
-          dialHandColor: StyleConstants.primaryGreen,
+          dialHandColor: StyleConstants.deepGreen,
           hourMinuteColor: StyleConstants.softGreen,
           entryModeIconColor: StyleConstants.deepGreen,
           shape: RoundedRectangleBorder(
@@ -228,12 +241,36 @@ class MyApp extends StatelessWidget {
             ),
           ),
           confirmButtonStyle: FilledButton.styleFrom(
-            backgroundColor: StyleConstants.primaryGreen,
-            foregroundColor: StyleConstants.deepGreen,
+            backgroundColor: StyleConstants.primaryActionColor,
+            foregroundColor: StyleConstants.onPrimaryActionColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
           ),
+        ),
+        checkboxTheme: CheckboxThemeData(
+          fillColor: WidgetStateProperty.resolveWith(
+            (states) {
+              if (states.contains(WidgetState.disabled)) {
+                return StyleConstants.lineColor;
+              }
+              return states.contains(WidgetState.selected)
+                  ? StyleConstants.primaryActionColor
+                  : StyleConstants.surfaceColor;
+            },
+          ),
+          checkColor: const WidgetStatePropertyAll(
+            StyleConstants.onPrimaryActionColor,
+          ),
+          side: const BorderSide(color: StyleConstants.strongLineColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: StyleConstants.primaryActionColor,
+          linearTrackColor: StyleConstants.lineColor,
+          circularTrackColor: StyleConstants.lineColor,
         ),
         switchTheme: SwitchThemeData(
           thumbColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -262,9 +299,9 @@ class MyApp extends StatelessWidget {
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           elevation: 8,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.black54,
+          backgroundColor: StyleConstants.surfaceColor,
+          selectedItemColor: StyleConstants.deepGreen,
+          unselectedItemColor: StyleConstants.mutedInkColor,
         ),
       ),
       home: home ?? const MyHomePage(title: 'MemoLanes [OSS]'),

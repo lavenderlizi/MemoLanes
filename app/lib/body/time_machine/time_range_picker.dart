@@ -764,7 +764,7 @@ class TimeRangeOverlayPicker extends StatelessWidget {
       initialDate: safeInitial,
       firstDate: first,
       lastDate: last,
-      glassBackgroundAlpha: 0.76,
+      highlightInitialDate: true,
     );
     if (picked != null) onChanged(picked);
   }

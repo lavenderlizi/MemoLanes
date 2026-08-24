@@ -4,6 +4,7 @@ import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
@@ -36,18 +37,23 @@ class ImportPreprocessorTile extends StatelessWidget {
     required this.value,
     required this.onSelected,
     this.onInfoTap,
+    this.position = LabelTilePosition.single,
+    this.bottom = true,
   });
 
   final import_api.ImportPreprocessor value;
   final ValueChanged<import_api.ImportPreprocessor> onSelected;
   final VoidCallback? onInfoTap;
+  final LabelTilePosition position;
+  final bool bottom;
 
   @override
   Widget build(BuildContext context) {
     return LabelTile(
       label: context.tr('import.preprocessor.label'),
       infoLabelOnTap: onInfoTap,
-      position: LabelTilePosition.single,
+      position: position,
+      bottom: bottom,
       trailing: LabelTileContent(
         content: importPreprocessorLabel(context, value),
         showArrow: true,
@@ -68,16 +74,21 @@ class JourneyKindTile extends StatelessWidget {
     super.key,
     required this.value,
     required this.onSelected,
+    this.position = LabelTilePosition.single,
+    this.bottom = true,
   });
 
   final JourneyKind value;
   final ValueChanged<JourneyKind> onSelected;
+  final LabelTilePosition position;
+  final bool bottom;
 
   @override
   Widget build(BuildContext context) {
     return LabelTile(
       label: context.tr('journey.journey_kind'),
-      position: LabelTilePosition.single,
+      position: position,
+      bottom: bottom,
       trailing: LabelTileContent(
         content: journeyKindLabel(context, value),
         showArrow: true,
@@ -87,6 +98,11 @@ class JourneyKindTile extends StatelessWidget {
         values: JourneyKind.values,
         selectedValue: value,
         labelOf: (item) => journeyKindLabel(context, item),
+        iconBuilder: (item) => JourneyKindIcon(
+          kind: item,
+          color: StyleConstants.deepGreen,
+          size: 20,
+        ),
         onSelected: onSelected,
       ),
     );
@@ -100,23 +116,29 @@ class JourneyNoteTile extends StatelessWidget {
     this.maxHeight = 150,
     this.maxLines = 5,
     this.widthFactor = 0.6,
+    this.position = LabelTilePosition.single,
+    this.bottom = true,
   });
 
   final TextEditingController controller;
   final double maxHeight;
   final int maxLines;
   final double widthFactor;
+  final LabelTilePosition position;
+  final bool bottom;
 
   @override
   Widget build(BuildContext context) {
     return LabelTile(
       label: context.tr('journey.note'),
-      position: LabelTilePosition.single,
+      position: position,
+      bottom: bottom,
       maxHeight: maxHeight,
       trailing: SizedBox(
         width: MediaQuery.sizeOf(context).width * widthFactor,
         child: TextField(
           controller: controller,
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
           keyboardType: TextInputType.multiline,
           textInputAction: TextInputAction.newline,
           maxLines: maxLines,
@@ -143,6 +165,7 @@ void _showOptionPicker<T>(
   required List<T> values,
   required T selectedValue,
   required String Function(T value) labelOf,
+  Widget Function(T value)? iconBuilder,
   required ValueChanged<T> onSelected,
 }) {
   showBasicCard(
@@ -153,6 +176,7 @@ void _showOptionPicker<T>(
         for (var i = 0; i < values.length; i++) ...[
           if (i > 0) const SizedBox(height: 8),
           AppOptionTile(
+            iconWidget: iconBuilder?.call(values[i]),
             title: labelOf(values[i]),
             selected: values[i] == selectedValue,
             trailing: AppOptionTileTrailing.selection,

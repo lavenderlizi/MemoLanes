@@ -126,7 +126,7 @@ class _PopupContent extends StatelessWidget {
               BoxShadow(
                 color: backgroundColor == null
                     ? StyleConstants.inkColor.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.1),
+                    : StyleConstants.inkColor.withValues(alpha: 0.1),
                 blurRadius: backgroundColor == null ? 18 : 10,
                 offset:
                     backgroundColor == null ? const Offset(0, 6) : Offset.zero,
@@ -179,7 +179,7 @@ class _PopupRoute extends PopupRoute<void> {
 
   @override
   Color? get barrierColor =>
-      barriersColor ?? Colors.black.withValues(alpha: 0.1);
+      barriersColor ?? StyleConstants.inkColor.withValues(alpha: 0.1);
   @override
   bool get barrierDismissible => true;
   @override

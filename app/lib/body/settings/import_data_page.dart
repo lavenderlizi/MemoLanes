@@ -254,8 +254,10 @@ class _ImportDataPage extends State<ImportDataPage> {
                             padding: const EdgeInsets.only(top: 12.0),
                             child: CustomPaint(
                               size: const Size(40.0, 4.0),
-                              painter:
-                                  LinePainter(color: const Color(0xFFB5B5B5)),
+                              painter: LinePainter(
+                                color: StyleConstants.mutedInkColor
+                                    .withValues(alpha: 0.44),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16.0),

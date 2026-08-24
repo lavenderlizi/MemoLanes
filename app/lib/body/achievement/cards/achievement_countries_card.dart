@@ -10,7 +10,7 @@ import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:provider/provider.dart';
 
-const _countryGold = Color(0xFFD4AF37);
+const _countryGold = StyleConstants.achievementGoldColor;
 const _countriesGridColumnCount = 5;
 const _countryItemHeight = 82.0;
 const _countryRowSpacing = 6.0;
@@ -247,31 +247,9 @@ class _CountryFlagItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  width: _countryFlagSize,
-                  height: _countryFlagSize,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFFF5D6), Color(0xFFF4E5AD)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _countryGold.withValues(alpha: 0.25),
-                        blurRadius: 6,
-                      ),
-                    ],
-                  ),
-                  child: SizedBox.square(
-                    dimension: 36,
-                    child: AchievementCountryFlag(
-                      countryCode: country.isoA3Eh ?? '',
-                      size: 36,
-                    ),
-                  ),
+                AchievementCountryFlagBadge(
+                  countryCode: country.isoA3Eh ?? '',
+                  size: _countryFlagSize,
                 ),
                 const SizedBox(height: _countryNameTopSpacing),
                 SizedBox(

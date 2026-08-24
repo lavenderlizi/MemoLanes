@@ -113,7 +113,7 @@ class _SettingsBodyState extends State<SettingsBody> {
         const SizedBox(height: 18),
         // TODO: Enable this when we have user system.
         // CircleAvatar(
-        //   backgroundColor: const Color(0xFFB6E13D),
+        //   backgroundColor: StyleConstants.primaryGreen,
         //   radius: 45.0,
         // ),
         // Padding(
@@ -122,7 +122,7 @@ class _SettingsBodyState extends State<SettingsBody> {
         //     'Foo Bar',
         //     style: TextStyle(
         //       fontSize: 24.0,
-        //       color: const Color(0xFFFFFFFF),
+        //       color: StyleConstants.surfaceColor,
         //     ),
         //   ),
         // ),
@@ -145,18 +145,12 @@ class _SettingsBodyState extends State<SettingsBody> {
                         shape: badges.BadgeShape.square,
                         borderRadius: BorderRadius.circular(5),
                         padding: const EdgeInsets.all(2),
-                        badgeGradient: const badges.BadgeGradient.linear(
-                          colors: [
-                            StyleConstants.primaryGreen,
-                            StyleConstants.journeyYellow,
-                            StyleConstants.primaryGreen,
-                          ],
-                        ),
+                        badgeColor: StyleConstants.deepGreen,
                       ),
                       badgeContent: Text(
                         'NEW',
                         style: AppTypography.badge.copyWith(
-                          color: Colors.white,
+                          color: StyleConstants.surfaceColor,
                         ),
                       ),
                       child: LabelTileContent(

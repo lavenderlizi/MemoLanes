@@ -21,14 +21,14 @@ class MapFogStyle {
 
   static const dark = MapFogStyle(
     id: 'dark',
-    colorHex: '#001A3A',
-    opacity: 0.40,
+    colorHex: '#001228',
+    opacity: 0.50,
   );
 
   static const light = MapFogStyle(
     id: 'light',
     colorHex: '#EFF9FF',
-    opacity: 0.70,
+    opacity: 0.80,
   );
 
   static const all = [dark, light];

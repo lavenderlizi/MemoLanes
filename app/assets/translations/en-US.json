@@ -14,7 +14,14 @@
     "end_journey_title": "End Journey?",
     "end_journey_message": "Are you sure you want to end your current journey?",
     "double_back_exit": "Press back again to exit the app",
-    "map_data_source_copyright_title": "Data Source"
+    "map_data_source_copyright_title": "Data Source",
+    "gps_accuracy": "Accuracy",
+    "gps_signal": {
+      "excellent": "Strong",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Weak"
+    }
   },
   "permission_sheet": {
     "title": "Authorize for the full experience",
@@ -61,6 +68,8 @@
     "copy_success": "Copied",
     "save_success": "Saved successfully",
     "continue": "Continue",
+    "select_year": "Select year",
+    "select_month": "Select month",
     "save_confirm": "Do you want to save the changes?"
   },
   "startup_error": {

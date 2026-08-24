@@ -20,15 +20,16 @@ class AchievementComingSoonCard extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: StyleConstants.softYellow,
+                  color: StyleConstants.warningSurfaceColor,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: StyleConstants.journeyYellow.withValues(alpha: 0.5),
+                    color: StyleConstants.achievementGoldColor
+                        .withValues(alpha: 0.38),
                   ),
                 ),
                 child: Icon(
                   Icons.auto_awesome_rounded,
-                  color: const Color(0xFFA17700),
+                  color: StyleConstants.achievementGoldColor,
                   size: 22,
                 ),
               ),

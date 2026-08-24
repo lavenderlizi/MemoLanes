@@ -43,8 +43,8 @@ class ProfileLevelIndicator extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Color(0xFF66B6FF),
-                              Color(0xFFFF99CC),
+                              StyleConstants.profileAccentStartColor,
+                              StyleConstants.profileAccentEndColor,
                             ],
                           )
                         : null,
@@ -58,7 +58,7 @@ class ProfileLevelIndicator extends StatelessWidget {
                   child: profileImage == null
                       ? const Icon(
                           Icons.person,
-                          color: Colors.white,
+                          color: StyleConstants.surfaceColor,
                           size: 32,
                         )
                       : null,
@@ -84,13 +84,13 @@ class ProfileLevelIndicator extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.black,
+                    color: StyleConstants.inkColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'Lv. $level',
                     style: AppTypography.label.copyWith(
-                      color: Colors.white,
+                      color: StyleConstants.surfaceColor,
                     ),
                   ),
                 ),
@@ -118,14 +118,14 @@ class CircularProgressPainter extends CustomPainter {
     final radius = (size.width - strokeWidth) / 2;
 
     final bgPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
+      ..color = StyleConstants.surfaceColor.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
     canvas.drawCircle(center, radius, bgPaint);
 
     final progressPaint = Paint()
-      ..color = StyleConstants.primaryGreen
+      ..color = StyleConstants.primaryActionColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;

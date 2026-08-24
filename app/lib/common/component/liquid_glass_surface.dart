@@ -74,7 +74,7 @@ class LiquidGlassSurface extends StatelessWidget {
             offset: shadowOffset,
           ),
           BoxShadow(
-            color: Colors.white.withValues(alpha: 0.28),
+            color: StyleConstants.surfaceColor.withValues(alpha: 0.28),
             blurRadius: 8,
             spreadRadius: -5,
             offset: const Offset(0, -2),
@@ -90,9 +90,11 @@ class LiquidGlassSurface extends StatelessWidget {
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: _decoration(
-                    color: Colors.white.withValues(alpha: backgroundAlpha),
+                    color: StyleConstants.surfaceColor
+                        .withValues(alpha: backgroundAlpha),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: borderAlpha),
+                      color: StyleConstants.surfaceColor
+                          .withValues(alpha: borderAlpha),
                       width: 1.1,
                     ),
                   ),
@@ -130,9 +132,9 @@ class LiquidGlassSurface extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.white.withValues(alpha: 0),
-                        Colors.white.withValues(alpha: 0.88),
-                        Colors.white.withValues(alpha: 0),
+                        StyleConstants.surfaceColor.withValues(alpha: 0),
+                        StyleConstants.surfaceColor.withValues(alpha: 0.88),
+                        StyleConstants.surfaceColor.withValues(alpha: 0),
                       ],
                     ),
                   ),

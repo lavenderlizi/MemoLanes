@@ -2,6 +2,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/common/gps_manager.dart';
@@ -38,21 +39,21 @@ AccuracyLevel getAccuracyLevel(double accuracy) {
   }
 }
 
-String getSignalStatus(AccuracyLevel accuracyLevel) {
+String getSignalStatus(BuildContext context, AccuracyLevel accuracyLevel) {
   return switch (accuracyLevel) {
-    AccuracyLevel.excellent => "Excellent",
-    AccuracyLevel.good => "Good",
-    AccuracyLevel.fair => "Fair",
-    AccuracyLevel.poor => "Poor",
+    AccuracyLevel.excellent => context.tr('home.gps_signal.excellent'),
+    AccuracyLevel.good => context.tr('home.gps_signal.good'),
+    AccuracyLevel.fair => context.tr('home.gps_signal.fair'),
+    AccuracyLevel.poor => context.tr('home.gps_signal.poor'),
   };
 }
 
 Color getStatusColor(AccuracyLevel accuracyLevel) {
   return switch (accuracyLevel) {
-    AccuracyLevel.excellent => StyleConstants.primaryGreen,
-    AccuracyLevel.good => StyleConstants.journeyYellow,
-    AccuracyLevel.fair => Colors.orange,
-    AccuracyLevel.poor => Colors.red,
+    AccuracyLevel.excellent => StyleConstants.statusExcellentColor,
+    AccuracyLevel.good => StyleConstants.statusGoodColor,
+    AccuracyLevel.fair => StyleConstants.statusFairColor,
+    AccuracyLevel.poor => StyleConstants.statusPoorColor,
   };
 }
 
@@ -125,7 +126,8 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                   final position = gpsState.latestPosition;
                   if (position != null) {
                     final accuracyLevel = getAccuracyLevel(position.accuracy);
-                    final signalStatus = getSignalStatus(accuracyLevel);
+                    final signalStatus =
+                        getSignalStatus(context, accuracyLevel);
                     final statusColor = getStatusColor(accuracyLevel);
 
                     return GestureDetector(
@@ -137,10 +139,12 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.68),
+                              color: StyleConstants.surfaceColor
+                                  .withValues(alpha: 0.68),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.8),
+                                color: StyleConstants.surfaceColor
+                                    .withValues(alpha: 0.8),
                               ),
                               boxShadow: [
                                 BoxShadow(
@@ -176,7 +180,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                           ),
                                         ),
                                         Text(
-                                          'Accuracy',
+                                          context.tr('home.gps_accuracy'),
                                           style: AppTypography.bodyLarge.copyWith(
                                             color: StyleConstants.mutedInkColor,
                                           ),
@@ -195,7 +199,7 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                       child: Text(
                                         signalStatus,
                                         style: AppTypography.caption.copyWith(
-                                          color: StyleConstants.inkColor,
+                                          color: StyleConstants.surfaceColor,
                                         ),
                                       ),
                                     ),
@@ -265,7 +269,9 @@ class AccuracyTicksPainter extends CustomPainter {
     const gapAngle = (totalArcSpan - (tickArcLength * 4)) / 3;
 
     for (int i = 0; i < 4; i++) {
-      paint.color = i < filledTicks ? color : Colors.grey.shade700;
+      paint.color = i < filledTicks
+          ? color
+          : StyleConstants.mutedInkColor.withValues(alpha: 0.52);
 
       final tickStartAngle = startAngle + (i * (tickArcLength + gapAngle));
 

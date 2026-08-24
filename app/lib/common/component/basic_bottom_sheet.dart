@@ -29,12 +29,12 @@ Future<T?> showBasicBottomSheet<T>(
   );
 }
 
-void showBasicCard(
+Future<T?> showBasicCard<T>(
   BuildContext context, {
   required Widget child,
   String? title,
 }) {
-  showBasicBottomSheet<void>(
+  return showBasicBottomSheet<T>(
     context,
     title: title,
     showTitle: title != null,

@@ -14,6 +14,7 @@ class CapsuleStyleAppBar extends StatelessWidget
     this.moreIcon,
     this.backgroundColor,
     this.foregroundColor,
+    this.showTitleBackground = true,
   });
 
   final String title;
@@ -23,6 +24,7 @@ class CapsuleStyleAppBar extends StatelessWidget
   final Widget? moreIcon;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final bool showTitleBackground;
 
   @override
   Size get preferredSize =>
@@ -70,6 +72,7 @@ class CapsuleStyleAppBar extends StatelessWidget
               foregroundColor ?? CapsuleBarConstants.defaultForeground,
           pillColor: pillColor,
           subtitleFg: subtitleFg,
+          showTitleBackground: showTitleBackground,
         ),
       ),
     );

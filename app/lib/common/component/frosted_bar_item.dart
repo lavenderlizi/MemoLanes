@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/constants/app_typography.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class FrostedBarItem extends StatelessWidget {
   const FrostedBarItem({
@@ -9,7 +10,7 @@ class FrostedBarItem extends StatelessWidget {
     this.isSelected = false,
     this.isEnabled = true,
     this.onTap,
-    this.selectedColor = Colors.black,
+    this.selectedColor = StyleConstants.inkColor,
     this.unselectedColor,
     this.disabledColor,
     this.horizontalPadding = 14,
@@ -32,13 +33,14 @@ class FrostedBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeColor = selectedColor;
-    final baseUnselectedColor = unselectedColor ?? Colors.grey.shade800;
-    final baseDisabledColor = disabledColor ?? Colors.grey.shade500;
+    final baseUnselectedColor =
+        unselectedColor ?? StyleConstants.mutedInkColor;
+    final baseDisabledColor = disabledColor ?? StyleConstants.subtleInkColor;
 
     final Color bgColor = isSelected
         ? (isEnabled
             ? themeColor.withValues(alpha: 0.12)
-            : Colors.black.withValues(alpha: 0.05))
+            : StyleConstants.inkColor.withValues(alpha: 0.05))
         : Colors.transparent;
 
     final Color contentColor = !isEnabled

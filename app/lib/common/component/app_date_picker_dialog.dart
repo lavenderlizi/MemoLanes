@@ -1,13 +1,13 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_calendar_mode_picker.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
-
-const _fullHeaderMinViewportWidth = 380.0;
 
 /// Shows the compact calendar dialog shared by Journey and Time Machine.
 Future<DateTime?> showAppDatePickerDialog(
@@ -59,11 +59,31 @@ class _AppDatePickerDialog extends StatefulWidget {
 
 class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
   late DateTime _selectedDate;
+  late DateTime _displayedMonthDate;
+  CalendarDatePicker2Mode _calendarViewMode = CalendarDatePicker2Mode.day;
+  int _calendarPickerRevision = 0;
 
   @override
   void initState() {
     super.initState();
     _selectedDate = widget.initialDate;
+    _displayedMonthDate = DateTime(
+      widget.initialDate.year,
+      widget.initialDate.month,
+    );
+  }
+
+  void _setCalendarViewMode(CalendarDatePicker2Mode mode) {
+    setState(() {
+      // calendar_date_picker2 returns to day mode internally after a month is
+      // selected, but it does not emit onDisplayedMonthChanged when the user
+      // selects the already displayed month. Recreate only in that stale-state
+      // case so the same month selector can always be opened again.
+      if (_calendarViewMode == mode) {
+        _calendarPickerRevision += 1;
+      }
+      _calendarViewMode = mode;
+    });
   }
 
   Widget _buildDay({
@@ -109,36 +129,108 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
   @override
   Widget build(BuildContext context) {
     final localizations = MaterialLocalizations.of(context);
-    final useCompactHeader =
-        MediaQuery.sizeOf(context).width < _fullHeaderMinViewportWidth;
+    final controlsTextStyle = AppTypography.sectionLabel.copyWith(
+      color: StyleConstants.deepGreen,
+    );
     final config = CalendarDatePicker2Config(
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
       calendarType: CalendarDatePicker2Type.single,
+      calendarViewMode: _calendarViewMode,
       centerAlignModePicker: true,
-      disableMonthPicker: useCompactHeader,
+      disableMonthPicker: false,
+      // The shared selector owns these taps so the package's fixed physical
+      // month/year slots cannot open the opposite view after being reordered.
+      disableModePicker: true,
+      semanticsDictionary: yearFirstCalendarModePickerSemantics(context),
+      modePickerBuilder: ({
+        required viewMode,
+        required monthDate,
+        isMonthPicker,
+      }) {
+        return AppCalendarModePicker(
+          viewMode: viewMode,
+          monthDate: monthDate,
+          occupiesPackageMonthSlot: isMonthPicker == true,
+          textStyle: controlsTextStyle,
+          onModeChanged: (mode) {
+            AppHaptics.selection();
+            _setCalendarViewMode(mode);
+          },
+        );
+      },
       controlsHeight: 38,
       dayMaxWidth: 30,
       dynamicCalendarRows: true,
       disableVibration: true,
       daySplashColor: Colors.transparent,
-      selectedDayHighlightColor: Colors.transparent,
+      selectedDayHighlightColor: StyleConstants.primaryGreen,
       dayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.inkColor,
       ),
       selectedDayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.inkColor,
       ),
-      todayTextStyle: AppTypography.label.copyWith(
+      todayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.deepGreen,
         fontWeight: FontWeight.w700,
       ),
+      monthTextStyle: AppTypography.body.copyWith(
+        color: StyleConstants.inkColor,
+      ),
+      selectedMonthTextStyle: AppTypography.body.copyWith(
+        color: StyleConstants.inkColor,
+        fontWeight: FontWeight.w600,
+      ),
+      yearTextStyle: AppTypography.body.copyWith(
+        color: StyleConstants.inkColor,
+      ),
+      selectedYearTextStyle: AppTypography.body.copyWith(
+        color: StyleConstants.inkColor,
+        fontWeight: FontWeight.w600,
+      ),
+      monthBuilder: ({
+        required month,
+        textStyle,
+        decoration,
+        isSelected,
+        isDisabled,
+        isCurrentMonth,
+      }) {
+        final displayedYear = _displayedMonthDate.year;
+        return AppCalendarGridOption(
+          label: DateFormat.MMM(
+            Localizations.localeOf(context).toString(),
+          ).format(DateTime(displayedYear, month)),
+          isSelected: month == _displayedMonthDate.month,
+          isOriginal: displayedYear == widget.initialDate.year &&
+              month == widget.initialDate.month,
+          isCurrent: isCurrentMonth == true,
+          isDisabled: isDisabled == true,
+          textStyle: textStyle,
+        );
+      },
+      yearBuilder: ({
+        required year,
+        textStyle,
+        decoration,
+        isSelected,
+        isDisabled,
+        isCurrentYear,
+      }) {
+        return AppCalendarGridOption(
+          label: MaterialLocalizations.of(context).formatYear(DateTime(year)),
+          isSelected: year == _displayedMonthDate.year,
+          isOriginal: year == widget.initialDate.year,
+          isCurrent: isCurrentYear == true,
+          isDisabled: isDisabled == true,
+          textStyle: textStyle,
+        );
+      },
       weekdayLabelTextStyle: AppTypography.micro.copyWith(
         color: StyleConstants.mutedInkColor,
       ),
-      controlsTextStyle: AppTypography.sectionLabel.copyWith(
-        color: StyleConstants.deepGreen,
-      ),
+      controlsTextStyle: controlsTextStyle,
       disabledDayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.mutedInkColor.withValues(alpha: 0.42),
       ),
@@ -186,13 +278,27 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
                   width: double.infinity,
                   height: 290,
                   child: CalendarDatePicker2(
+                    key: ValueKey(
+                      'app-date-picker-$_calendarPickerRevision',
+                    ),
                     config: config,
+                    displayedMonthDate: _displayedMonthDate,
                     value: [_selectedDate],
                     onValueChanged: (dates) {
                       final selected = dates.firstOrNull;
                       if (selected == null) return;
                       AppHaptics.selection();
                       setState(() => _selectedDate = selected);
+                    },
+                    onDisplayedMonthChanged: (displayedMonth) {
+                      // The package has already returned its own view to day
+                      // mode. Keep our next config rebuild in sync without
+                      // rebuilding early and resetting its newly chosen month.
+                      _displayedMonthDate = DateTime(
+                        displayedMonth.year,
+                        displayedMonth.month,
+                      );
+                      _calendarViewMode = CalendarDatePicker2Mode.day;
                     },
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/journey/journey_body.dart';
 import 'package:memolanes/body/journey/journey_export.dart';
+import 'package:memolanes/body/journey/compact_journey_info_card.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
@@ -12,7 +13,8 @@ import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
-import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/common/component/map_glass_back_button.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
@@ -268,7 +270,7 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
             left: viewPadding.left + 16,
             top: viewPadding.top + 14,
             child: PointerInterceptor(
-              child: _JourneyBackButton(onPressed: _returnToPicker),
+              child: MapGlassBackButton(onPressed: _returnToPicker),
             ),
           ),
       ],
@@ -287,7 +289,7 @@ class _JourneyPickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _JourneyPanelSurface(
+    return JourneyInfoPanelSurface(
       backgroundAlpha: 0.76,
       child: Stack(
         children: [
@@ -338,7 +340,7 @@ class _JourneyPickerCard extends StatelessWidget {
           if (isLoading)
             Positioned.fill(
               child: ColoredBox(
-                color: Colors.white.withValues(alpha: 0.42),
+                color: StyleConstants.surfaceColor.withValues(alpha: 0.42),
                 child: const Center(
                   child: CircularProgressIndicator(
                     color: StyleConstants.deepGreen,
@@ -347,62 +349,6 @@ class _JourneyPickerCard extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _JourneyPanelSurface extends StatelessWidget {
-  const _JourneyPanelSurface({
-    required this.child,
-    this.backgroundAlpha = 0.84,
-  });
-
-  final Widget child;
-  final double backgroundAlpha;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppDialogSurface(
-      style: AppDialogSurfaceStyle.glass,
-      glassBackgroundAlpha: backgroundAlpha,
-      shadowAlpha: StyleConstants.mapOverlayShadowAlpha,
-      shadowBlurRadius: StyleConstants.mapOverlayShadowBlurRadius,
-      shadowSpreadRadius: StyleConstants.mapOverlayShadowSpreadRadius,
-      shadowOffset: StyleConstants.mapOverlayShadowOffset,
-      child: child,
-    );
-  }
-}
-
-class _JourneyBackButton extends StatelessWidget {
-  const _JourneyBackButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return LiquidGlassSurface(
-      circular: true,
-      backgroundAlpha: 0.62,
-      blurSigma: 28,
-      reflectionAlpha: 0.1,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
-          child: SizedBox.square(
-            dimension: 42,
-            child: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 18,
-              color: StyleConstants.deepGreen,
-              semanticLabel:
-                  MaterialLocalizations.of(context).backButtonTooltip,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -535,7 +481,11 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _EditChoiceTile(
-                    icon: Icons.landscape_outlined,
+                    iconWidget: const JourneyKindIcon(
+                      kind: JourneyKind.defaultKind,
+                      color: StyleConstants.deepGreen,
+                      size: 20,
+                    ),
                     title: context.tr('journey_kind.default'),
                     selected: _journeyKind == JourneyKind.defaultKind,
                     selectionMode: true,
@@ -544,7 +494,11 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                   ),
                   const SizedBox(height: 8),
                   _EditChoiceTile(
-                    icon: Icons.flight_rounded,
+                    iconWidget: const JourneyKindIcon(
+                      kind: JourneyKind.flight,
+                      color: StyleConstants.deepGreen,
+                      size: 20,
+                    ),
                     title: context.tr('journey_kind.flight'),
                     selected: _journeyKind == JourneyKind.flight,
                     selectionMode: true,
@@ -595,40 +549,15 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
     final end = (isEditing ? _endTime : journey.end)?.toLocal();
     final note = journey.note?.trim();
 
-    return _JourneyPanelSurface(
+    return JourneyInfoPanelSurface(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 13),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: StyleConstants.softGreen.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.route_rounded,
-                    size: 17,
-                    color: StyleConstants.deepGreen,
-                  ),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    context.tr('journey.journey_info_page_title'),
-                    style: AppTypography.subpageTitle.copyWith(
-                      color: StyleConstants.deepGreen,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            const JourneyInfoCardHeader(),
             const SizedBox(height: 5),
-            _CompactJourneyField(
+            CompactJourneyInfoField(
               icon: Icons.calendar_today_rounded,
               label: context.tr('journey.journey_date'),
               value: isEditing
@@ -636,13 +565,13 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                   : naiveDateToString(date: journey.journeyDate),
               onTap: isEditing ? _selectJourneyDate : null,
             ),
-            _CompactJourneyField(
+            CompactJourneyInfoField(
               icon: Icons.sell_outlined,
               label: context.tr('journey.journey_kind'),
               value: kind,
               onTap: isEditing ? _selectJourneyKind : null,
             ),
-            _CompactJourneyField(
+            CompactJourneyInfoField(
               icon: Icons.schedule_rounded,
               label: context.tr('journey.start_time'),
               value: start == null ? '—' : timeFormat.format(start),
@@ -655,7 +584,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                     }
                   : null,
             ),
-            _CompactJourneyField(
+            CompactJourneyInfoField(
               icon: Icons.schedule_rounded,
               label: context.tr('journey.end_time'),
               value: end == null ? '—' : timeFormat.format(end),
@@ -669,7 +598,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                   : null,
             ),
             if (isEditing)
-              _CompactJourneyField(
+              CompactJourneyInfoField(
                 icon: Icons.notes_rounded,
                 label: context.tr('journey.note'),
                 trailing: TextField(
@@ -692,7 +621,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                 ),
               )
             else if (note != null && note.isNotEmpty)
-              _CompactJourneyField(
+              CompactJourneyInfoField(
                 icon: Icons.notes_rounded,
                 label: context.tr('journey.note'),
                 value: note,
@@ -730,7 +659,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                           child: _JourneyActionButton(
                             icon: Icons.edit_outlined,
                             label: context.tr('common.edit'),
-                            variant: AppButtonVariant.tonal,
+                            variant: AppButtonVariant.primary,
                             onPressed: widget.onEdit,
                           ),
                         ),
@@ -747,90 +676,6 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                     ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CompactJourneyField extends StatelessWidget {
-  const _CompactJourneyField({
-    required this.icon,
-    required this.label,
-    this.value,
-    this.trailing,
-    this.onTap,
-    this.maxLines = 1,
-  }) : assert(value != null || trailing != null);
-
-  final IconData icon;
-  final String label;
-  final String? value;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-  final int maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(11),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 1),
-                child: Icon(
-                  icon,
-                  size: 15,
-                  color: StyleConstants.mutedInkColor,
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 92,
-                child: Text(
-                  label,
-                  style: AppTypography.label.copyWith(
-                    color: StyleConstants.mutedInkColor,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: trailing ??
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            value!,
-                            maxLines: maxLines,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.right,
-                            style: AppTypography.supporting.copyWith(
-                              color: StyleConstants.deepGreen,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        if (onTap != null) ...[
-                          const SizedBox(width: 3),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            size: 17,
-                            color: StyleConstants.deepGreen,
-                          ),
-                        ],
-                      ],
-                    ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -972,7 +817,7 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 390),
-        child: _JourneyPanelSurface(
+        child: JourneyInfoPanelSurface(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
             child: Column(
@@ -1141,14 +986,16 @@ class _JourneyEditChoiceDialog extends StatelessWidget {
 
 class _EditChoiceTile extends StatelessWidget {
   const _EditChoiceTile({
-    required this.icon,
+    this.icon,
+    this.iconWidget,
     required this.title,
     required this.onTap,
     this.selected = false,
     this.selectionMode = false,
-  });
+  }) : assert((icon == null) != (iconWidget == null));
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final String title;
   final VoidCallback onTap;
   final bool selected;
@@ -1158,6 +1005,7 @@ class _EditChoiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppOptionTile(
       icon: icon,
+      iconWidget: iconWidget,
       title: title,
       selected: selected,
       trailing: selectionMode

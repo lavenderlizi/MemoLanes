@@ -132,6 +132,50 @@ class AchievementCountryFlag extends StatelessWidget {
   }
 }
 
+/// Shared gold badge used wherever an achieved country flag is displayed.
+class AchievementCountryFlagBadge extends StatelessWidget {
+  const AchievementCountryFlagBadge({
+    super.key,
+    required this.countryCode,
+    this.size = 42,
+    this.flagSize = 36,
+  });
+
+  final String countryCode;
+  final double size;
+  final double flagSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [
+            StyleConstants.achievementGoldSurfaceStart,
+            StyleConstants.achievementGoldSurfaceEnd,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: StyleConstants.achievementGoldColor.withValues(alpha: 0.25),
+            blurRadius: 6,
+          ),
+        ],
+      ),
+      child: AchievementCountryFlag(
+        countryCode: countryCode,
+        size: flagSize,
+      ),
+    );
+  }
+}
+
 class _FallbackCountryFlag extends StatelessWidget {
   const _FallbackCountryFlag({
     required this.countryCode,
@@ -197,7 +241,7 @@ class AchievementCardTitleRow extends StatelessWidget {
           position: PopupPosition.top,
           verticalOffset: 8,
           contentRadius: 16,
-          backgroundColor: Colors.white,
+          backgroundColor: StyleConstants.surfaceColor,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12,
             vertical: 10,

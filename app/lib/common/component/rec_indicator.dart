@@ -61,7 +61,6 @@ class _RecIndicatorState extends State<RecIndicator>
   Widget build(BuildContext context) {
     if (!widget.isRecording) return const SizedBox.shrink();
 
-    const liveColor = Color(0xFFFF5A55);
     return IgnorePointer(
       child: SafeArea(
         child: Align(
@@ -86,10 +85,12 @@ class _RecIndicatorState extends State<RecIndicator>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.72),
+                    color: StyleConstants.surfaceColor
+                        .withValues(alpha: 0.72),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.86),
+                      color: StyleConstants.surfaceColor
+                          .withValues(alpha: 0.86),
                     ),
                   ),
                   child: Row(
@@ -108,7 +109,8 @@ class _RecIndicatorState extends State<RecIndicator>
                                   width: 14,
                                   height: 14,
                                   decoration: BoxDecoration(
-                                    color: liveColor.withValues(
+                                    color: StyleConstants.recordingColor
+                                        .withValues(
                                       alpha: 0.1 + _pulse.value * 0.1,
                                     ),
                                     shape: BoxShape.circle,
@@ -119,7 +121,7 @@ class _RecIndicatorState extends State<RecIndicator>
                                 dimension: 7,
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
-                                    color: liveColor,
+                                    color: StyleConstants.recordingColor,
                                     shape: BoxShape.circle,
                                   ),
                                 ),

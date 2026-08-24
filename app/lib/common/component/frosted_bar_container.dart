@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:memolanes/constants/style_constants.dart';
 
 class FrostedBarContainer extends StatelessWidget {
   const FrostedBarContainer({
@@ -43,12 +44,15 @@ class FrostedBarContainer extends StatelessWidget {
                   vertical: mainAxisPadding,
                 ),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: backgroundAlpha),
+            color: StyleConstants.surfaceColor
+                .withValues(alpha: backgroundAlpha),
             borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
+            border: Border.all(
+              color: StyleConstants.surfaceColor.withValues(alpha: 0.4),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
+                color: StyleConstants.inkColor.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),

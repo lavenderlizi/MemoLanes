@@ -226,14 +226,14 @@ class _PrivacyAgreementTile extends StatelessWidget {
             padding: EdgeInsets.zero,
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            foregroundColor: StyleConstants.defaultColor,
+            foregroundColor: StyleConstants.deepGreen,
           ),
           child: Text(
             context.tr("privacy.view_policy"),
             style: AppTypography.supporting.copyWith(
               fontWeight: FontWeight.w600,
               decoration: TextDecoration.underline,
-              decorationColor: StyleConstants.defaultColor,
+              decorationColor: StyleConstants.deepGreen,
             ),
           ),
         ),

@@ -10,16 +10,19 @@ class AppOptionTile extends StatelessWidget {
     required this.title,
     required this.onTap,
     this.icon,
+    this.iconWidget,
     this.subtitle,
     this.selected = false,
     this.trailing = AppOptionTileTrailing.chevron,
     this.backgroundAlpha = 0.76,
-  })  : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
+  })  : assert(icon == null || iconWidget == null),
+        assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
         assert(!selected || trailing == AppOptionTileTrailing.selection);
 
   final String title;
   final VoidCallback onTap;
   final IconData? icon;
+  final Widget? iconWidget;
   final String? subtitle;
   final bool selected;
   final AppOptionTileTrailing trailing;
@@ -89,7 +92,7 @@ class AppOptionTile extends StatelessWidget {
             ),
             child: Row(
               children: [
-                if (icon != null) ...[
+                if (icon != null || iconWidget != null) ...[
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 170),
                     width: 36,
@@ -101,11 +104,12 @@ class AppOptionTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(11),
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
-                      icon,
-                      color: StyleConstants.deepGreen,
-                      size: 20,
-                    ),
+                    child: iconWidget ??
+                        Icon(
+                          icon,
+                          color: StyleConstants.deepGreen,
+                          size: 20,
+                        ),
                   ),
                   const SizedBox(width: 12),
                 ],

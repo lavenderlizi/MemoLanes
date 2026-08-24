@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:memolanes/body/journey/journey_info_fields.dart';
 import 'package:memolanes/body/settings/import_data_page.dart' show ImportType;
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
@@ -58,11 +59,12 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
       BuildContext context, DateTime? datetime) async {
     final now = DateTime.now();
     datetime ??= now;
-    DateTime? selectedDateTime = await showDatePicker(
-      context: context,
+    DateTime? selectedDateTime = await showAppDatePickerDialog(
+      context,
       initialDate: datetime,
       firstDate: firstDate,
       lastDate: now,
+      highlightInitialDate: true,
     );
 
     if (selectedDateTime == null) return null;
@@ -183,11 +185,12 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
                     ? dateFormat.format(_journeyDate!)
                     : ''),
             onTap: () async {
-              DateTime? time = await showDatePicker(
-                context: context,
-                initialDate: _journeyDate,
+              DateTime? time = await showAppDatePickerDialog(
+                context,
+                initialDate: _journeyDate ?? DateTime.now(),
                 firstDate: firstDate,
                 lastDate: DateTime.now(),
+                highlightInitialDate: true,
               );
               if (time != null) {
                 setState(() {

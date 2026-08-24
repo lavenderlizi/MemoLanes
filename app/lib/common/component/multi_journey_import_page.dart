@@ -24,7 +24,7 @@ class MultiJourneyCollapsibleHeader {
   const MultiJourneyCollapsibleHeader({
     required this.expandedChild,
     required this.collapsedChild,
-    this.expandedHeight = 202,
+    this.expandedHeight = 220,
     this.collapsedHeight = 58,
   });
 
@@ -32,14 +32,14 @@ class MultiJourneyCollapsibleHeader {
     required Widget expandedContent,
     required IconData collapsedIcon,
     required String collapsedText,
-    double expandedHeight = 202,
+    double expandedHeight = 220,
     double collapsedHeight = 58,
   }) {
     return MultiJourneyCollapsibleHeader(
       expandedHeight: expandedHeight,
       collapsedHeight: collapsedHeight,
       expandedChild: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: expandedContent,
       ),
       collapsedChild: _CollapsedImportHeader(
@@ -141,7 +141,10 @@ class MultiJourneyImportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: StyleConstants.canvasColor,
-      appBar: CapsuleStyleAppBar(title: title),
+      appBar: CapsuleStyleAppBar(
+        title: title,
+        showTitleBackground: false,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -201,9 +204,9 @@ class MultiJourneyImportPage extends StatelessWidget {
           const Spacer(),
           TextButton.icon(
             onPressed: () => onToggleAll(!_allSelected),
-            icon: Icon(
-              _allSelected ? Icons.check_box : Icons.check_box_outline_blank,
-              size: 20,
+            icon: _ImportSelectionCheckbox(
+              value: _allSelected,
+              onChanged: (value) => onToggleAll(value),
             ),
             label: Text(_allSelected ? deselectAllLabel : selectAllLabel),
           ),
@@ -218,18 +221,45 @@ class MultiJourneyImportPage extends StatelessWidget {
     return LabelTile(
       label: item.label,
       desc: item.description,
-      prefix: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onToggleItem(item.keyValue, !selected),
-        child: Checkbox(
-          value: selected,
-          onChanged: (value) {
-            if (value != null) onToggleItem(item.keyValue, value);
-          },
-        ),
+      prefix: _ImportSelectionCheckbox(
+        value: selected,
+        onChanged: (value) {
+          onToggleItem(item.keyValue, value);
+        },
       ),
       trailing: item.trailing ?? const LabelTileContent(showArrow: true),
       onTap: () => onPreview(item.keyValue),
+    );
+  }
+}
+
+class _ImportSelectionCheckbox extends StatelessWidget {
+  const _ImportSelectionCheckbox({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Checkbox(
+      value: value,
+      onChanged: (next) {
+        if (next != null) onChanged(next);
+      },
+      checkColor: StyleConstants.deepGreen,
+      fillColor: const WidgetStatePropertyAll(StyleConstants.surfaceColor),
+      side: WidgetStateBorderSide.resolveWith(
+        (_) => const BorderSide(
+          color: StyleConstants.deepGreen,
+          width: 1.4,
+        ),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
     );
   }
 }

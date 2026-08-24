@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/constants/index.dart';
+import 'package:memolanes/src/rust/journey_header.dart';
 
 const _groundExploreColor = StyleConstants.deepGreen;
-const _flightExploreColor = Color(0xFFD6A40E);
+const _flightExploreColor = StyleConstants.achievementGoldColor;
 
 class AchievementSourceCard extends StatelessWidget {
   const AchievementSourceCard({
@@ -70,10 +72,10 @@ class _TotalAreaSummary extends StatelessWidget {
           ? const EdgeInsets.fromLTRB(12, 12, 12, 14)
           : const EdgeInsets.fromLTRB(16, 14, 16, 16),
       decoration: BoxDecoration(
-        color: StyleConstants.defaultColor.withValues(alpha: 0.045),
+        color: StyleConstants.deepGreen.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: StyleConstants.defaultColor.withValues(alpha: 0.12),
+          color: StyleConstants.deepGreen.withValues(alpha: 0.12),
         ),
       ),
       child: Column(
@@ -84,7 +86,7 @@ class _TotalAreaSummary extends StatelessWidget {
             children: [
               Icon(
                 Icons.area_chart_rounded,
-                color: StyleConstants.defaultColor.withValues(alpha: 0.78),
+                color: StyleConstants.deepGreen.withValues(alpha: 0.78),
                 size: 16,
               ),
               const SizedBox(width: 6),
@@ -132,7 +134,7 @@ class _TotalAreaNumber extends StatelessWidget {
             Text(
               area.value,
               style: TextStyle(
-                color: StyleConstants.defaultColor,
+                color: StyleConstants.deepGreen,
                 fontSize: compact ? 46 : 52,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0,
@@ -145,7 +147,7 @@ class _TotalAreaNumber extends StatelessWidget {
               child: Text(
                 area.unit,
                 style: TextStyle(
-                  color: StyleConstants.defaultColor,
+                  color: StyleConstants.deepGreen,
                   fontSize: compact ? 18 : 21,
                   fontWeight: FontWeight.w800,
                   height: 1,
@@ -181,7 +183,7 @@ class _SourceCardsRow extends StatelessWidget {
           Expanded(
             child: _SourceMetricCard(
               compact: compact,
-              icon: FontAwesomeIcons.shoePrints,
+              icon: journeyKindIconData(JourneyKind.defaultKind),
               title: context.tr('journey_kind.default'),
               value: groundArea.value,
               unit: groundArea.unit,
@@ -196,7 +198,7 @@ class _SourceCardsRow extends StatelessWidget {
           Expanded(
             child: _SourceMetricCard(
               compact: compact,
-              icon: FontAwesomeIcons.planeUp,
+              icon: journeyKindIconData(JourneyKind.flight),
               title: context.tr('journey_kind.flight'),
               value: flightArea.value,
               unit: flightArea.unit,

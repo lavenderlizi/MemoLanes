@@ -5,6 +5,7 @@ import 'package:memolanes/common/component/multi_journey_import_page.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/api/import.dart';
 import 'package:memolanes/src/rust/api/utils.dart';
@@ -269,14 +270,14 @@ class _MldxImportPageState extends State<MldxImportPage> {
                         const Icon(
                           Icons.error_outline,
                           size: 30,
-                          color: Colors.red,
+                          color: StyleConstants.dangerColor,
                         ),
                         const SizedBox(height: 2),
                         Text(
                           context.tr('import.mldx_preview.conflict_label'),
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.red,
+                                    color: StyleConstants.dangerColor,
                                   ),
                         ),
                       ],

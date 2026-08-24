@@ -331,13 +331,13 @@ class _OngoingJourneyBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFFFFC857);
+    const accent = StyleConstants.achievementGoldColor;
 
     return SafeAreaWrapper(
       child: Container(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
         decoration: BoxDecoration(
-          color: StyleConstants.softYellow,
+          color: StyleConstants.warningSurfaceColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: accent.withValues(alpha: 0.14)),
         ),

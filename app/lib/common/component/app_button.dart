@@ -8,15 +8,15 @@ enum AppButtonSize { compact, regular, large }
 
 extension on AppButtonVariant {
   Color get backgroundColor => switch (this) {
-        AppButtonVariant.primary => StyleConstants.primaryGreen,
+        AppButtonVariant.primary => StyleConstants.primaryActionColor,
         AppButtonVariant.secondary => StyleConstants.surfaceColor,
-        AppButtonVariant.tonal => StyleConstants.softGreen,
-        AppButtonVariant.danger => const Color(0xFFC7485D),
+        AppButtonVariant.tonal => StyleConstants.selectedSurfaceColor,
+        AppButtonVariant.danger => StyleConstants.dangerColor,
       };
 
   Color get foregroundColor => switch (this) {
-        AppButtonVariant.danger => Colors.white,
-        _ => StyleConstants.deepGreen,
+        AppButtonVariant.danger => StyleConstants.onDangerColor,
+        _ => StyleConstants.onPrimaryActionColor,
       };
 
   BorderSide? get side => switch (this) {
@@ -88,8 +88,7 @@ class AppButton extends StatelessWidget {
           variant.backgroundColor.withValues(alpha: backgroundAlpha),
       foregroundColor: variant.foregroundColor,
       disabledBackgroundColor: StyleConstants.lineColor,
-      disabledForegroundColor:
-          StyleConstants.mutedInkColor.withValues(alpha: 0.62),
+      disabledForegroundColor: StyleConstants.subtleInkColor,
       side: variant.side,
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       textStyle: typeStyle.copyWith(fontSize: fontSize),
@@ -169,6 +168,7 @@ class AppIconButton extends StatelessWidget {
         backgroundColor: variant.backgroundColor,
         foregroundColor: variant.foregroundColor,
         disabledBackgroundColor: StyleConstants.lineColor,
+        disabledForegroundColor: StyleConstants.subtleInkColor,
         fixedSize: Size.square(size),
         side: variant.side,
       ),

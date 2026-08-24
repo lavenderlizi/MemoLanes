@@ -9,6 +9,7 @@ import 'package:memolanes/body/journey/list/journey_list_empty_state.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/constants/index.dart';
 import 'package:memolanes/src/rust/api/utils.dart';
@@ -106,12 +107,13 @@ class _JourneyBodyState extends State<JourneyBody> {
             child: Container(
               width: 34,
               height: 34,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: StyleConstants.softGreen,
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: const Icon(
-                Icons.route_rounded,
+              child: JourneyKindIcon(
+                kind: header.journeyKind,
                 color: StyleConstants.deepGreen,
                 size: 18,
               ),

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/body/journey/compact_journey_info_card.dart';
 import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_info_edit_page.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
@@ -11,6 +12,7 @@ import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/capsule_style_bar_content.dart';
 import 'package:memolanes/common/component/capsule_style_overlay_app_bar.dart';
 import 'package:memolanes/common/component/cards/line_painter.dart';
+import 'package:memolanes/common/component/map_glass_back_button.dart';
 import 'package:memolanes/common/component/safe_area_wrapper.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
@@ -167,6 +169,10 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
   @override
   Widget build(BuildContext context) {
     final mapRendererProxy = _mapRendererProxy;
+    if (_isPreviewMode) {
+      return _buildImportPreview(context, mapRendererProxy);
+    }
+
     final mapBoundsPadding =
         CapsuleStyleOverlayAppBar.mapFitPaddingForBottomOverlay(
       context,
@@ -200,7 +206,8 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
                       child: CustomPaint(
                         size: Size(40.0, 4.0),
                         painter: LinePainter(
-                          color: const Color(0xFFB5B5B5),
+                          color: StyleConstants.mutedInkColor
+                              .withValues(alpha: 0.44),
                         ),
                       ),
                     ),
@@ -283,7 +290,7 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
                                 child: AppButton(
                                   label: context.tr("common.edit"),
                                   icon: Icons.edit_outlined,
-                                  variant: AppButtonVariant.tonal,
+                                  variant: AppButtonVariant.primary,
                                   size: AppButtonSize.compact,
                                   onPressed: () async => _showEditMenu(context),
                                 ),
@@ -318,6 +325,60 @@ class _JourneyInfoPage extends State<JourneyInfoPage> {
           ),
           CapsuleStyleOverlayAppBar.overlayBar(
             title: context.tr("journey.journey_info_page_title"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImportPreview(
+    BuildContext context,
+    api.MapRendererProxy? mapRendererProxy,
+  ) {
+    final viewPadding = MediaQuery.viewPaddingOf(context);
+    final mapPadding = EdgeInsets.fromLTRB(
+      24,
+      viewPadding.top + 82,
+      24,
+      viewPadding.bottom + 270,
+    );
+
+    return Scaffold(
+      backgroundColor: StyleConstants.canvasColor,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (mapRendererProxy == null)
+            const Center(child: CircularProgressIndicator())
+          else
+            BaseMapWebview(
+              key: const ValueKey('importJourneyPreviewMap'),
+              mapRendererProxy: mapRendererProxy,
+              initialMapBounds: _initialMapBounds,
+              initialMapBoundsPadding: mapPadding,
+            ),
+          Positioned(
+            left: viewPadding.left + 16,
+            right: viewPadding.right + 16,
+            bottom: viewPadding.bottom + 16,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 430),
+                child: PointerInterceptor(
+                  child: ReadOnlyJourneyInfoCard(journey: _journeyHeader),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: viewPadding.left + 16,
+            top: viewPadding.top + 14,
+            child: PointerInterceptor(
+              child: MapGlassBackButton(
+                onPressed: () => Navigator.maybePop(context),
+              ),
+            ),
           ),
         ],
       ),
