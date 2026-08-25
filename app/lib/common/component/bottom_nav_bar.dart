@@ -136,7 +136,7 @@ class BottomNavBar extends StatelessWidget {
                 ),
                 _buildNavItem(
                   context,
-                  Icons.edit_road_outlined,
+                  Icons.route_outlined,
                   Icons.edit_road_rounded,
                   'navigation.edit',
                   2,
@@ -150,8 +150,8 @@ class BottomNavBar extends StatelessWidget {
                 ),
                 _buildNavItem(
                   context,
-                  Icons.tune_rounded,
-                  Icons.tune_rounded,
+                  Icons.settings_outlined,
+                  Icons.settings_rounded,
                   'navigation.settings',
                   4,
                 ),

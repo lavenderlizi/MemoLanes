@@ -17,7 +17,7 @@ class StyleConstants {
   // Brand and selection. The lime is deliberately reserved for compact
   // emphasis and primary actions instead of large decorative surfaces.
   static const Color primaryGreen = Color(0xFFB8EA72);
-  static const Color deepGreen = Color(0xFF2E693D);
+  static const Color deepGreen = Color(0xFF3F9154);
   static const Color softGreen = Color(0xFFECF9D9);
   static const Color journeyYellow = Color(0xFFFFD72E);
   static const Color deepYellow = Color(0xFF8B6600);
