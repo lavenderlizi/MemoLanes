@@ -12,6 +12,12 @@ import 'package:provider/provider.dart';
 
 const double _recordingControlWidth = 170;
 const double _recordingControlHeight = 52;
+const double _recordingControlGlassBackgroundAlpha = 0.36;
+const double _recordingControlGlassBorderAlpha = 0.62;
+const double _recordingControlGlassBlurSigma = 28;
+const double _recordingControlGlassReflectionAlpha = 0.2;
+const double _recordingControlInnerAlpha = 0.55;
+const double _recordingEndControlInnerAlpha = 0.8;
 
 class RecordingButtons extends StatefulWidget {
   const RecordingButtons({super.key});
@@ -215,18 +221,10 @@ class _ActiveJourneyControls extends StatelessWidget {
               height: 42,
               child: LiquidGlassSurface(
                 borderRadius: BorderRadius.circular(18),
-                backgroundAlpha: isPaused
-                    ? 0.36
-                    : StyleConstants.timelineGlassBackgroundAlpha,
-                borderAlpha: isPaused
-                    ? 0.62
-                    : StyleConstants.timelineGlassBorderAlpha,
-                blurSigma: isPaused
-                    ? 28
-                    : StyleConstants.timelineGlassBlurSigma,
-                reflectionAlpha: isPaused
-                    ? 0.2
-                    : StyleConstants.timelineGlassReflectionAlpha,
+                backgroundAlpha: _recordingControlGlassBackgroundAlpha,
+                borderAlpha: _recordingControlGlassBorderAlpha,
+                blurSigma: _recordingControlGlassBlurSigma,
+                reflectionAlpha: _recordingControlGlassReflectionAlpha,
                 child: isPaused
                     ? AppButton(
                         label: context.tr('home.resume'),
@@ -235,7 +233,7 @@ class _ActiveJourneyControls extends StatelessWidget {
                         variant: AppButtonVariant.primary,
                         size: AppButtonSize.compact,
                         fontSize: 15,
-                        backgroundAlpha: 0.55,
+                        backgroundAlpha: _recordingControlInnerAlpha,
                         borderRadius: 18,
                         expand: true,
                       )
@@ -247,17 +245,19 @@ class _ActiveJourneyControls extends StatelessWidget {
               dimension: 42,
               child: LiquidGlassSurface(
                 circular: true,
-                backgroundAlpha: 0.36,
-                borderAlpha: 0,
-                blurSigma: 28,
-                reflectionAlpha: 0,
+                backgroundAlpha: _recordingControlGlassBackgroundAlpha,
+                borderAlpha: _recordingControlGlassBorderAlpha,
+                blurSigma: _recordingControlGlassBlurSigma,
+                reflectionAlpha: _recordingControlGlassReflectionAlpha,
+                reflectionColor: StyleConstants.surfaceColor,
+                secondaryReflectionColor: StyleConstants.surfaceColor,
                 child: AppIconButton(
                   onPressed: onEndPressed,
                   tooltip: context.tr('common.end'),
                   icon: Icons.stop_rounded,
-                  variant: AppButtonVariant.dangerTonal,
+                  variant: AppButtonVariant.danger,
                   size: 42,
-                  backgroundAlpha: 0.62,
+                  backgroundAlpha: _recordingEndControlInnerAlpha,
                 ),
               ),
             ),
@@ -276,7 +276,9 @@ class _PauseGlassButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: StyleConstants.surfaceColor.withValues(
+        alpha: _recordingControlInnerAlpha,
+      ),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(18),

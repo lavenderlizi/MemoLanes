@@ -18,6 +18,8 @@ class LiquidGlassSurface extends StatelessWidget {
     this.borderAlpha = 0.62,
     this.blurSigma = 28,
     this.reflectionAlpha = 0.18,
+    this.reflectionColor = StyleConstants.primaryGreen,
+    this.secondaryReflectionColor = StyleConstants.softGreen,
     this.shadowAlpha = StyleConstants.mapOverlayShadowAlpha,
     this.shadowBlurRadius = StyleConstants.mapOverlayShadowBlurRadius,
     this.shadowSpreadRadius = StyleConstants.mapOverlayShadowSpreadRadius,
@@ -37,6 +39,8 @@ class LiquidGlassSurface extends StatelessWidget {
   final double borderAlpha;
   final double blurSigma;
   final double reflectionAlpha;
+  final Color reflectionColor;
+  final Color secondaryReflectionColor;
   final double shadowAlpha;
   final double shadowBlurRadius;
   final double shadowSpreadRadius;
@@ -112,10 +116,10 @@ class LiquidGlassSurface extends StatelessWidget {
                         center: Alignment.bottomRight,
                         radius: 1,
                         colors: [
-                          StyleConstants.primaryGreen
-                              .withValues(alpha: reflectionAlpha),
-                          StyleConstants.softGreen
-                              .withValues(alpha: reflectionAlpha * 0.36),
+                          reflectionColor.withValues(alpha: reflectionAlpha),
+                          secondaryReflectionColor.withValues(
+                            alpha: reflectionAlpha * 0.36,
+                          ),
                           Colors.transparent,
                         ],
                         stops: const [0, 0.5, 1],
