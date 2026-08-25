@@ -129,7 +129,7 @@ class BottomNavBar extends StatelessWidget {
                 ),
                 _buildNavItem(
                   context,
-                  Icons.history_toggle_off_rounded,
+                  Icons.access_time_rounded,
                   Icons.history_rounded,
                   'navigation.time_machine',
                   1,

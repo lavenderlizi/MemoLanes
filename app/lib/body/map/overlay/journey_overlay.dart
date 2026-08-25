@@ -227,18 +227,20 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
                     child: SizedBox(
                       width: math.min(mediaQuery.size.width - 32, 430.0),
                       child: PointerInterceptor(
-                        child: _JourneyDetailCard(
-                          journey: selectedJourney,
-                          isEditing: _isEditingInformation,
-                          onExport: _exportSelectedJourney,
-                          onEdit: _showEditChoice,
-                          onDelete: _deleteSelectedJourney,
-                          onSave: _saveJourneyInformation,
-                          onSaved: () async {
-                            await _refreshSelectedJourney();
-                            if (!mounted) return;
-                            setState(() => _isEditingInformation = false);
-                          },
+                        child: _CollapsibleJourneyDetail(
+                          child: _JourneyDetailCard(
+                            journey: selectedJourney,
+                            isEditing: _isEditingInformation,
+                            onExport: _exportSelectedJourney,
+                            onEdit: _showEditChoice,
+                            onDelete: _deleteSelectedJourney,
+                            onSave: _saveJourneyInformation,
+                            onSaved: () async {
+                              await _refreshSelectedJourney();
+                              if (!mounted) return;
+                              setState(() => _isEditingInformation = false);
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -274,6 +276,154 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _CollapsibleJourneyDetail extends StatefulWidget {
+  const _CollapsibleJourneyDetail({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_CollapsibleJourneyDetail> createState() =>
+      _CollapsibleJourneyDetailState();
+}
+
+class _CollapsibleJourneyDetailState
+    extends State<_CollapsibleJourneyDetail> {
+  static const double _dismissDistance = 56;
+  static const double _dismissVelocity = 650;
+
+  bool _isHidden = false;
+  bool _isDragging = false;
+  double _dragOffset = 0;
+
+  void _onDragStart(DragStartDetails _) {
+    setState(() => _isDragging = true);
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+    final delta = details.primaryDelta ?? 0;
+    setState(() {
+      _dragOffset = (_dragOffset + delta).clamp(0.0, 180.0).toDouble();
+    });
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    final shouldHide =
+        _dragOffset >= _dismissDistance || velocity >= _dismissVelocity;
+    if (shouldHide) AppHaptics.light();
+    setState(() {
+      _isDragging = false;
+      _isHidden = shouldHide;
+      _dragOffset = 0;
+    });
+  }
+
+  void _onDragCancel() {
+    setState(() {
+      _isDragging = false;
+      _dragOffset = 0;
+    });
+  }
+
+  void _restore() {
+    AppHaptics.light();
+    setState(() => _isHidden = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = context.tr('journey.journey_info_page_title');
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      reverseDuration: const Duration(milliseconds: 180),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.bottomCenter,
+        children: [...previousChildren, if (currentChild != null) currentChild],
+      ),
+      transitionBuilder: (child, animation) {
+        final slide = Tween<Offset>(
+          begin: const Offset(0, 0.12),
+          end: Offset.zero,
+        ).animate(animation);
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(position: slide, child: child),
+        );
+      },
+      child: _isHidden
+          ? Align(
+              key: const ValueKey('journey-detail-restore'),
+              alignment: Alignment.bottomCenter,
+              heightFactor: 1,
+              child: SizedBox(
+                width: 68,
+                height: 32,
+                child: JourneyInfoPanelSurface(
+                  backgroundAlpha: 0.76,
+                  child: Tooltip(
+                    message: title,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _restore,
+                        borderRadius: BorderRadius.circular(24),
+                        child: const Center(
+                          child: Icon(
+                            Icons.keyboard_arrow_up_rounded,
+                            size: 23,
+                            color: StyleConstants.deepGreen,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : AnimatedContainer(
+              key: const ValueKey('journey-detail-card'),
+              duration: _isDragging
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              transform: Matrix4.translationValues(0, _dragOffset, 0),
+              child: Stack(
+                children: [
+                  widget.child,
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    height: 19,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onVerticalDragStart: _onDragStart,
+                      onVerticalDragUpdate: _onDragUpdate,
+                      onVerticalDragEnd: _onDragEnd,
+                      onVerticalDragCancel: _onDragCancel,
+                      child: Center(
+                        child: Container(
+                          width: 34,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: StyleConstants.mutedInkColor
+                                .withValues(alpha: 0.42),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }
@@ -551,7 +701,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
 
     return JourneyInfoPanelSurface(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 13),
+        padding: const EdgeInsets.fromLTRB(14, 18, 14, 13),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
