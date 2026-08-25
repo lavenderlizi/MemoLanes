@@ -28,18 +28,11 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 /// Journeys keeps the current map visible without Record mode's three map
 /// controls. Its picker is an in-page floating card, so the app navigation bar
-/// remains visible and unobstructed below it.
+/// remains visible and unobstructed below it. Selecting a journey pushes a
+/// dedicated map-detail route where the app navigation bar is intentionally
+/// absent.
 class JourneyOverlay extends StatefulWidget {
-  const JourneyOverlay({
-    super.key,
-    required this.onJourneyMapChanged,
-  });
-
-  final void Function(
-    api.MapRendererProxy? proxy,
-    MapBounds? bounds,
-    String? journeyId,
-  ) onJourneyMapChanged;
+  const JourneyOverlay({super.key});
 
   @override
   State<JourneyOverlay> createState() => _JourneyOverlayState();
@@ -47,8 +40,7 @@ class JourneyOverlay extends StatefulWidget {
 
 class _JourneyOverlayState extends State<JourneyOverlay> {
   bool _isLoadingJourney = false;
-  bool _isEditingInformation = false;
-  JourneyHeader? _selectedJourney;
+  int _pickerRevision = 0;
 
   Future<void> _openJourneyDetails(JourneyHeader journey) async {
     if (_isLoadingJourney) return;
@@ -59,68 +51,136 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
         journeyId: journey.id,
       );
       if (!mounted) return;
-      widget.onJourneyMapChanged(
-        rendererAndBounds.$1,
-        rendererAndBounds.$2,
-        journey.id,
+      await navigatorPush<void>(
+        context,
+        page: _JourneyMapDetailPage(
+          journey: journey,
+          mapRendererProxy: rendererAndBounds.$1,
+          initialMapBounds: rendererAndBounds.$2,
+        ),
       );
-      setState(() {
-        _selectedJourney = journey;
-        _isEditingInformation = false;
-      });
+      if (!mounted) return;
+      setState(() => _pickerRevision++);
     } finally {
       if (mounted) setState(() => _isLoadingJourney = false);
     }
   }
 
-  void _returnToPicker() {
-    AppHaptics.light();
-    widget.onJourneyMapChanged(null, null, null);
-    setState(() {
-      _selectedJourney = null;
-      _isEditingInformation = false;
-    });
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final viewPadding = mediaQuery.viewPadding;
+    final bottom =
+        StyleConstants.mapPrimaryControlBottomInsetForContext(context);
+    final availableHeight = math.max(
+      260.0,
+      mediaQuery.size.height - bottom - viewPadding.top - 12,
+    );
+    final preferredHeight =
+        (mediaQuery.size.height * 0.62).clamp(390.0, 530.0).toDouble();
+    final pickerHeight = math.min(preferredHeight, availableHeight);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final pickerMaxWidth = isLandscape ? 720.0 : 480.0;
+
+    return Stack(
+      children: [
+        Positioned(
+          left: viewPadding.left + 16,
+          right: viewPadding.right + 16,
+          bottom: bottom,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              width: math.min(
+                mediaQuery.size.width -
+                    viewPadding.left -
+                    viewPadding.right -
+                    32,
+                pickerMaxWidth,
+              ),
+              height: pickerHeight,
+              child: PointerInterceptor(
+                child: _JourneyPickerCard(
+                  onJourneySelected: _openJourneyDetails,
+                  isLoading: _isLoadingJourney,
+                  refreshRevision: _pickerRevision,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _JourneyMapDetailPage extends StatefulWidget {
+  const _JourneyMapDetailPage({
+    required this.journey,
+    required this.mapRendererProxy,
+    required this.initialMapBounds,
+  });
+
+  final JourneyHeader journey;
+  final api.MapRendererProxy mapRendererProxy;
+  final MapBounds? initialMapBounds;
+
+  @override
+  State<_JourneyMapDetailPage> createState() =>
+      _JourneyMapDetailPageState();
+}
+
+class _JourneyMapDetailPageState extends State<_JourneyMapDetailPage> {
+  late JourneyHeader _journey;
+  late api.MapRendererProxy _mapRendererProxy;
+  MapBounds? _mapBounds;
+  bool _isEditingInformation = false;
+  int _mapRevision = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _journey = widget.journey;
+    _mapRendererProxy = widget.mapRendererProxy;
+    _mapBounds = widget.initialMapBounds;
   }
 
-  Future<void> _refreshSelectedJourney() async {
-    final selected = _selectedJourney;
-    if (selected == null) return;
-
+  Future<void> _refreshJourney() async {
+    final journeyId = _journey.id;
     final allJourneys = await api.listAllJourneys();
     JourneyHeader? latest;
     for (final journey in allJourneys) {
-      if (journey.id == selected.id) {
+      if (journey.id == journeyId) {
         latest = journey;
         break;
       }
     }
-    if (!mounted || _selectedJourney?.id != selected.id) return;
+    if (!mounted) return;
     if (latest == null) {
-      _returnToPicker();
+      Navigator.of(context).pop();
       return;
     }
 
     final rendererAndBounds = await api.getMapRendererProxyForJourney(
-      journeyId: latest.id,
+      journeyId: journeyId,
     );
-    if (!mounted || _selectedJourney?.id != selected.id) return;
-    widget.onJourneyMapChanged(
-      rendererAndBounds.$1,
-      rendererAndBounds.$2,
-      latest.id,
-    );
-    setState(() => _selectedJourney = latest);
+    if (!mounted) return;
+    setState(() {
+      _journey = latest!;
+      _mapRendererProxy = rendererAndBounds.$1;
+      _mapBounds = rendererAndBounds.$2;
+      _mapRevision++;
+    });
   }
 
   Future<void> _saveJourneyInformation(JourneyInfo journeyInfo) async {
-    final selected = _selectedJourney;
-    if (selected == null) return;
-    await api.updateJourneyMetadata(id: selected.id, journeyInfo: journeyInfo);
+    await api.updateJourneyMetadata(
+      id: _journey.id,
+      journeyInfo: journeyInfo,
+    );
   }
 
-  Future<void> _deleteSelectedJourney() async {
-    final selected = _selectedJourney;
-    if (selected == null) return;
+  Future<void> _deleteJourney() async {
     final shouldDelete = await showCommonDialog(
       context,
       context.tr('journey.delete_journey_message'),
@@ -130,21 +190,17 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
       confirmVariant: AppButtonVariant.danger,
     );
     if (!shouldDelete) return;
-    await api.deleteJourney(journeyId: selected.id);
+    await api.deleteJourney(journeyId: _journey.id);
     if (!mounted) return;
-    _returnToPicker();
+    Navigator.of(context).pop();
   }
 
-  Future<void> _exportSelectedJourney() async {
-    final selected = _selectedJourney;
-    if (selected == null) return;
-    await showJourneyExportPicker(context, selected);
+  Future<void> _exportJourney() async {
+    await showJourneyExportPicker(context, _journey);
   }
 
   Future<void> _openTrackEditor() async {
-    final selected = _selectedJourney;
-    if (selected == null) return;
-    final session = await EditSession.newInstance(journeyId: selected.id);
+    final session = await EditSession.newInstance(journeyId: _journey.id);
     if (!mounted) return;
     if (session == null) {
       await showCommonDialog(
@@ -158,7 +214,7 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
       page: JourneyTrackEditPage(editSession: session),
     );
     if (!mounted) return;
-    await _refreshSelectedJourney();
+    await _refreshJourney();
   }
 
   Future<void> _showEditChoice() async {
@@ -186,96 +242,70 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final viewPadding = mediaQuery.viewPadding;
-    final bottom =
-        StyleConstants.mapPrimaryControlBottomInsetForContext(context);
-    final availableHeight = math.max(
-      260.0,
-      mediaQuery.size.height - bottom - viewPadding.top - 12,
-    );
-    final preferredHeight =
-        (mediaQuery.size.height * 0.62).clamp(390.0, 530.0).toDouble();
-    final pickerHeight = math.min(preferredHeight, availableHeight);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
-    final pickerMaxWidth = isLandscape ? 720.0 : 480.0;
-    final selectedJourney = _selectedJourney;
+    final detailCardPadding = isLandscape ? 190.0 : 330.0;
 
-    return Stack(
-      children: [
-        Positioned(
-          left: viewPadding.left + 16,
-          right: viewPadding.right + 16,
-          bottom: bottom,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 280),
-            reverseDuration: const Duration(milliseconds: 210),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) {
-              final slide = Tween<Offset>(
-                begin: const Offset(0, 0.035),
-                end: Offset.zero,
-              ).animate(animation);
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(position: slide, child: child),
-              );
-            },
-            child: selectedJourney != null
-                ? Align(
-                    key: ValueKey('journey-information-${selectedJourney.id}'),
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      width: math.min(mediaQuery.size.width - 32, 430.0),
-                      child: PointerInterceptor(
-                        child: _CollapsibleJourneyDetail(
-                          child: _JourneyDetailCard(
-                            journey: selectedJourney,
-                            isEditing: _isEditingInformation,
-                            onExport: _exportSelectedJourney,
-                            onEdit: _showEditChoice,
-                            onDelete: _deleteSelectedJourney,
-                            onSave: _saveJourneyInformation,
-                            onSaved: () async {
-                              await _refreshSelectedJourney();
-                              if (!mounted) return;
-                              setState(() => _isEditingInformation = false);
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : Align(
-                    key: const ValueKey('journey-picker'),
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      width: math.min(
-                        mediaQuery.size.width -
-                            viewPadding.left -
-                            viewPadding.right -
-                            32,
-                        pickerMaxWidth,
-                      ),
-                      height: pickerHeight,
-                      child: PointerInterceptor(
-                        child: _JourneyPickerCard(
-                          onJourneySelected: _openJourneyDetails,
-                          isLoading: _isLoadingJourney,
-                        ),
-                      ),
+    return Scaffold(
+      backgroundColor: StyleConstants.canvasColor,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          BaseMapWebview(
+            key: ValueKey('journey-detail-${_journey.id}-$_mapRevision'),
+            mapRendererProxy: _mapRendererProxy,
+            initialMapBounds: _mapBounds,
+            initialMapBoundsPadding: EdgeInsets.fromLTRB(
+              28,
+              viewPadding.top + 82,
+              28,
+              detailCardPadding + viewPadding.bottom,
+            ),
+          ),
+          Positioned(
+            left: viewPadding.left + 16,
+            right: viewPadding.right + 16,
+            bottom: viewPadding.bottom + 16,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                width: math.min(
+                  mediaQuery.size.width -
+                      viewPadding.left -
+                      viewPadding.right -
+                      32,
+                  430.0,
+                ),
+                child: PointerInterceptor(
+                  child: _CollapsibleJourneyDetail(
+                    child: _JourneyDetailCard(
+                      journey: _journey,
+                      isEditing: _isEditingInformation,
+                      onExport: _exportJourney,
+                      onEdit: _showEditChoice,
+                      onDelete: _deleteJourney,
+                      onSave: _saveJourneyInformation,
+                      onSaved: () async {
+                        await _refreshJourney();
+                        if (!mounted) return;
+                        setState(() => _isEditingInformation = false);
+                      },
                     ),
                   ),
+                ),
+              ),
+            ),
           ),
-        ),
-        if (selectedJourney != null)
           Positioned(
             left: viewPadding.left + 16,
             top: viewPadding.top + 14,
             child: PointerInterceptor(
-              child: MapGlassBackButton(onPressed: _returnToPicker),
+              child: MapGlassBackButton(
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -430,12 +460,15 @@ class _CollapsibleJourneyDetailState
 
 class _JourneyPickerCard extends StatelessWidget {
   const _JourneyPickerCard({
+    super.key,
     required this.onJourneySelected,
     required this.isLoading,
+    required this.refreshRevision,
   });
 
   final Future<void> Function(JourneyHeader journey) onJourneySelected;
   final bool isLoading;
+  final int refreshRevision;
 
   @override
   Widget build(BuildContext context) {
@@ -483,6 +516,7 @@ class _JourneyPickerCard extends StatelessWidget {
                 child: JourneyBody(
                   compactPicker: true,
                   onJourneySelected: onJourneySelected,
+                  refreshRevision: refreshRevision,
                 ),
               ),
             ],

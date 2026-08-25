@@ -21,6 +21,7 @@ class JourneyBody extends StatefulWidget {
     super.key,
     this.onJourneySelected,
     this.compactPicker = false,
+    this.refreshRevision = 0,
   });
 
   /// When supplied, tapping a row selects it instead of opening the details
@@ -30,6 +31,10 @@ class JourneyBody extends StatefulWidget {
   /// Removes the full-page heading and tightens spacing for the floating map
   /// picker. The calendar remains above a separately scrollable journey list.
   final bool compactPicker;
+
+  /// Refreshes the existing list controller without resetting the selected
+  /// month, date, or journey-kind filters.
+  final int refreshRevision;
 
   @override
   State<JourneyBody> createState() => _JourneyBodyState();
@@ -53,6 +58,17 @@ class _JourneyBodyState extends State<JourneyBody> {
     super.initState();
     _controller = JourneyListController()..addListener(_onControllerChanged);
     _controller.initialize();
+  }
+
+  @override
+  void didUpdateWidget(covariant JourneyBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshRevision == widget.refreshRevision) return;
+    unawaited(
+      GlobalLoadingManager.instance.runWithLoading(
+        () => _controller.refresh(adjustSelectedDate: true),
+      ),
+    );
   }
 
   @override

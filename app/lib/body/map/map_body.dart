@@ -58,10 +58,6 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   final _mapRendererProxy = api.getMapRendererProxyForMainMap();
   MapView? _roughMapView;
   api.MapRendererProxy? _journeyMapRendererProxy;
-  api.MapRendererProxy? _selectedJourneyMapRendererProxy;
-  MapBounds? _selectedJourneyMapBounds;
-  String? _selectedJourneyId;
-  int _selectedJourneyMapRevision = 0;
 
   TrackingMode _currentTrackingMode = TrackingMode.off;
 
@@ -77,19 +73,6 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
 
   void setJourneyMapRendererProxy(api.MapRendererProxy? proxy) {
     setState(() => _journeyMapRendererProxy = proxy);
-  }
-
-  void _setSelectedJourneyMap(
-    api.MapRendererProxy? proxy,
-    MapBounds? bounds,
-    String? journeyId,
-  ) {
-    setState(() {
-      _selectedJourneyMapRendererProxy = proxy;
-      _selectedJourneyMapBounds = bounds;
-      _selectedJourneyId = journeyId;
-      _selectedJourneyMapRevision++;
-    });
   }
 
   Future<void> _syncTrackingModeWithGpsManager() async {
@@ -140,11 +123,6 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   void didUpdateWidget(covariant MapBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.mode == widget.mode) return;
-    if (oldWidget.mode == MapMode.journeys && widget.mode != MapMode.journeys) {
-      _selectedJourneyMapRendererProxy = null;
-      _selectedJourneyMapBounds = null;
-      _selectedJourneyId = null;
-    }
     final gpsManager = Provider.of<GpsManager>(context, listen: false);
     if (widget.mode != MapMode.normal) {
       gpsManager.toggleMapTracking(false);
@@ -241,32 +219,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
       },
     );
 
-    final selectedJourneyProxy = _selectedJourneyMapRendererProxy;
-    if (widget.mode != MapMode.journeys || selectedJourneyProxy == null) {
-      return mainMap;
-    }
-    final mapSize = MediaQuery.sizeOf(context);
-    final detailCardPadding = mapSize.width > mapSize.height ? 190.0 : 330.0;
-
-    // Keep the user's main map mounted underneath the selected-journey map.
-    // Closing the detail card therefore restores the exact previous viewport,
-    // while the journey layer can fit its own bounds independently.
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        mainMap,
-        BaseMapWebview(
-          key: ValueKey(
-            'selected-journey-${_selectedJourneyId ?? 'unknown'}-'
-            '$_selectedJourneyMapRevision',
-          ),
-          mapRendererProxy: selectedJourneyProxy,
-          initialMapBounds: _selectedJourneyMapBounds,
-          initialMapBoundsPadding:
-              EdgeInsets.fromLTRB(28, 84, 28, detailCardPadding),
-        ),
-      ],
-    );
+    return mainMap;
   }
 
   /// Returns the overlay for the given mode; each overlay lives in its own
@@ -283,7 +236,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
           onJourneyRangeLoaded: setJourneyMapRendererProxy,
         );
       case MapMode.journeys:
-        return JourneyOverlay(onJourneyMapChanged: _setSelectedJourneyMap);
+        return const JourneyOverlay();
     }
   }
 
