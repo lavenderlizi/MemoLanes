@@ -14,6 +14,7 @@ import 'package:memolanes/body/first_launch_setup.dart';
 import 'package:memolanes/body/settings/settings_body.dart'
     deferred as settings;
 import 'package:memolanes/common/achievement_stats_store.dart';
+import 'package:memolanes/common/app_theme_controller.dart';
 import 'package:memolanes/common/app_translation_loader.dart';
 import 'package:memolanes/common/component/bottom_nav_bar.dart';
 import 'package:memolanes/common/component/database_version_too_new_gate.dart';
@@ -30,11 +31,19 @@ import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/constants/index.dart';
 import 'package:provider/provider.dart';
 
+int _rememberedSelectedIndex = 0;
+
 void main() async {
   runZonedGuarded(() async {
     final startupStatus = await AppBootstrap.initAppRuntime();
+    final appThemeController = AppThemeController();
     if (startupStatus == AppStartupStatus.databaseVersionTooNew) {
-      runApp(_appRoot(const MyApp(home: DatabaseVersionTooNewGate())));
+      runApp(_appRoot(
+        ChangeNotifierProvider.value(
+          value: appThemeController,
+          child: const MyApp(home: DatabaseVersionTooNewGate()),
+        ),
+      ));
       return;
     }
 
@@ -49,6 +58,7 @@ void main() async {
           ChangeNotifierProvider.value(value: gpsManager),
           ChangeNotifierProvider.value(value: updateNotifier),
           ChangeNotifierProvider.value(value: achievementStatsStore),
+          ChangeNotifierProvider.value(value: appThemeController),
         ],
         child: const MyApp(),
       ),
@@ -81,7 +91,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appThemeController = context.watch<AppThemeController>();
+    final brightness = appThemeController.brightness;
+    final systemOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness:
+          brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+      statusBarBrightness: brightness,
+      systemNavigationBarColor: StyleConstants.canvasColor,
+      systemNavigationBarIconBrightness:
+          brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+      systemNavigationBarDividerColor: StyleConstants.lineColor,
+    );
+
     return MaterialApp(
+      key: ValueKey(appThemeController.preference),
       title: "MemoLanes",
       onGenerateTitle: (context) => context.tr('common.memolanes'),
       supportedLocales: context.supportedLocales,
@@ -89,25 +113,31 @@ class MyApp extends StatelessWidget {
       locale: context.locale,
       navigatorKey: navigatorKey,
       builder: (context, child) {
-        return GlobalLoadingOverlay(
-          child: child ?? const SizedBox.shrink(),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: systemOverlayStyle,
+          child: GlobalLoadingOverlay(
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
       theme: ThemeData(
         useMaterial3: true,
         fontFamilyFallback:
             Platform.isIOS ? ['.AppleSystemUIFont', 'PingFang SC'] : null,
-        brightness: Brightness.light,
+        brightness: brightness,
         scaffoldBackgroundColor: StyleConstants.canvasColor,
+        canvasColor: StyleConstants.canvasColor,
         colorScheme: ColorScheme.fromSeed(
           seedColor: StyleConstants.primaryGreen,
-          brightness: Brightness.light,
+          brightness: brightness,
           primary: StyleConstants.primaryActionColor,
           onPrimary: StyleConstants.onPrimaryActionColor,
           primaryContainer: StyleConstants.selectedSurfaceColor,
           onPrimaryContainer: StyleConstants.deepGreen,
           secondary: StyleConstants.warningColor,
-          onSecondary: StyleConstants.inkColor,
+          onSecondary: StyleConstants.isDarkMode
+              ? StyleConstants.inverseInkColor
+              : StyleConstants.inkColor,
           secondaryContainer: StyleConstants.warningSurfaceColor,
           onSecondaryContainer: StyleConstants.warningInkColor,
           error: StyleConstants.dangerColor,
@@ -119,25 +149,43 @@ class MyApp extends StatelessWidget {
           surface: StyleConstants.surfaceColor,
           onSurface: StyleConstants.inkColor,
           onSurfaceVariant: StyleConstants.mutedInkColor,
-          shadow: StyleConstants.inkColor,
-          scrim: StyleConstants.inkColor,
+          shadow: StyleConstants.shadowColor,
+          scrim: StyleConstants.shadowColor,
           surfaceTint: Colors.transparent,
+        ).copyWith(
+          surfaceContainerLowest: StyleConstants.canvasColor,
+          surfaceContainerLow: StyleConstants.surfaceColor,
+          surfaceContainer: StyleConstants.surfaceColor,
+          surfaceContainerHigh: StyleConstants.elevatedSurfaceColor,
+          surfaceContainerHighest: StyleConstants.elevatedSurfaceColor,
         ),
-        textTheme: Theme.of(context).textTheme.merge(
+        textTheme: (brightness == Brightness.dark
+                ? ThemeData.dark()
+                : ThemeData.light())
+            .textTheme
+            .merge(
               AppTypography.textTheme,
             ).apply(
               bodyColor: StyleConstants.inkColor,
               displayColor: StyleConstants.inkColor,
             ),
-        iconTheme: const IconThemeData(
+        iconTheme: IconThemeData(
           color: StyleConstants.inkColor,
         ),
         dividerColor: StyleConstants.lineColor,
-        cardTheme: const CardThemeData(
+        cardTheme: CardThemeData(
           color: StyleConstants.surfaceColor,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           margin: EdgeInsets.zero,
+        ),
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          backgroundColor: StyleConstants.canvasColor,
+          foregroundColor: StyleConstants.inkColor,
+          surfaceTintColor: Colors.transparent,
+          systemOverlayStyle: systemOverlayStyle,
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
@@ -155,20 +203,22 @@ class MyApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             elevation: 0,
             backgroundColor: StyleConstants.surfaceColor,
-            foregroundColor: StyleConstants.onPrimaryActionColor,
+            foregroundColor: StyleConstants.isDarkMode
+                ? StyleConstants.inkColor
+                : StyleConstants.onPrimaryActionColor,
             minimumSize: const Size(0, 44),
             textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
-              side: const BorderSide(color: StyleConstants.lineColor),
+              side: BorderSide(color: StyleConstants.lineColor),
             ),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: StyleConstants.onPrimaryActionColor,
+            foregroundColor: StyleConstants.deepGreen,
             minimumSize: const Size(0, 44),
-            side: const BorderSide(color: StyleConstants.lineColor),
+            side: BorderSide(color: StyleConstants.lineColor),
             textStyle: AppTypography.button,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
@@ -177,12 +227,14 @@ class MyApp extends StatelessWidget {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: StyleConstants.onPrimaryActionColor,
+            foregroundColor: StyleConstants.deepGreen,
             textStyle: AppTypography.button,
           ),
         ),
         dialogTheme: DialogThemeData(
-          backgroundColor: StyleConstants.canvasColor,
+          backgroundColor: StyleConstants.isDarkMode
+              ? StyleConstants.elevatedSurfaceColor
+              : StyleConstants.canvasColor,
           surfaceTintColor: Colors.transparent,
           titleTextStyle: AppTypography.surfaceTitle.copyWith(
             color: StyleConstants.deepGreen,
@@ -192,25 +244,27 @@ class MyApp extends StatelessWidget {
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: StyleConstants.lineColor),
+            side: BorderSide(color: StyleConstants.lineColor),
           ),
         ),
         datePickerTheme: DatePickerThemeData(
-          backgroundColor: StyleConstants.canvasColor,
+          backgroundColor: StyleConstants.isDarkMode
+              ? StyleConstants.elevatedSurfaceColor
+              : StyleConstants.canvasColor,
           surfaceTintColor: Colors.transparent,
           headerBackgroundColor: StyleConstants.softGreen,
           headerForegroundColor: StyleConstants.deepGreen,
           weekdayStyle: AppTypography.label.copyWith(
             color: StyleConstants.mutedInkColor,
           ),
-          todayBorder: const BorderSide(color: StyleConstants.deepGreen),
+          todayBorder: BorderSide(color: StyleConstants.deepGreen),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: StyleConstants.lineColor),
+            side: BorderSide(color: StyleConstants.lineColor),
           ),
           cancelButtonStyle: OutlinedButton.styleFrom(
             foregroundColor: StyleConstants.deepGreen,
-            side: const BorderSide(color: StyleConstants.lineColor),
+            side: BorderSide(color: StyleConstants.lineColor),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -228,14 +282,18 @@ class MyApp extends StatelessWidget {
           dialBackgroundColor: StyleConstants.surfaceColor,
           dialHandColor: StyleConstants.deepGreen,
           hourMinuteColor: StyleConstants.softGreen,
+          hourMinuteTextColor: StyleConstants.inkColor,
+          dialTextColor: StyleConstants.inkColor,
+          dayPeriodColor: StyleConstants.surfaceColor,
+          dayPeriodTextColor: StyleConstants.inkColor,
           entryModeIconColor: StyleConstants.deepGreen,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: StyleConstants.lineColor),
+            side: BorderSide(color: StyleConstants.lineColor),
           ),
           cancelButtonStyle: OutlinedButton.styleFrom(
             foregroundColor: StyleConstants.deepGreen,
-            side: const BorderSide(color: StyleConstants.lineColor),
+            side: BorderSide(color: StyleConstants.lineColor),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -259,15 +317,15 @@ class MyApp extends StatelessWidget {
                   : StyleConstants.surfaceColor;
             },
           ),
-          checkColor: const WidgetStatePropertyAll(
+          checkColor: WidgetStatePropertyAll(
             StyleConstants.onPrimaryActionColor,
           ),
-          side: const BorderSide(color: StyleConstants.strongLineColor),
+          side: BorderSide(color: StyleConstants.strongLineColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),
         ),
-        progressIndicatorTheme: const ProgressIndicatorThemeData(
+        progressIndicatorTheme: ProgressIndicatorThemeData(
           color: StyleConstants.primaryActionColor,
           linearTrackColor: StyleConstants.lineColor,
           circularTrackColor: StyleConstants.lineColor,
@@ -290,14 +348,14 @@ class MyApp extends StatelessWidget {
                 ? StyleConstants.switchActiveTrackColor
                 : StyleConstants.switchInactiveTrackColor,
           ),
-          trackOutlineColor: const WidgetStatePropertyAll(
+          trackOutlineColor: WidgetStatePropertyAll(
             StyleConstants.switchTrackOutlineColor,
           ),
           trackOutlineWidth: const WidgetStatePropertyAll(
             StyleConstants.switchTrackOutlineWidth,
           ),
         ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
           elevation: 8,
           backgroundColor: StyleConstants.surfaceColor,
           selectedItemColor: StyleConstants.deepGreen,
@@ -319,7 +377,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = _rememberedSelectedIndex;
   DateTime? _lastExitPopAt;
 
   Future<void>? _achievementLib;
@@ -371,6 +429,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (GlobalLoadingManager.instance.isLoading) return;
 
     if (_selectedIndex != 0) {
+      _rememberedSelectedIndex = 0;
       setState(() => _selectedIndex = 0);
       return;
     }
@@ -469,8 +528,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: BottomNavBar.height,
                     child: BottomNavBar(
                       selectedIndex: _selectedIndex,
-                      onIndexChanged: (index) =>
-                          setState(() => _selectedIndex = index),
+                      onIndexChanged: (index) {
+                        _rememberedSelectedIndex = index;
+                        setState(() => _selectedIndex = index);
+                      },
                       hasUpdateNotification:
                           context.watch<UpdateNotifier>().hasUpdateNotification,
                     ),

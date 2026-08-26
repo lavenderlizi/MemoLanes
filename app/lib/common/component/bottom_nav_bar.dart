@@ -34,8 +34,8 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LiquidGlassSurface(
       borderRadius: BorderRadius.circular(24),
-      backgroundAlpha: 0.36,
-      borderAlpha: 0.62,
+      backgroundAlpha: StyleConstants.isDarkMode ? 0.86 : 0.36,
+      borderAlpha: StyleConstants.isDarkMode ? 0.46 : 0.62,
       blurSigma: 28,
       reflectionAlpha: 0.2,
       child: Stack(
@@ -50,9 +50,20 @@ class BottomNavBar extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    StyleConstants.surfaceColor.withValues(alpha: 0),
-                    StyleConstants.softGreen.withValues(alpha: 0.54),
-                    StyleConstants.surfaceColor.withValues(alpha: 0),
+                    (StyleConstants.isDarkMode
+                            ? StyleConstants.primaryGreen
+                            : StyleConstants.surfaceColor)
+                        .withValues(alpha: 0),
+                    (StyleConstants.isDarkMode
+                            ? StyleConstants.primaryGreen
+                            : StyleConstants.softGreen)
+                        .withValues(
+                      alpha: StyleConstants.isDarkMode ? 0.22 : 0.54,
+                    ),
+                    (StyleConstants.isDarkMode
+                            ? StyleConstants.primaryGreen
+                            : StyleConstants.surfaceColor)
+                        .withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -97,7 +108,12 @@ class BottomNavBar extends StatelessWidget {
                       filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFDDDDDD).withValues(alpha: 0.22),
+                          color: (StyleConstants.isDarkMode
+                                  ? StyleConstants.primaryGreen
+                                  : const Color(0xFFDDDDDD))
+                              .withValues(
+                            alpha: StyleConstants.isDarkMode ? 0.16 : 0.22,
+                          ),
                           borderRadius: BorderRadius.circular(19),
                           boxShadow: [
                             BoxShadow(
@@ -183,7 +199,7 @@ class BottomNavBar extends StatelessWidget {
             child: badges.Badge(
               showBadge: index == 4 && hasUpdateNotification(),
               position: badges.BadgePosition.topEnd(top: -4, end: -5),
-              badgeStyle: const badges.BadgeStyle(
+              badgeStyle: badges.BadgeStyle(
                 badgeColor: StyleConstants.warningColor,
                 padding: EdgeInsets.all(4),
               ),

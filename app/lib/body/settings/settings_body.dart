@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:memolanes/body/settings/advanced_settings_page.dart';
 import 'package:memolanes/body/settings/import_data_page.dart';
+import 'package:memolanes/body/settings/interface_settings_page.dart';
 import 'package:memolanes/body/settings/map_settings_page.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
@@ -150,7 +151,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                       badgeContent: Text(
                         'NEW',
                         style: AppTypography.badge.copyWith(
-                          color: StyleConstants.surfaceColor,
+                          color: StyleConstants.inverseInkColor,
                         ),
                       ),
                       child: LabelTileContent(
@@ -178,6 +179,18 @@ class _SettingsBodyState extends State<SettingsBody> {
               trailing: LabelTileContent(showArrow: true),
               onTap: () =>
                   navigatorPush(context, page: const MapSettingsPage()),
+            ),
+            LabelTile(
+              label: context.tr("general.interface_settings.title"),
+              position: LabelTilePosition.middle,
+              prefix: const _SettingsTileIcon(
+                icon: Icons.palette_outlined,
+              ),
+              trailing: LabelTileContent(showArrow: true),
+              onTap: () => navigatorPush(
+                context,
+                page: const InterfaceSettingsPage(),
+              ),
             ),
             LabelTile(
               label: context.tr("general.advanced_settings.title"),

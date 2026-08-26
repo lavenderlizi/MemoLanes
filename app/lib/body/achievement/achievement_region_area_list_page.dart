@@ -238,7 +238,7 @@ class _RegionAreaListTile extends StatelessWidget {
                             color: StyleConstants.lineColor,
                           ),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.public_rounded,
                           color: StyleConstants.deepGreen,
                           size: 23,

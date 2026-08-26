@@ -153,7 +153,7 @@ class AchievementCountryFlagBadge extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [
             StyleConstants.achievementGoldSurfaceStart,
             StyleConstants.achievementGoldSurfaceEnd,
@@ -296,7 +296,7 @@ class AchievementProgressLine extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            const ColoredBox(color: StyleConstants.lineColor),
+            ColoredBox(color: StyleConstants.lineColor),
             FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: progress,

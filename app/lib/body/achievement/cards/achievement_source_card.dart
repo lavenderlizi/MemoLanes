@@ -7,8 +7,8 @@ import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/constants/index.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 
-const _groundExploreColor = StyleConstants.deepGreen;
-const _flightExploreColor = StyleConstants.achievementGoldColor;
+Color get _groundExploreColor => StyleConstants.deepGreen;
+Color get _flightExploreColor => StyleConstants.achievementGoldColor;
 
 class AchievementSourceCard extends StatelessWidget {
   const AchievementSourceCard({

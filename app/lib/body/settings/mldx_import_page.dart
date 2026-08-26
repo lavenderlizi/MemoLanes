@@ -267,7 +267,7 @@ class _MldxImportPageState extends State<MldxImportPage> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.error_outline,
                           size: 30,
                           color: StyleConstants.dangerColor,

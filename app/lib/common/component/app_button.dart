@@ -22,14 +22,18 @@ extension on AppButtonVariant {
       };
 
   Color get foregroundColor => switch (this) {
+        AppButtonVariant.primary => StyleConstants.onPrimaryActionColor,
         AppButtonVariant.danger => StyleConstants.onDangerColor,
         AppButtonVariant.dangerTonal => StyleConstants.dangerInkColor,
-        _ => StyleConstants.onPrimaryActionColor,
+        AppButtonVariant.secondary => StyleConstants.isDarkMode
+            ? StyleConstants.inkColor
+            : StyleConstants.onPrimaryActionColor,
+        AppButtonVariant.tonal => StyleConstants.deepGreen,
       };
 
   BorderSide? get side => switch (this) {
         AppButtonVariant.secondary =>
-          const BorderSide(color: StyleConstants.lineColor),
+          BorderSide(color: StyleConstants.lineColor),
         _ => null,
       };
 }

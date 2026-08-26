@@ -190,7 +190,7 @@ class _PermissionRequestSheetContentState
       title: context.tr("permission_sheet.title"),
       maxHeightFactor: 0.6,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios,
           color: StyleConstants.deepGreen,
           size: 20,
@@ -331,7 +331,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isGranted) {
-      return const SizedBox(
+      return SizedBox(
         width: 52,
         height: 40,
         child: Center(
@@ -345,7 +345,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
     }
 
     if (isDenied) {
-      const color = StyleConstants.dangerColor;
+      final color = StyleConstants.dangerColor;
       return SizedBox(
         width: 52,
         height: 40,
@@ -362,7 +362,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
                 border: Border.all(color: color.withValues(alpha: 0.75)),
               ),
               alignment: Alignment.center,
-              child: const Icon(
+              child: Icon(
                 Icons.close,
                 color: color,
                 size: 18,
@@ -422,7 +422,7 @@ class _PermissionInfoIcon extends StatelessWidget {
     Widget icon = GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: const Icon(
+      child: Icon(
         Icons.info_outline,
         size: 18.0,
         color: StyleConstants.mutedInkColor,

@@ -250,9 +250,9 @@ class _ImportSelectionCheckbox extends StatelessWidget {
         if (next != null) onChanged(next);
       },
       checkColor: StyleConstants.deepGreen,
-      fillColor: const WidgetStatePropertyAll(StyleConstants.surfaceColor),
+      fillColor: WidgetStatePropertyAll(StyleConstants.surfaceColor),
       side: WidgetStateBorderSide.resolveWith(
-        (_) => const BorderSide(
+        (_) => BorderSide(
           color: StyleConstants.deepGreen,
           width: 1.4,
         ),

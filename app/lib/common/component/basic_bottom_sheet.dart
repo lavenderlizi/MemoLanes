@@ -11,7 +11,7 @@ Future<T?> showBasicBottomSheet<T>(
   double? maxHeightFactor,
   EdgeInsetsGeometry contentPadding = EdgeInsets.zero,
   Color? barrierColor,
-  Color backgroundColor = StyleConstants.canvasColor,
+  Color? backgroundColor,
 }) {
   return showAppDialog<T>(
     context,
@@ -22,7 +22,7 @@ Future<T?> showBasicBottomSheet<T>(
       showHeader: showTitle && title != null,
       maxHeightFactor: maxHeightFactor ?? 0.78,
       contentPadding: contentPadding,
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? StyleConstants.canvasColor,
       actions: actions,
       child: child,
     ),

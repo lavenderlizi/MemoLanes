@@ -39,7 +39,7 @@ class ProfileLevelIndicator extends StatelessWidget {
                   height: size,
                   decoration: BoxDecoration(
                     gradient: profileImage == null
-                        ? const LinearGradient(
+                        ? LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
@@ -56,9 +56,11 @@ class ProfileLevelIndicator extends StatelessWidget {
                         : null,
                   ),
                   child: profileImage == null
-                      ? const Icon(
+                      ? Icon(
                           Icons.person,
-                          color: StyleConstants.surfaceColor,
+                          color: StyleConstants.isDarkMode
+                              ? StyleConstants.inverseInkColor
+                              : StyleConstants.surfaceColor,
                           size: 32,
                         )
                       : null,
@@ -84,13 +86,15 @@ class ProfileLevelIndicator extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: StyleConstants.inkColor,
+                    color: StyleConstants.isDarkMode
+                        ? StyleConstants.inverseInkColor
+                        : StyleConstants.inkColor,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'Lv. $level',
                     style: AppTypography.label.copyWith(
-                      color: StyleConstants.surfaceColor,
+                      color: StyleConstants.onStrongColor,
                     ),
                   ),
                 ),
@@ -118,7 +122,7 @@ class CircularProgressPainter extends CustomPainter {
     final radius = (size.width - strokeWidth) / 2;
 
     final bgPaint = Paint()
-      ..color = StyleConstants.surfaceColor.withValues(alpha: 0.3)
+      ..color = StyleConstants.onStrongColor.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 

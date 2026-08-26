@@ -162,7 +162,7 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
             title: regionPreferenceTitle(context, _selectedWorldview),
             onTap: _showRegionPicker,
             minHeight: _setupTileMinHeight,
-            trailing: const Icon(
+            trailing: Icon(
               Icons.keyboard_arrow_right,
               color: StyleConstants.mutedInkColor,
             ),
@@ -242,7 +242,7 @@ class _PrivacyAgreementTile extends StatelessWidget {
         value: accepted,
         onChanged: (value) => onChanged(value ?? false),
         activeColor: StyleConstants.primaryGreen,
-        checkColor: StyleConstants.deepGreen,
+        checkColor: StyleConstants.onPrimaryActionColor,
       ),
     );
   }

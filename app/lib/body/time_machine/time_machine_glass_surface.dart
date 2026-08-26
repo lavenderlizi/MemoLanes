@@ -9,13 +9,13 @@ class TimeMachineGlassSurface extends StatelessWidget {
     required this.child,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     this.padding,
-    this.shadowAlpha = StyleConstants.mapOverlayShadowAlpha,
-  }) : assert(shadowAlpha >= 0 && shadowAlpha <= 1);
+    this.shadowAlpha,
+  }) : assert(shadowAlpha == null || shadowAlpha >= 0 && shadowAlpha <= 1);
 
   final Widget child;
   final BorderRadius borderRadius;
   final EdgeInsetsGeometry? padding;
-  final double shadowAlpha;
+  final double? shadowAlpha;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class TimeMachineGlassSurface extends StatelessWidget {
       borderAlpha: StyleConstants.timelineGlassBorderAlpha,
       blurSigma: StyleConstants.timelineGlassBlurSigma,
       reflectionAlpha: StyleConstants.timelineGlassReflectionAlpha,
-      shadowAlpha: shadowAlpha,
+      shadowAlpha: shadowAlpha ?? StyleConstants.mapOverlayShadowAlpha,
       shadowBlurRadius: StyleConstants.mapOverlayShadowBlurRadius,
       shadowSpreadRadius: StyleConstants.mapOverlayShadowSpreadRadius,
       shadowOffset: StyleConstants.mapOverlayShadowOffset,

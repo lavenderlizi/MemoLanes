@@ -115,7 +115,7 @@ class LabelTile extends StatelessWidget {
               ),
               if (infoLabelOnTap != null) ...[
                 const SizedBox(width: 6),
-                const Icon(
+                Icon(
                   Icons.info_outline,
                   size: 18.0,
                   color: StyleConstants.mutedInkColor,
@@ -159,7 +159,7 @@ class LabelTile extends StatelessWidget {
                     border: Border(
                       bottom: position == LabelTilePosition.top ||
                               position == LabelTilePosition.middle
-                          ? const BorderSide(color: StyleConstants.lineColor)
+                          ? BorderSide(color: StyleConstants.lineColor)
                           : BorderSide.none,
                     ),
                   ),

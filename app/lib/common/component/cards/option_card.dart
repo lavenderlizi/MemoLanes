@@ -23,7 +23,9 @@ class OptionCard extends StatelessWidget {
         border: Border.all(color: StyleConstants.lineColor),
         boxShadow: [
           BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.055),
+            color: StyleConstants.shadowColor.withValues(
+              alpha: StyleConstants.isDarkMode ? 0.34 : 0.055,
+            ),
             blurRadius: 20,
             offset: const Offset(0, 7),
           ),

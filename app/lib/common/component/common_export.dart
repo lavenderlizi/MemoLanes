@@ -293,7 +293,7 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.info_outline,
             color: StyleConstants.warningInkColor,
             size: 18.0,

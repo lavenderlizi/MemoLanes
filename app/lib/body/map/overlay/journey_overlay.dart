@@ -220,7 +220,9 @@ class _JourneyMapDetailPageState extends State<_JourneyMapDetailPage> {
   Future<void> _showEditChoice() async {
     final choice = await showDialog<_JourneyEditChoice>(
       context: context,
-      barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
+      barrierColor: StyleConstants.shadowColor.withValues(
+        alpha: StyleConstants.isDarkMode ? 0.58 : 0.2,
+      ),
       builder: (dialogContext) => PointerInterceptor(
         child: _JourneyEditChoiceDialog(
           onSelected: (choice) => Navigator.of(dialogContext).pop(choice),
@@ -404,7 +406,7 @@ class _CollapsibleJourneyDetailState
                       child: InkWell(
                         onTap: _restore,
                         borderRadius: BorderRadius.circular(24),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.keyboard_arrow_up_rounded,
                             size: 23,
@@ -485,11 +487,11 @@ class _JourneyPickerCard extends StatelessWidget {
                     Container(
                       width: 30,
                       height: 30,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: StyleConstants.softGreen,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.route_rounded,
                         size: 17,
                         color: StyleConstants.deepGreen,
@@ -525,7 +527,7 @@ class _JourneyPickerCard extends StatelessWidget {
             Positioned.fill(
               child: ColoredBox(
                 color: StyleConstants.surfaceColor.withValues(alpha: 0.42),
-                child: const Center(
+                child: Center(
                   child: CircularProgressIndicator(
                     color: StyleConstants.deepGreen,
                   ),
@@ -622,7 +624,9 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
     if (date == null || !mounted) return null;
     final time = await showDialog<TimeOfDay>(
       context: context,
-      barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
+      barrierColor: StyleConstants.shadowColor.withValues(
+        alpha: StyleConstants.isDarkMode ? 0.58 : 0.2,
+      ),
       builder: (dialogContext) => PointerInterceptor(
         child: _CompactJourneyTimeDialog(
           initialTime: TimeOfDay.fromDateTime(seed),
@@ -648,7 +652,9 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
   Future<void> _selectJourneyKind() async {
     final selected = await showDialog<JourneyKind>(
       context: context,
-      barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
+      barrierColor: StyleConstants.shadowColor.withValues(
+        alpha: StyleConstants.isDarkMode ? 0.58 : 0.2,
+      ),
       builder: (dialogContext) => PointerInterceptor(
         child: Dialog(
           elevation: 0,
@@ -665,7 +671,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _EditChoiceTile(
-                    iconWidget: const JourneyKindIcon(
+                    iconWidget: JourneyKindIcon(
                       kind: JourneyKind.defaultKind,
                       color: StyleConstants.deepGreen,
                       size: 20,
@@ -678,7 +684,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                   ),
                   const SizedBox(height: 8),
                   _EditChoiceTile(
-                    iconWidget: const JourneyKindIcon(
+                    iconWidget: JourneyKindIcon(
                       kind: JourneyKind.flight,
                       color: StyleConstants.deepGreen,
                       size: 20,

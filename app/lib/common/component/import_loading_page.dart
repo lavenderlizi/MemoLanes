@@ -117,7 +117,7 @@ class ImportLoadingScaffold extends StatelessWidget {
                               color: StyleConstants.softGreen,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.description_outlined,
                               color: StyleConstants.deepGreen,
                             ),
@@ -157,7 +157,7 @@ class ImportLoadingScaffold extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: StyleConstants.lineColor),
                       ),
-                      child: const ClipRRect(
+                      child: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(2)),
                         child: LinearProgressIndicator(
                           minHeight: 3,
@@ -170,7 +170,7 @@ class ImportLoadingScaffold extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.info_outline,
                           size: 16,
                           color: StyleConstants.mutedInkColor,

@@ -64,7 +64,7 @@ class AppCalendarModePicker extends StatelessWidget {
                   turns: isActive ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeOut,
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_drop_down,
                     color: StyleConstants.deepGreen,
                   ),
@@ -108,7 +108,9 @@ class AppCalendarGridOption extends StatelessWidget {
     final foregroundColor = isDisabled
         ? StyleConstants.mutedInkColor.withValues(alpha: 0.42)
         : isSelected
-            ? StyleConstants.inkColor
+            ? (StyleConstants.isDarkMode
+                ? StyleConstants.onPrimaryActionColor
+                : StyleConstants.inkColor)
             : isCurrent
                 ? StyleConstants.deepGreen
                 : StyleConstants.inkColor;

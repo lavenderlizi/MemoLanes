@@ -18,6 +18,12 @@ const double _recordingControlGlassBlurSigma = 28;
 const double _recordingControlGlassReflectionAlpha = 0.2;
 const double _recordingControlInnerAlpha = 0.55;
 const double _recordingEndControlInnerAlpha = 0.8;
+const double _darkPrimaryControlGlassBackgroundAlpha = 0.1;
+const double _darkPrimaryControlGlassBorderAlpha = 0.28;
+const double _darkPrimaryControlGlassBlurSigma = 18;
+const double _darkPrimaryControlGlassReflectionAlpha = 0.06;
+const double _darkPrimaryControlShadowAlpha = 0.3;
+const double _darkPrimaryControlInnerAlpha = 0.9;
 
 class RecordingButtons extends StatefulWidget {
   const RecordingButtons({super.key});
@@ -105,29 +111,43 @@ class _StartJourneyButton extends StatelessWidget {
 
   final VoidCallback onPressed;
 
-  static final _labelStyle = AppTypography.surfaceTitle.copyWith(
-    color: StyleConstants.deepGreen,
-    fontWeight: FontWeight.w600,
-  );
   static const _triangleSize = Size(10, 12);
   static const _minIconGap = 4.0;
   static const _maxIconGap = 10.0;
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = StyleConstants.isDarkMode;
     final label = context.tr('home.start_new_journey');
+    final labelStyle = AppTypography.surfaceTitle.copyWith(
+      color: StyleConstants.onPrimaryActionColor,
+      fontWeight: FontWeight.w600,
+    );
 
     return SizedBox(
       width: _recordingControlWidth,
       height: _recordingControlHeight,
       child: LiquidGlassSurface(
         borderRadius: BorderRadius.circular(23),
-        backgroundAlpha: 0.36,
-        borderAlpha: 0.62,
-        blurSigma: 28,
-        reflectionAlpha: 0.2,
+        backgroundAlpha: isDarkMode
+            ? _darkPrimaryControlGlassBackgroundAlpha
+            : _recordingControlGlassBackgroundAlpha,
+        borderAlpha: isDarkMode
+            ? _darkPrimaryControlGlassBorderAlpha
+            : _recordingControlGlassBorderAlpha,
+        blurSigma: isDarkMode
+            ? _darkPrimaryControlGlassBlurSigma
+            : _recordingControlGlassBlurSigma,
+        reflectionAlpha: isDarkMode
+            ? _darkPrimaryControlGlassReflectionAlpha
+            : _recordingControlGlassReflectionAlpha,
+        shadowAlpha: isDarkMode ? _darkPrimaryControlShadowAlpha : null,
         child: Material(
-          color: StyleConstants.primaryGreen.withValues(alpha: 0.55),
+          color: StyleConstants.primaryGreen.withValues(
+            alpha: isDarkMode
+                ? _darkPrimaryControlInnerAlpha
+                : _recordingControlInnerAlpha,
+          ),
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(23),
@@ -136,7 +156,7 @@ class _StartJourneyButton extends StatelessWidget {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final textPainter = TextPainter(
-                    text: TextSpan(text: label, style: _labelStyle),
+                    text: TextSpan(text: label, style: labelStyle),
                     maxLines: 1,
                     textDirection: Directionality.of(context),
                     textScaler: MediaQuery.textScalerOf(context),
@@ -151,15 +171,17 @@ class _StartJourneyButton extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: _labelStyle,
+                    style: labelStyle,
                   );
 
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const CustomPaint(
+                      CustomPaint(
                         size: _triangleSize,
-                        painter: _PlayTrianglePainter(),
+                        painter: _PlayTrianglePainter(
+                          StyleConstants.onPrimaryActionColor,
+                        ),
                       ),
                       SizedBox(width: gap),
                       if (overflows) Flexible(child: labelText) else labelText,
@@ -176,7 +198,9 @@ class _StartJourneyButton extends StatelessWidget {
 }
 
 class _PlayTrianglePainter extends CustomPainter {
-  const _PlayTrianglePainter();
+  const _PlayTrianglePainter(this.color);
+
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -187,12 +211,13 @@ class _PlayTrianglePainter extends CustomPainter {
       ..close();
     canvas.drawPath(
       path,
-      Paint()..color = StyleConstants.deepGreen,
+      Paint()..color = color,
     );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _PlayTrianglePainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class _ActiveJourneyControls extends StatelessWidget {
@@ -209,6 +234,8 @@ class _ActiveJourneyControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final useDarkPrimarySurface = isPaused && StyleConstants.isDarkMode;
+
     return SizedBox(
       width: _recordingControlWidth,
       height: _recordingControlHeight,
@@ -221,10 +248,21 @@ class _ActiveJourneyControls extends StatelessWidget {
               height: 42,
               child: LiquidGlassSurface(
                 borderRadius: BorderRadius.circular(18),
-                backgroundAlpha: _recordingControlGlassBackgroundAlpha,
-                borderAlpha: _recordingControlGlassBorderAlpha,
-                blurSigma: _recordingControlGlassBlurSigma,
-                reflectionAlpha: _recordingControlGlassReflectionAlpha,
+                backgroundAlpha: useDarkPrimarySurface
+                    ? _darkPrimaryControlGlassBackgroundAlpha
+                    : _recordingControlGlassBackgroundAlpha,
+                borderAlpha: useDarkPrimarySurface
+                    ? _darkPrimaryControlGlassBorderAlpha
+                    : _recordingControlGlassBorderAlpha,
+                blurSigma: useDarkPrimarySurface
+                    ? _darkPrimaryControlGlassBlurSigma
+                    : _recordingControlGlassBlurSigma,
+                reflectionAlpha: useDarkPrimarySurface
+                    ? _darkPrimaryControlGlassReflectionAlpha
+                    : _recordingControlGlassReflectionAlpha,
+                shadowAlpha: useDarkPrimarySurface
+                    ? _darkPrimaryControlShadowAlpha
+                    : null,
                 child: isPaused
                     ? AppButton(
                         label: context.tr('home.resume'),
@@ -233,7 +271,9 @@ class _ActiveJourneyControls extends StatelessWidget {
                         variant: AppButtonVariant.primary,
                         size: AppButtonSize.compact,
                         fontSize: 15,
-                        backgroundAlpha: _recordingControlInnerAlpha,
+                        backgroundAlpha: StyleConstants.isDarkMode
+                            ? _darkPrimaryControlInnerAlpha
+                            : _recordingControlInnerAlpha,
                         borderRadius: 18,
                         expand: true,
                       )
@@ -249,8 +289,8 @@ class _ActiveJourneyControls extends StatelessWidget {
                 borderAlpha: _recordingControlGlassBorderAlpha,
                 blurSigma: _recordingControlGlassBlurSigma,
                 reflectionAlpha: _recordingControlGlassReflectionAlpha,
-                reflectionColor: StyleConstants.surfaceColor,
-                secondaryReflectionColor: StyleConstants.surfaceColor,
+                reflectionColor: StyleConstants.glassHighlightColor,
+                secondaryReflectionColor: StyleConstants.glassHighlightColor,
                 child: AppIconButton(
                   onPressed: onEndPressed,
                   tooltip: context.tr('common.end'),
@@ -286,7 +326,7 @@ class _PauseGlassButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.pause_rounded,
                 size: 16,
                 color: StyleConstants.deepGreen,

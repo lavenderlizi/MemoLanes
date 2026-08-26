@@ -55,7 +55,9 @@ class AppDialogSurface extends StatelessWidget {
         border: Border.all(color: StyleConstants.lineColor),
         boxShadow: [
           BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: shadowAlpha),
+            color: StyleConstants.shadowColor.withValues(
+              alpha: shadowAlpha,
+            ),
             blurRadius: shadowBlurRadius,
             spreadRadius: shadowSpreadRadius,
             offset: shadowOffset,
@@ -198,7 +200,10 @@ Future<T?> showAppDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierColor:
-        barrierColor ?? StyleConstants.inkColor.withValues(alpha: 0.22),
+        barrierColor ??
+            StyleConstants.shadowColor.withValues(
+              alpha: StyleConstants.isDarkMode ? 0.58 : 0.22,
+            ),
     builder: (dialogContext) => Dialog(
       elevation: 0,
       backgroundColor: Colors.transparent,

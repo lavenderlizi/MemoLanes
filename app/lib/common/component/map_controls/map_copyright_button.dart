@@ -30,13 +30,17 @@ class MapCopyrightButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(contentPadding),
           decoration: BoxDecoration(
-            color: StyleConstants.inkColor.withValues(alpha: 0.45),
+            color: StyleConstants.shadowColor.withValues(
+              alpha: StyleConstants.isDarkMode ? 0.58 : 0.45,
+            ),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.info_outline,
             size: iconSize,
-            color: StyleConstants.surfaceColor,
+            color: StyleConstants.isDarkMode
+                ? StyleConstants.onStrongColor
+                : StyleConstants.surfaceColor,
           ),
         ),
       ),

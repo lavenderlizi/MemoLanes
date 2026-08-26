@@ -30,7 +30,7 @@ class AppOptionTile extends StatelessWidget {
 
   Widget _buildTrailing() {
     return switch (trailing) {
-      AppOptionTileTrailing.chevron => const Icon(
+      AppOptionTileTrailing.chevron => Icon(
           Icons.chevron_right_rounded,
           color: StyleConstants.mutedInkColor,
           size: 22,
@@ -50,9 +50,9 @@ class AppOptionTile extends StatelessWidget {
                   color: StyleConstants.primaryGreen,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_rounded,
-                  color: StyleConstants.deepGreen,
+                  color: StyleConstants.onPrimaryActionColor,
                   size: 17,
                 ),
               ),

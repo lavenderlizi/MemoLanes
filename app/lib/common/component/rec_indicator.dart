@@ -71,7 +71,9 @@ class _RecIndicatorState extends State<RecIndicator>
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: StyleConstants.inkColor.withValues(alpha: 0.12),
+                  color: StyleConstants.shadowColor.withValues(
+                    alpha: StyleConstants.isDarkMode ? 0.42 : 0.12,
+                  ),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -85,12 +87,15 @@ class _RecIndicatorState extends State<RecIndicator>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
                   decoration: BoxDecoration(
-                    color: StyleConstants.surfaceColor
-                        .withValues(alpha: 0.72),
+                    color: StyleConstants.glassColor.withValues(
+                      alpha: StyleConstants.isDarkMode ? 0.92 : 0.72,
+                    ),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: StyleConstants.surfaceColor
-                          .withValues(alpha: 0.86),
+                      color: StyleConstants.glassBorderColor
+                          .withValues(
+                        alpha: StyleConstants.isDarkMode ? 0.48 : 0.86,
+                      ),
                     ),
                   ),
                   child: Row(
@@ -117,7 +122,7 @@ class _RecIndicatorState extends State<RecIndicator>
                                   ),
                                 ),
                               ),
-                              const SizedBox.square(
+                              SizedBox.square(
                                 dimension: 7,
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(

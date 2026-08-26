@@ -26,14 +26,20 @@ class LayerButton extends StatelessWidget {
       contentRadius: 24,
       barrierColor: Colors.transparent,
       contentDecoration: BoxDecoration(
-        color: StyleConstants.surfaceColor.withValues(alpha: 0.68),
+        color: StyleConstants.glassColor.withValues(
+          alpha: StyleConstants.isDarkMode ? 0.94 : 0.68,
+        ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: StyleConstants.surfaceColor.withValues(alpha: 0.8),
+          color: StyleConstants.glassBorderColor.withValues(
+            alpha: StyleConstants.isDarkMode ? 0.48 : 0.8,
+          ),
         ),
         boxShadow: [
           BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: 0.14),
+            color: StyleConstants.shadowColor.withValues(
+              alpha: StyleConstants.isDarkMode ? 0.48 : 0.14,
+            ),
             blurRadius: 22,
             offset: const Offset(0, 8),
           ),
@@ -43,7 +49,7 @@ class LayerButton extends StatelessWidget {
       child: PointerInterceptor(
         child: LiquidGlassSurface(
           circular: true,
-          child: const SizedBox(
+          child: SizedBox(
             width: 44,
             height: 44,
             child: Center(

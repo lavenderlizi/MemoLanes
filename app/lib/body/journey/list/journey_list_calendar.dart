@@ -77,7 +77,9 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
           .copyWith(color: StyleConstants.inkColor),
       selectedDayTextStyle:
           (compact ? AppTypography.caption : AppTypography.body).copyWith(
-        color: StyleConstants.inkColor,
+        color: StyleConstants.isDarkMode
+            ? StyleConstants.onPrimaryActionColor
+            : StyleConstants.inkColor,
       ),
       todayTextStyle:
           (compact ? AppTypography.caption : AppTypography.body).copyWith(
@@ -130,7 +132,7 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
         }
         return Container(
           decoration: isSelected == true
-              ? const BoxDecoration(
+              ? BoxDecoration(
                   color: StyleConstants.primaryGreen,
                   shape: BoxShape.circle,
                 )
@@ -272,7 +274,7 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
                             : AppTypography.cardTitle)
                         .copyWith(color: StyleConstants.deepGreen),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.arrow_drop_down,
                     color: StyleConstants.deepGreen,
                   ),

@@ -25,7 +25,9 @@ Future<DateTime?> showAppDatePickerDialog(
 
   return showDialog<DateTime>(
     context: context,
-    barrierColor: StyleConstants.inkColor.withValues(alpha: 0.2),
+    barrierColor: StyleConstants.shadowColor.withValues(
+      alpha: StyleConstants.isDarkMode ? 0.58 : 0.2,
+    ),
     builder: (_) => PointerInterceptor(
       child: _AppDatePickerDialog(
         initialDate: initialDate,
@@ -101,7 +103,7 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
         height: 28,
         alignment: Alignment.center,
         decoration: selected
-            ? const BoxDecoration(
+            ? BoxDecoration(
                 shape: BoxShape.circle,
                 color: StyleConstants.primaryGreen,
               )
@@ -118,7 +120,9 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
           MaterialLocalizations.of(context).formatDecimal(date.day),
           style: selected
               ? AppTypography.caption.copyWith(
-                  color: StyleConstants.inkColor,
+                  color: StyleConstants.isDarkMode
+                      ? StyleConstants.onPrimaryActionColor
+                      : StyleConstants.inkColor,
                 )
               : textStyle,
         ),
@@ -169,7 +173,9 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
         color: StyleConstants.inkColor,
       ),
       selectedDayTextStyle: AppTypography.caption.copyWith(
-        color: StyleConstants.inkColor,
+        color: StyleConstants.isDarkMode
+            ? StyleConstants.onPrimaryActionColor
+            : StyleConstants.inkColor,
       ),
       todayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.deepGreen,
@@ -179,14 +185,18 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
         color: StyleConstants.inkColor,
       ),
       selectedMonthTextStyle: AppTypography.body.copyWith(
-        color: StyleConstants.inkColor,
+        color: StyleConstants.isDarkMode
+            ? StyleConstants.onPrimaryActionColor
+            : StyleConstants.inkColor,
         fontWeight: FontWeight.w600,
       ),
       yearTextStyle: AppTypography.body.copyWith(
         color: StyleConstants.inkColor,
       ),
       selectedYearTextStyle: AppTypography.body.copyWith(
-        color: StyleConstants.inkColor,
+        color: StyleConstants.isDarkMode
+            ? StyleConstants.onPrimaryActionColor
+            : StyleConstants.inkColor,
         fontWeight: FontWeight.w600,
       ),
       monthBuilder: ({
@@ -234,12 +244,12 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
       disabledDayTextStyle: AppTypography.caption.copyWith(
         color: StyleConstants.mutedInkColor.withValues(alpha: 0.42),
       ),
-      lastMonthIcon: const Icon(
+      lastMonthIcon: Icon(
         Icons.chevron_left_rounded,
         color: StyleConstants.deepGreen,
         size: 20,
       ),
-      nextMonthIcon: const Icon(
+      nextMonthIcon: Icon(
         Icons.chevron_right_rounded,
         color: StyleConstants.deepGreen,
         size: 20,

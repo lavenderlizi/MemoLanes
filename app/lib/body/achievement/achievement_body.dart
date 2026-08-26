@@ -331,7 +331,7 @@ class _OngoingJourneyBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accent = StyleConstants.achievementGoldColor;
+    final accent = StyleConstants.achievementGoldColor;
 
     return SafeAreaWrapper(
       child: Container(
@@ -344,7 +344,7 @@ class _OngoingJourneyBanner extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
+            Icon(
               Icons.info_outline_rounded,
               color: accent,
               size: 19,

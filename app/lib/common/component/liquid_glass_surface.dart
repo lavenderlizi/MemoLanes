@@ -3,45 +3,45 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-/// A neutral liquid-glass surface for controls displayed over the map.
+/// An adaptive liquid-glass surface for controls displayed over the map.
 ///
-/// The main layer stays colorless and translucent. Glass depth comes from the
-/// blurred backdrop, a specular top edge, and a small local green reflection
-/// rather than a full-surface color gradient.
+/// Its light and dark treatments preserve map context while keeping controls
+/// readable. It is independent from the map's unexplored-area mask.
 class LiquidGlassSurface extends StatelessWidget {
   const LiquidGlassSurface({
     super.key,
     required this.child,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
     this.circular = false,
-    this.backgroundAlpha = 0.36,
-    this.borderAlpha = 0.62,
+    this.backgroundAlpha,
+    this.borderAlpha,
     this.blurSigma = 28,
     this.reflectionAlpha = 0.18,
-    this.reflectionColor = StyleConstants.primaryGreen,
-    this.secondaryReflectionColor = StyleConstants.softGreen,
-    this.shadowAlpha = StyleConstants.mapOverlayShadowAlpha,
+    this.reflectionColor,
+    this.secondaryReflectionColor,
+    this.shadowAlpha,
     this.shadowBlurRadius = StyleConstants.mapOverlayShadowBlurRadius,
     this.shadowSpreadRadius = StyleConstants.mapOverlayShadowSpreadRadius,
     this.shadowOffset = StyleConstants.mapOverlayShadowOffset,
     this.padding,
-  })  : assert(backgroundAlpha >= 0 && backgroundAlpha <= 1),
-        assert(borderAlpha >= 0 && borderAlpha <= 1),
+  })  : assert(backgroundAlpha == null ||
+            backgroundAlpha >= 0 && backgroundAlpha <= 1),
+        assert(borderAlpha == null || borderAlpha >= 0 && borderAlpha <= 1),
         assert(blurSigma >= 0),
         assert(reflectionAlpha >= 0 && reflectionAlpha <= 1),
-        assert(shadowAlpha >= 0 && shadowAlpha <= 1),
+        assert(shadowAlpha == null || shadowAlpha >= 0 && shadowAlpha <= 1),
         assert(shadowBlurRadius >= 0);
 
   final Widget child;
   final BorderRadius borderRadius;
   final bool circular;
-  final double backgroundAlpha;
-  final double borderAlpha;
+  final double? backgroundAlpha;
+  final double? borderAlpha;
   final double blurSigma;
   final double reflectionAlpha;
-  final Color reflectionColor;
-  final Color secondaryReflectionColor;
-  final double shadowAlpha;
+  final Color? reflectionColor;
+  final Color? secondaryReflectionColor;
+  final double? shadowAlpha;
   final double shadowBlurRadius;
   final double shadowSpreadRadius;
   final Offset shadowOffset;
@@ -68,17 +68,32 @@ class LiquidGlassSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveReflectionColor =
+        reflectionColor ?? StyleConstants.primaryGreen;
+    final effectiveSecondaryReflectionColor =
+        secondaryReflectionColor ?? StyleConstants.softGreen;
+    final effectiveShadowAlpha =
+        shadowAlpha ?? StyleConstants.mapOverlayShadowAlpha;
+    final effectiveBackgroundAlpha =
+        backgroundAlpha ?? (StyleConstants.isDarkMode ? 0.76 : 0.36);
+    final effectiveBorderAlpha =
+        borderAlpha ?? (StyleConstants.isDarkMode ? 0.46 : 0.62);
+
     return DecoratedBox(
       decoration: _decoration(
         boxShadow: [
           BoxShadow(
-            color: StyleConstants.inkColor.withValues(alpha: shadowAlpha),
+            color: StyleConstants.shadowColor.withValues(
+              alpha: effectiveShadowAlpha,
+            ),
             blurRadius: shadowBlurRadius,
             spreadRadius: shadowSpreadRadius,
             offset: shadowOffset,
           ),
           BoxShadow(
-            color: StyleConstants.surfaceColor.withValues(alpha: 0.28),
+            color: StyleConstants.glassHighlightColor.withValues(
+              alpha: StyleConstants.isDarkMode ? 0.1 : 0.28,
+            ),
             blurRadius: 8,
             spreadRadius: -5,
             offset: const Offset(0, -2),
@@ -94,11 +109,11 @@ class LiquidGlassSurface extends StatelessWidget {
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: _decoration(
-                    color: StyleConstants.surfaceColor
-                        .withValues(alpha: backgroundAlpha),
+                    color: StyleConstants.glassColor
+                        .withValues(alpha: effectiveBackgroundAlpha),
                     border: Border.all(
-                      color: StyleConstants.surfaceColor
-                          .withValues(alpha: borderAlpha),
+                      color: StyleConstants.glassBorderColor
+                          .withValues(alpha: effectiveBorderAlpha),
                       width: 1.1,
                     ),
                   ),
@@ -116,8 +131,10 @@ class LiquidGlassSurface extends StatelessWidget {
                         center: Alignment.bottomRight,
                         radius: 1,
                         colors: [
-                          reflectionColor.withValues(alpha: reflectionAlpha),
-                          secondaryReflectionColor.withValues(
+                          effectiveReflectionColor.withValues(
+                            alpha: reflectionAlpha,
+                          ),
+                          effectiveSecondaryReflectionColor.withValues(
                             alpha: reflectionAlpha * 0.36,
                           ),
                           Colors.transparent,
@@ -136,9 +153,11 @@ class LiquidGlassSurface extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        StyleConstants.surfaceColor.withValues(alpha: 0),
-                        StyleConstants.surfaceColor.withValues(alpha: 0.88),
-                        StyleConstants.surfaceColor.withValues(alpha: 0),
+                        StyleConstants.glassHighlightColor.withValues(alpha: 0),
+                        StyleConstants.glassHighlightColor.withValues(
+                          alpha: StyleConstants.isDarkMode ? 0.32 : 0.88,
+                        ),
+                        StyleConstants.glassHighlightColor.withValues(alpha: 0),
                       ],
                     ),
                   ),

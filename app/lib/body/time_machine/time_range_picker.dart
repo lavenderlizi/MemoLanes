@@ -471,7 +471,7 @@ class _TimeMachineViewModeAndLayerMenuState
   }
 
   Widget _buildColumnDivider() {
-    return const VerticalDivider(
+    return VerticalDivider(
       width: _dividerWidth,
       thickness: _dividerWidth,
       color: StyleConstants.lineColor,
@@ -519,7 +519,7 @@ class _TimeMachineViewModeAndLayerMenuState
               child: Row(
                 children: [
                   if (isSelected)
-                    const Icon(
+                    Icon(
                       Icons.check_rounded,
                       size: 18,
                       color: StyleConstants.deepGreen,
@@ -624,10 +624,10 @@ class TimeRangeControllerBall extends StatelessWidget {
 
   static const double _buttonSize = 60;
   static const double _borderRadius = 12;
-  static final TextStyle _contentStyle = AppTypography.sectionLabel.copyWith(
-    color: StyleConstants.deepGreen,
-    fontWeight: FontWeight.w700,
-  );
+  TextStyle get _contentStyle => AppTypography.sectionLabel.copyWith(
+        color: StyleConstants.deepGreen,
+        fontWeight: FontWeight.w700,
+      );
 
   @override
   Widget build(BuildContext context) {

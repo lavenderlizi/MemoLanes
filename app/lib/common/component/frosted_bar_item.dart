@@ -10,7 +10,7 @@ class FrostedBarItem extends StatelessWidget {
     this.isSelected = false,
     this.isEnabled = true,
     this.onTap,
-    this.selectedColor = StyleConstants.inkColor,
+    this.selectedColor,
     this.unselectedColor,
     this.disabledColor,
     this.horizontalPadding = 14,
@@ -23,7 +23,7 @@ class FrostedBarItem extends StatelessWidget {
   final bool isSelected;
   final bool isEnabled;
   final VoidCallback? onTap;
-  final Color selectedColor;
+  final Color? selectedColor;
   final Color? unselectedColor;
   final Color? disabledColor;
   final double horizontalPadding;
@@ -32,7 +32,7 @@ class FrostedBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = selectedColor;
+    final themeColor = selectedColor ?? StyleConstants.inkColor;
     final baseUnselectedColor =
         unselectedColor ?? StyleConstants.mutedInkColor;
     final baseDisabledColor = disabledColor ?? StyleConstants.subtleInkColor;
@@ -40,7 +40,9 @@ class FrostedBarItem extends StatelessWidget {
     final Color bgColor = isSelected
         ? (isEnabled
             ? themeColor.withValues(alpha: 0.12)
-            : StyleConstants.inkColor.withValues(alpha: 0.05))
+            : (StyleConstants.isDarkMode
+                ? StyleConstants.lineColor.withValues(alpha: 0.36)
+                : StyleConstants.inkColor.withValues(alpha: 0.05)))
         : Colors.transparent;
 
     final Color contentColor = !isEnabled

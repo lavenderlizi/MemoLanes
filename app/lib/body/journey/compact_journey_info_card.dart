@@ -44,7 +44,7 @@ class JourneyInfoCardHeader extends StatelessWidget {
             color: StyleConstants.softGreen.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.route_rounded,
             size: 17,
             color: StyleConstants.deepGreen,
@@ -132,7 +132,7 @@ class CompactJourneyInfoField extends StatelessWidget {
                         ),
                         if (onTap != null) ...[
                           const SizedBox(width: 3),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right_rounded,
                             size: 17,
                             color: StyleConstants.deepGreen,

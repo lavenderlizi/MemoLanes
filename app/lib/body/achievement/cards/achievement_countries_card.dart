@@ -10,7 +10,7 @@ import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:provider/provider.dart';
 
-const _countryGold = StyleConstants.achievementGoldColor;
+Color get _countryGold => StyleConstants.achievementGoldColor;
 const _countriesGridColumnCount = 5;
 const _countryItemHeight = 82.0;
 const _countryRowSpacing = 6.0;

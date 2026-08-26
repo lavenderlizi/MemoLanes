@@ -169,7 +169,7 @@ class _JourneyBodyState extends State<JourneyBody> {
         trackColor: WidgetStatePropertyAll(
           StyleConstants.softGreen.withValues(alpha: 0.88),
         ),
-        trackBorderColor: const WidgetStatePropertyAll(
+        trackBorderColor: WidgetStatePropertyAll(
           StyleConstants.lineColor,
         ),
       ),
