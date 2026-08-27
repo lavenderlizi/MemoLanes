@@ -31,8 +31,6 @@ import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/constants/index.dart';
 import 'package:provider/provider.dart';
 
-int _rememberedSelectedIndex = 0;
-
 void main() async {
   runZonedGuarded(() async {
     final startupStatus = await AppBootstrap.initAppRuntime();
@@ -105,7 +103,6 @@ class MyApp extends StatelessWidget {
     );
 
     return MaterialApp(
-      key: ValueKey(appThemeController.preference),
       title: "MemoLanes",
       onGenerateTitle: (context) => context.tr('common.memolanes'),
       supportedLocales: context.supportedLocales,
@@ -165,7 +162,8 @@ class MyApp extends StatelessWidget {
             .textTheme
             .merge(
               AppTypography.textTheme,
-            ).apply(
+            )
+            .apply(
               bodyColor: StyleConstants.inkColor,
               displayColor: StyleConstants.inkColor,
             ),
@@ -377,7 +375,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = _rememberedSelectedIndex;
+  int _selectedIndex = 0;
   DateTime? _lastExitPopAt;
 
   Future<void>? _achievementLib;
@@ -429,7 +427,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (GlobalLoadingManager.instance.isLoading) return;
 
     if (_selectedIndex != 0) {
-      _rememberedSelectedIndex = 0;
       setState(() => _selectedIndex = 0);
       return;
     }
@@ -488,6 +485,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // The persistent map controls use the shared palette directly. Rebuild the
+    // home shell as well as MaterialApp when that palette changes.
+    context.watch<AppThemeController>();
     final mediaQuery = MediaQuery.of(context);
     final navBarBottomInset = StyleConstants.navBarBottomInset(context);
     final horizontalSafeArea =
@@ -528,10 +528,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: BottomNavBar.height,
                     child: BottomNavBar(
                       selectedIndex: _selectedIndex,
-                      onIndexChanged: (index) {
-                        _rememberedSelectedIndex = index;
-                        setState(() => _selectedIndex = index);
-                      },
+                      onIndexChanged: (index) =>
+                          setState(() => _selectedIndex = index),
                       hasUpdateNotification:
                           context.watch<UpdateNotifier>().hasUpdateNotification,
                     ),

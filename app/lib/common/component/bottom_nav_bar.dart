@@ -110,7 +110,7 @@ class BottomNavBar extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: (StyleConstants.isDarkMode
                                   ? StyleConstants.primaryGreen
-                                  : const Color(0xFFDDDDDD))
+                                  : StyleConstants.strongLineColor)
                               .withValues(
                             alpha: StyleConstants.isDarkMode ? 0.16 : 0.22,
                           ),

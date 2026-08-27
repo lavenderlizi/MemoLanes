@@ -199,11 +199,10 @@ Future<T?> showAppDialog<T>(
   return showDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
-    barrierColor:
-        barrierColor ??
-            StyleConstants.shadowColor.withValues(
-              alpha: StyleConstants.isDarkMode ? 0.58 : 0.22,
-            ),
+    barrierColor: barrierColor ??
+        StyleConstants.shadowColor.withValues(
+          alpha: StyleConstants.isDarkMode ? 0.58 : 0.22,
+        ),
     builder: (dialogContext) => Dialog(
       elevation: 0,
       backgroundColor: Colors.transparent,

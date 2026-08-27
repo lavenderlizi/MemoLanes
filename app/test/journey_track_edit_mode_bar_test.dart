@@ -16,6 +16,10 @@ void main() {
       (call) async => call.method == 'getAll' ? <String, Object>{} : null,
     );
     await EasyLocalization.ensureInitialized();
+    await const AppTranslationLoader().load(
+      'assets/translations',
+      locale,
+    );
   });
 
   Widget buildApp({VoidCallback? onUndo, VoidCallback? onSave}) {

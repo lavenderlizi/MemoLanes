@@ -50,6 +50,7 @@ void main() {
       (call) async => call.method == 'getAll' ? <String, Object>{} : null,
     );
     await EasyLocalization.ensureInitialized();
+    await _loader.load('assets/translations', _enUs);
   });
 
   testWidgets(

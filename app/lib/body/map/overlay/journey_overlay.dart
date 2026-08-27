@@ -126,8 +126,7 @@ class _JourneyMapDetailPage extends StatefulWidget {
   final MapBounds? initialMapBounds;
 
   @override
-  State<_JourneyMapDetailPage> createState() =>
-      _JourneyMapDetailPageState();
+  State<_JourneyMapDetailPage> createState() => _JourneyMapDetailPageState();
 }
 
 class _JourneyMapDetailPageState extends State<_JourneyMapDetailPage> {
@@ -322,8 +321,7 @@ class _CollapsibleJourneyDetail extends StatefulWidget {
       _CollapsibleJourneyDetailState();
 }
 
-class _CollapsibleJourneyDetailState
-    extends State<_CollapsibleJourneyDetail> {
+class _CollapsibleJourneyDetailState extends State<_CollapsibleJourneyDetail> {
   static const double _dismissDistance = 56;
   static const double _dismissVelocity = 650;
 
@@ -462,7 +460,6 @@ class _CollapsibleJourneyDetailState
 
 class _JourneyPickerCard extends StatelessWidget {
   const _JourneyPickerCard({
-    super.key,
     required this.onJourneySelected,
     required this.isLoading,
     required this.refreshRevision,

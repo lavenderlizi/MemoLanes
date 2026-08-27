@@ -8,6 +8,7 @@ import 'package:memolanes/body/settings/advanced_settings_page.dart';
 import 'package:memolanes/body/settings/import_data_page.dart';
 import 'package:memolanes/body/settings/interface_settings_page.dart';
 import 'package:memolanes/body/settings/map_settings_page.dart';
+import 'package:memolanes/common/app_theme_controller.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
@@ -101,6 +102,9 @@ class _SettingsBodyState extends State<SettingsBody> {
 
   @override
   Widget build(BuildContext context) {
+    // Settings cards read the shared palette directly, so explicitly rebuild
+    // this route when a nested settings page changes that palette.
+    context.watch<AppThemeController>();
     var updateUrl = context.watch<UpdateNotifier>().updateUrl;
     var gpsManager = context.watch<GpsManager>();
 
@@ -110,7 +114,7 @@ class _SettingsBodyState extends State<SettingsBody> {
         bottom: StyleConstants.navBarSafeArea + 16.0,
       ),
       children: [
-        const _SettingsPageHeader(),
+        _SettingsPageHeader(),
         const SizedBox(height: 18),
         // TODO: Enable this when we have user system.
         // CircleAvatar(
@@ -137,7 +141,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             LabelTile(
               label: context.tr("general.version.title"),
               position: LabelTilePosition.middle,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.info_outline_rounded,
               ),
               trailing: updateUrl != null
@@ -175,7 +179,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             LabelTile(
               label: context.tr("general.map_settings.title"),
               position: LabelTilePosition.middle,
-              prefix: const _SettingsTileIcon(icon: Icons.map_outlined),
+              prefix: _SettingsTileIcon(icon: Icons.map_outlined),
               trailing: LabelTileContent(showArrow: true),
               onTap: () =>
                   navigatorPush(context, page: const MapSettingsPage()),
@@ -183,7 +187,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             LabelTile(
               label: context.tr("general.interface_settings.title"),
               position: LabelTilePosition.middle,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.palette_outlined,
               ),
               trailing: LabelTileContent(showArrow: true),
@@ -196,7 +200,7 @@ class _SettingsBodyState extends State<SettingsBody> {
               label: context.tr("general.advanced_settings.title"),
               position: LabelTilePosition.bottom,
               bottom: false,
-              prefix: const _SettingsTileIcon(icon: Icons.tune_rounded),
+              prefix: _SettingsTileIcon(icon: Icons.tune_rounded),
               trailing: LabelTileContent(showArrow: true),
               onTap: () => navigatorPush(context, page: AdvancedSettingsPage()),
             ),
@@ -229,7 +233,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             LabelTile(
               label: context.tr("data.import_data.title"),
               position: LabelTilePosition.middle,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.file_download_outlined,
                 yellow: true,
               ),
@@ -240,7 +244,7 @@ class _SettingsBodyState extends State<SettingsBody> {
               label: context.tr("data.export_data.export_all"),
               position: LabelTilePosition.bottom,
               bottom: false,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.file_upload_outlined,
                 yellow: true,
               ),
@@ -306,7 +310,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                   ? LabelTilePosition.middle
                   : LabelTilePosition.bottom,
               bottom: false,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.notifications_active_outlined,
               ),
               trailing: Switch(
@@ -351,7 +355,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                 label: context.tr("recording_health.setting_title"),
                 position: LabelTilePosition.bottom,
                 bottom: false,
-                prefix: const _SettingsTileIcon(
+                prefix: _SettingsTileIcon(
                   icon: Icons.monitor_heart_outlined,
                 ),
                 trailing: ListenableBuilder(
@@ -382,7 +386,7 @@ class _SettingsBodyState extends State<SettingsBody> {
             LabelTile(
               label: context.tr("privacy.name"),
               position: LabelTilePosition.middle,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.shield_outlined,
                 yellow: true,
               ),
@@ -396,7 +400,7 @@ class _SettingsBodyState extends State<SettingsBody> {
               label: context.tr("contact_us.title"),
               position: LabelTilePosition.bottom,
               bottom: false,
-              prefix: const _SettingsTileIcon(
+              prefix: _SettingsTileIcon(
                 icon: Icons.forum_outlined,
                 yellow: true,
               ),

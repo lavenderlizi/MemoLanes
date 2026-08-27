@@ -50,7 +50,6 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   DateTime? _startTime;
   DateTime? _endTime;
   DateTime? _journeyDate;
-  String? _note;
   JourneyKind _journeyKind = JourneyKind.defaultKind;
   final TextEditingController _noteController = TextEditingController();
   late import_api.ImportPreprocessor _preprocessor;
@@ -58,10 +57,10 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   Future<DateTime?> selectDateAndTime(
       BuildContext context, DateTime? datetime) async {
     final now = DateTime.now();
-    datetime ??= now;
+    final localDateTime = datetime?.toLocal() ?? now;
     DateTime? selectedDateTime = await showAppDatePickerDialog(
       context,
-      initialDate: datetime,
+      initialDate: localDateTime,
       firstDate: firstDate,
       lastDate: now,
       highlightInitialDate: true,
@@ -72,7 +71,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
 
     TimeOfDay? selectedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: datetime.hour, minute: datetime.minute),
+      initialTime: TimeOfDay.fromDateTime(localDateTime),
     );
 
     if (selectedTime == null) return null;
@@ -89,19 +88,11 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _startTime = widget.startTime;
-      _endTime = widget.endTime;
-      _journeyDate = naiveDateToDateTime(widget.journeyDate);
-      _note = widget.note;
-      _journeyKind = widget.journeyKind ?? _journeyKind;
-      _noteController.text = _note ?? "";
-    });
-    _noteController.addListener(() {
-      setState(() {
-        _note = _noteController.text;
-      });
-    });
+    _startTime = widget.startTime?.toLocal();
+    _endTime = widget.endTime?.toLocal();
+    _journeyDate = naiveDateToDateTime(widget.journeyDate);
+    _journeyKind = widget.journeyKind ?? _journeyKind;
+    _noteController.text = widget.note ?? "";
     _preprocessor =
         widget.preprocessor ?? import_api.ImportPreprocessor.generic;
     _selectPreprocessor(_preprocessor);
@@ -118,12 +109,11 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
       Fluttertoast.showToast(msg: context.tr("journey.journey_date_is_empty"));
       return;
     }
-    _note ??= "";
     import_api.JourneyInfo journeyInfo = import_api.JourneyInfo(
         journeyDate: dateTimeToNaiveDate(_journeyDate!),
         startTime: _startTime,
         endTime: _endTime,
-        note: _note,
+        note: _noteController.text,
         journeyKind: _journeyKind);
     if (widget.importType != null) {
       await widget.saveData(journeyInfo, _preprocessor);

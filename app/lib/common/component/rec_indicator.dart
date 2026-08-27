@@ -92,8 +92,7 @@ class _RecIndicatorState extends State<RecIndicator>
                     ),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                      color: StyleConstants.glassBorderColor
-                          .withValues(
+                      color: StyleConstants.glassBorderColor.withValues(
                         alpha: StyleConstants.isDarkMode ? 0.48 : 0.86,
                       ),
                     ),

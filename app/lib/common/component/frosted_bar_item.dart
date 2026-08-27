@@ -33,8 +33,7 @@ class FrostedBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeColor = selectedColor ?? StyleConstants.inkColor;
-    final baseUnselectedColor =
-        unselectedColor ?? StyleConstants.mutedInkColor;
+    final baseUnselectedColor = unselectedColor ?? StyleConstants.mutedInkColor;
     final baseDisabledColor = disabledColor ?? StyleConstants.subtleInkColor;
 
     final Color bgColor = isSelected
@@ -85,8 +84,7 @@ class FrostedBarItem extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.fade,
               style: AppTypography.micro.copyWith(
-                fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w600,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 color: contentColor,
               ),
             ),

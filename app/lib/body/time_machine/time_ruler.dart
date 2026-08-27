@@ -533,8 +533,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
                 color: isSelected
                     ? StyleConstants.deepGreen
                     : StyleConstants.deepGreen.withValues(alpha: 0.72),
-                fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w600)),
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600)),
       ],
     );
   }

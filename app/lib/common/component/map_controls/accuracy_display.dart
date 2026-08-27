@@ -139,25 +139,21 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: StyleConstants.glassColor
-                                  .withValues(
+                              color: StyleConstants.glassColor.withValues(
                                 alpha: StyleConstants.isDarkMode ? 0.94 : 0.68,
                               ),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: StyleConstants.glassBorderColor
-                                    .withValues(
-                                  alpha:
-                                      StyleConstants.isDarkMode ? 0.48 : 0.8,
+                                color:
+                                    StyleConstants.glassBorderColor.withValues(
+                                  alpha: StyleConstants.isDarkMode ? 0.48 : 0.8,
                                 ),
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: StyleConstants.shadowColor
-                                      .withValues(
-                                    alpha: StyleConstants.isDarkMode
-                                        ? 0.48
-                                        : 0.14,
+                                  color: StyleConstants.shadowColor.withValues(
+                                    alpha:
+                                        StyleConstants.isDarkMode ? 0.48 : 0.14,
                                   ),
                                   blurRadius: 22,
                                   offset: const Offset(0, 8),
@@ -183,14 +179,16 @@ class _AccuracyDisplayState extends State<AccuracyDisplay> {
                                           ),
                                           child: Text(
                                             '${position.accuracy.round()} m',
-                                            style: AppTypography.dataValue.copyWith(
+                                            style: AppTypography.dataValue
+                                                .copyWith(
                                               color: StyleConstants.inkColor,
                                             ),
                                           ),
                                         ),
                                         Text(
                                           context.tr('home.gps_accuracy'),
-                                          style: AppTypography.bodyLarge.copyWith(
+                                          style:
+                                              AppTypography.bodyLarge.copyWith(
                                             color: StyleConstants.mutedInkColor,
                                           ),
                                         ),

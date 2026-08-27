@@ -121,6 +121,7 @@ class _StartJourneyButton extends StatelessWidget {
     final label = context.tr('home.start_new_journey');
     final labelStyle = AppTypography.surfaceTitle.copyWith(
       color: StyleConstants.onPrimaryActionColor,
+      fontSize: context.locale.languageCode == 'en' ? 15 : null,
       fontWeight: FontWeight.w600,
     );
 

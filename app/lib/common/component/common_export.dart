@@ -374,15 +374,13 @@ class _ExportActionSheetContent extends StatelessWidget {
         AppOptionTile(
           icon: Icons.save_alt_outlined,
           title: context.tr('common.save'),
-          onTap: () =>
-              Navigator.of(context).pop(_PreparedExportAction.save),
+          onTap: () => Navigator.of(context).pop(_PreparedExportAction.save),
         ),
         const SizedBox(height: 8),
         AppOptionTile(
           icon: Icons.ios_share_outlined,
           title: context.tr('common.share'),
-          onTap: () =>
-              Navigator.of(context).pop(_PreparedExportAction.share),
+          onTap: () => Navigator.of(context).pop(_PreparedExportAction.share),
         ),
       ],
     );

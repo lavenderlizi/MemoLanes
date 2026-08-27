@@ -101,9 +101,8 @@ class StyleConstants {
   // changing buttons, GPS status indicators, or other selected states.
   static Color get switchActiveTrackColor => softGreen;
   static Color get switchActiveThumbColor => deepGreen;
-  static Color get switchInactiveTrackColor => _isDarkMode
-      ? elevatedSurfaceColor
-      : const Color(0xFFDDE2DC);
+  static Color get switchInactiveTrackColor =>
+      _isDarkMode ? elevatedSurfaceColor : const Color(0xFFDDE2DC);
   static Color get switchInactiveThumbColor => subtleInkColor;
   static Color get switchTrackOutlineColor => strongLineColor;
   static const double switchActiveThumbSize = 18;
@@ -159,9 +158,8 @@ class StyleConstants {
       navBarSafeAreaForContext(context) + mapPrimaryControlNavBarSpacing;
 
   // Overlays
-  static Color get loadingMaskColor => _isDarkMode
-      ? const Color(0xAD000000)
-      : const Color(0x59182016);
+  static Color get loadingMaskColor =>
+      _isDarkMode ? const Color(0xAD000000) : const Color(0x59182016);
   static const double overlayFloatingRadius = 16.0;
 
   // Shared elevation for glass buttons and cards displayed over the map.

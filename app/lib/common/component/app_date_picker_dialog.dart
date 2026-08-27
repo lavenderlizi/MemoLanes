@@ -132,6 +132,7 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final useCompactSpacing = MediaQuery.sizeOf(context).width < 380;
     final localizations = MaterialLocalizations.of(context);
     final controlsTextStyle = AppTypography.sectionLabel.copyWith(
       color: StyleConstants.deepGreen,
@@ -273,14 +274,21 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
     return Dialog(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: useCompactSpacing ? 8 : 24,
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 390),
         child: AppDialogSurface(
           style: AppDialogSurfaceStyle.glass,
           glassBackgroundAlpha: widget.glassBackgroundAlpha,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+            padding: EdgeInsets.fromLTRB(
+              useCompactSpacing ? 4 : 12,
+              10,
+              useCompactSpacing ? 4 : 12,
+              12,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

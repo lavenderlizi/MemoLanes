@@ -16,9 +16,15 @@ void main() {
       (call) async => call.method == 'getAll' ? <String, Object>{} : null,
     );
     await EasyLocalization.ensureInitialized();
+    await const AppTranslationLoader().load(
+      'assets/translations',
+      locale,
+    );
   });
 
-  Widget buildApp(int selectedIndex) {
+  Widget buildApp() {
+    var selectedIndex = 0;
+
     return EasyLocalization(
       supportedLocales: const [locale],
       path: 'assets/translations',
@@ -34,10 +40,13 @@ void main() {
               child: SizedBox(
                 width: 320,
                 height: BottomNavBar.height,
-                child: BottomNavBar(
-                  selectedIndex: selectedIndex,
-                  onIndexChanged: (_) {},
-                  hasUpdateNotification: () => true,
+                child: StatefulBuilder(
+                  builder: (context, setState) => BottomNavBar(
+                    selectedIndex: selectedIndex,
+                    onIndexChanged: (index) =>
+                        setState(() => selectedIndex = index),
+                    hasUpdateNotification: () => true,
+                  ),
                 ),
               ),
             ),
@@ -49,11 +58,14 @@ void main() {
 
   testWidgets('selection animation is valid on first build and update',
       (tester) async {
-    await tester.pumpWidget(buildApp(0));
+    await tester.runAsync(() async {
+      await tester.pumpWidget(buildApp());
+      await tester.pump(const Duration(seconds: 1));
+    });
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
-    await tester.pumpWidget(buildApp(4));
+    tester.widget<BottomNavBar>(find.byType(BottomNavBar)).onIndexChanged(4);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });

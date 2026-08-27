@@ -1,7 +1,6 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
@@ -157,8 +156,7 @@ class AppCalendarGridOption extends StatelessWidget {
 /// calendar_date_picker2 assigns semantics to its physical slots. Since the
 /// visual and interactive contents are reversed, the slot labels must follow.
 Map<CalendarDatePicker2SemanticsLabel, String?>
-    yearFirstCalendarModePickerSemantics(BuildContext context) =>
-        {
+    yearFirstCalendarModePickerSemantics(BuildContext context) => {
           CalendarDatePicker2SemanticsLabel.selectMonth:
               context.tr('common.select_year'),
           CalendarDatePicker2SemanticsLabel.selectYear:
