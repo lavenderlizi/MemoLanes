@@ -19,7 +19,7 @@ class StyleConstants {
   static Color get canvasColor =>
       _isDarkMode ? const Color(0xFF0B100D) : const Color(0xFFFAFBF5);
   static Color get surfaceColor =>
-      _isDarkMode ? const Color(0xFF151C18) : const Color(0xFFFFFFFF);
+      _isDarkMode ? const Color(0xFF171918) : const Color(0xFFFFFFFF);
   static Color get elevatedSurfaceColor =>
       _isDarkMode ? const Color(0xFF1C2620) : const Color(0xFFFFFFFF);
   static Color get inkColor =>
