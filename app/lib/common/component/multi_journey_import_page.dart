@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_button.dart';
+import 'package:memolanes/common/component/app_checkbox.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
@@ -204,7 +205,7 @@ class MultiJourneyImportPage extends StatelessWidget {
           const Spacer(),
           TextButton.icon(
             onPressed: () => onToggleAll(!_allSelected),
-            icon: _ImportSelectionCheckbox(
+            icon: AppCheckbox(
               value: _allSelected,
               onChanged: (value) => onToggleAll(value),
             ),
@@ -221,7 +222,7 @@ class MultiJourneyImportPage extends StatelessWidget {
     return LabelTile(
       label: item.label,
       desc: item.description,
-      prefix: _ImportSelectionCheckbox(
+      prefix: AppCheckbox(
         value: selected,
         onChanged: (value) {
           onToggleItem(item.keyValue, value);
@@ -229,37 +230,6 @@ class MultiJourneyImportPage extends StatelessWidget {
       ),
       trailing: item.trailing ?? const LabelTileContent(showArrow: true),
       onTap: () => onPreview(item.keyValue),
-    );
-  }
-}
-
-class _ImportSelectionCheckbox extends StatelessWidget {
-  const _ImportSelectionCheckbox({
-    required this.value,
-    required this.onChanged,
-  });
-
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Checkbox(
-      value: value,
-      onChanged: (next) {
-        if (next != null) onChanged(next);
-      },
-      checkColor: StyleConstants.deepGreen,
-      fillColor: WidgetStatePropertyAll(StyleConstants.surfaceColor),
-      side: WidgetStateBorderSide.resolveWith(
-        (_) => BorderSide(
-          color: StyleConstants.deepGreen,
-          width: 1.4,
-        ),
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      visualDensity: VisualDensity.compact,
     );
   }
 }

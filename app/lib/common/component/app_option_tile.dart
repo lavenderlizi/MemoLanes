@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_checkbox.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
@@ -35,29 +36,8 @@ class AppOptionTile extends StatelessWidget {
           color: StyleConstants.mutedInkColor,
           size: 22,
         ),
-      AppOptionTileTrailing.selection => SizedBox(
-          width: 26,
-          height: 26,
-          child: AnimatedScale(
-            duration: const Duration(milliseconds: 160),
-            curve: Curves.easeOutCubic,
-            scale: selected ? 1 : 0.82,
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 120),
-              opacity: selected ? 1 : 0,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: StyleConstants.primaryGreen,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.check_rounded,
-                  color: StyleConstants.onPrimaryActionColor,
-                  size: 17,
-                ),
-              ),
-            ),
-          ),
+      AppOptionTileTrailing.selection => AppCheckbox.indicator(
+          value: selected,
         ),
     };
   }

@@ -305,20 +305,20 @@ class MyApp extends StatelessWidget {
           ),
         ),
         checkboxTheme: CheckboxThemeData(
-          fillColor: WidgetStateProperty.resolveWith(
-            (states) {
-              if (states.contains(WidgetState.disabled)) {
-                return StyleConstants.lineColor;
-              }
-              return states.contains(WidgetState.selected)
-                  ? StyleConstants.primaryActionColor
-                  : StyleConstants.surfaceColor;
-            },
+          fillColor: WidgetStatePropertyAll(StyleConstants.surfaceColor),
+          checkColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? StyleConstants.mutedInkColor
+                : StyleConstants.deepGreen,
           ),
-          checkColor: WidgetStatePropertyAll(
-            StyleConstants.onPrimaryActionColor,
+          side: WidgetStateBorderSide.resolveWith(
+            (states) => BorderSide(
+              color: states.contains(WidgetState.disabled)
+                  ? StyleConstants.lineColor
+                  : StyleConstants.deepGreen,
+              width: 1.4,
+            ),
           ),
-          side: BorderSide(color: StyleConstants.strongLineColor),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),
