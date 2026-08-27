@@ -19,7 +19,7 @@ class BottomNavBar extends StatelessWidget {
   final ValueChanged<int> onIndexChanged;
   final bool Function() hasUpdateNotification;
 
-  static const double height = 58;
+  static const double height = StyleConstants.navBarHeight;
   static const double designHorizontalMargin = 24;
 
   Alignment get _selectionAlignment => switch (selectedIndex) {

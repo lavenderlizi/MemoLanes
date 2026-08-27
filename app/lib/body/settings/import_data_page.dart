@@ -266,7 +266,10 @@ class _ImportDataPage extends State<ImportDataPage> {
                             endTime: journeyInfo.endTime,
                             journeyDate: journeyInfo.journeyDate,
                             note: journeyInfo.note,
-                            saveData: _saveData,
+                            saveData: (journeyInfo, preprocessor) => _saveData(
+                              journeyInfo,
+                              preprocessor,
+                            ),
                             previewData: _previewData,
                             importType: widget.importType,
                             preprocessor: _preprocessor,

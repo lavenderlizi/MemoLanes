@@ -34,8 +34,12 @@ class JourneyInfoEditPage extends StatefulWidget {
   final NaiveDate journeyDate;
   final String? note;
   final JourneyKind? journeyKind;
-  final Function saveData;
-  final Function? previewData;
+  final FutureOr<void> Function(
+    import_api.JourneyInfo journeyInfo,
+    import_api.ImportPreprocessor preprocessor,
+  ) saveData;
+  final FutureOr<void> Function(import_api.ImportPreprocessor preprocessor)?
+      previewData;
   final ImportType? importType;
   final import_api.ImportPreprocessor? preprocessor;
 
@@ -51,6 +55,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   DateTime? _endTime;
   DateTime? _journeyDate;
   JourneyKind _journeyKind = JourneyKind.defaultKind;
+  bool _saving = false;
   final TextEditingController _noteController = TextEditingController();
   late import_api.ImportPreprocessor _preprocessor;
 
@@ -95,7 +100,6 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     _noteController.text = widget.note ?? "";
     _preprocessor =
         widget.preprocessor ?? import_api.ImportPreprocessor.generic;
-    _selectPreprocessor(_preprocessor);
   }
 
   @override
@@ -104,24 +108,30 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     super.dispose();
   }
 
-  void _saveData(BuildContext context) async {
+  Future<void> _saveData(BuildContext context) async {
+    if (_saving) return;
     if (_journeyDate == null) {
       Fluttertoast.showToast(msg: context.tr("journey.journey_date_is_empty"));
       return;
     }
-    import_api.JourneyInfo journeyInfo = import_api.JourneyInfo(
+    setState(() => _saving = true);
+    try {
+      final journeyInfo = import_api.JourneyInfo(
         journeyDate: dateTimeToNaiveDate(_journeyDate!),
         startTime: _startTime,
         endTime: _endTime,
         note: _noteController.text,
-        journeyKind: _journeyKind);
-    if (widget.importType != null) {
-      await widget.saveData(journeyInfo, _preprocessor);
-    } else {
-      await widget.saveData(journeyInfo);
+        journeyKind: _journeyKind,
+      );
+      await widget.saveData(
+        journeyInfo,
+        _preprocessor,
+      );
+      if (!context.mounted) return;
+      popCurrentRoute(context, true);
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
-    if (!context.mounted) return;
-    popCurrentRoute(context, true);
   }
 
   @override
@@ -210,7 +220,8 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
             width: 280,
             child: AppButton(
               label: context.tr("common.save"),
-              onPressed: () => _saveData(context),
+              onPressed: () async => _saveData(context),
+              loading: _saving,
               expand: true,
             ),
           ),
@@ -220,6 +231,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   }
 
   void _selectPreprocessor(import_api.ImportPreprocessor processor) {
+    if (_preprocessor == processor) return;
     setState(() {
       _preprocessor = processor;
     });

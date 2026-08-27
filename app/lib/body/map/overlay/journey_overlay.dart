@@ -159,13 +159,14 @@ class _JourneyMapDetailPageState extends State<_JourneyMapDetailPage> {
       Navigator.of(context).pop();
       return;
     }
+    final latestJourney = latest;
 
     final rendererAndBounds = await api.getMapRendererProxyForJourney(
       journeyId: journeyId,
     );
     if (!mounted) return;
     setState(() {
-      _journey = latest!;
+      _journey = latestJourney;
       _mapRendererProxy = rendererAndBounds.$1;
       _mapBounds = rendererAndBounds.$2;
       _mapRevision++;
