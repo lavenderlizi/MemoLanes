@@ -21,6 +21,16 @@ class InterfaceSettingsPage extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         children: [
           AppOptionTile(
+            icon: Icons.brightness_auto_outlined,
+            title: context.tr(
+              'general.interface_settings.mode_name.system',
+            ),
+            selected: controller.preference == AppThemePreference.system,
+            trailing: AppOptionTileTrailing.selection,
+            onTap: () => controller.setPreference(AppThemePreference.system),
+          ),
+          const SizedBox(height: 8),
+          AppOptionTile(
             icon: Icons.light_mode_outlined,
             title: context.tr(
               'general.interface_settings.mode_name.light',

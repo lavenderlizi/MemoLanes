@@ -34,11 +34,10 @@ import 'package:provider/provider.dart';
 void main() async {
   runZonedGuarded(() async {
     final startupStatus = await AppBootstrap.initAppRuntime();
-    final appThemeController = AppThemeController();
     if (startupStatus == AppStartupStatus.databaseVersionTooNew) {
       runApp(_appRoot(
-        ChangeNotifierProvider.value(
-          value: appThemeController,
+        ChangeNotifierProvider(
+          create: (_) => AppThemeController(),
           child: const MyApp(home: DatabaseVersionTooNewGate()),
         ),
       ));
@@ -56,7 +55,7 @@ void main() async {
           ChangeNotifierProvider.value(value: gpsManager),
           ChangeNotifierProvider.value(value: updateNotifier),
           ChangeNotifierProvider.value(value: achievementStatsStore),
-          ChangeNotifierProvider.value(value: appThemeController),
+          ChangeNotifierProvider(create: (_) => AppThemeController()),
         ],
         child: const MyApp(),
       ),

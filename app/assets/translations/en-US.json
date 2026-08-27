@@ -313,6 +313,7 @@
     "interface_settings": {
       "title": "Interface Settings",
       "mode_name": {
+        "system": "Follow System",
         "light": "Light Mode",
         "dark": "Dark Mode"
       }

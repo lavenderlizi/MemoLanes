@@ -3,6 +3,7 @@ import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 enum AppThemePreference {
+  system('system'),
   light('light'),
   dark('dark');
 
@@ -18,11 +19,12 @@ enum AppThemePreference {
   }
 }
 
-class AppThemeController extends ChangeNotifier {
+class AppThemeController extends ChangeNotifier with WidgetsBindingObserver {
   AppThemeController()
       : _preference = AppThemePreference.fromId(
           MMKVUtil.getStringOpt(MMKVKey.interfaceThemeMode),
         ) {
+    WidgetsBinding.instance.addObserver(this);
     _applyPalette();
   }
 
@@ -30,9 +32,12 @@ class AppThemeController extends ChangeNotifier {
 
   AppThemePreference get preference => _preference;
 
-  Brightness get brightness => _preference == AppThemePreference.dark
-      ? Brightness.dark
-      : Brightness.light;
+  Brightness get brightness => switch (_preference) {
+        AppThemePreference.system =>
+          WidgetsBinding.instance.platformDispatcher.platformBrightness,
+        AppThemePreference.light => Brightness.light,
+        AppThemePreference.dark => Brightness.dark,
+      };
 
   void setPreference(AppThemePreference preference) {
     if (_preference == preference) return;
@@ -42,7 +47,20 @@ class AppThemeController extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  void didChangePlatformBrightness() {
+    if (_preference != AppThemePreference.system) return;
+    _applyPalette();
+    notifyListeners();
+  }
+
   void _applyPalette() {
-    StyleConstants.setDarkMode(_preference == AppThemePreference.dark);
+    StyleConstants.setDarkMode(brightness == Brightness.dark);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 }
