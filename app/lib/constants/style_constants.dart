@@ -35,6 +35,15 @@ class StyleConstants {
   static Color get shadowColor =>
       _isDarkMode ? const Color(0xFF000000) : const Color(0xFF182016);
 
+  // Shared translucent surfaces. These roles keep blur-based components
+  // independent from the map fog palette and from hard-coded light colors.
+  static Color get glassColor =>
+      _isDarkMode ? const Color(0xFF111814) : const Color(0xFFFFFFFF);
+  static Color get glassBorderColor =>
+      _isDarkMode ? const Color(0xFF718078) : const Color(0xFFFFFFFF);
+  static Color get glassHighlightColor =>
+      _isDarkMode ? const Color(0xFFE5F5E8) : const Color(0xFFFFFFFF);
+
   static const Color primaryGreen = Color(0xFFB8EA72);
   static Color get deepGreen =>
       _isDarkMode ? const Color(0xFF8ACB55) : const Color(0xFF3F9154);
@@ -131,4 +140,10 @@ class StyleConstants {
   static Color get loadingMaskColor =>
       _isDarkMode ? const Color(0xAD000000) : const Color(0x59182016);
   static const double overlayFloatingRadius = 16.0;
+
+  // Shared elevation for glass controls and cards displayed over rich content.
+  static double get overlayShadowAlpha => _isDarkMode ? 0.42 : 0.18;
+  static const double overlayShadowBlurRadius = 26;
+  static const double overlayShadowSpreadRadius = -3;
+  static const Offset overlayShadowOffset = Offset(0, 8);
 }

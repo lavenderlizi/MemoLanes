@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/basic_bottom_sheet.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/cards/card_label_tile.dart';
@@ -129,8 +130,7 @@ class _RawDataPage extends State<RawDataPage> {
                           hasCancel: true,
                           title: context.tr("journey.delete_journey_title"),
                           confirmButtonText: context.tr("common.delete"),
-                          confirmGroundColor: Colors.red,
-                          confirmTextColor: Colors.white)) {
+                          confirmVariant: AppButtonVariant.danger)) {
                         await api.deleteRawDataFile(filename: item.name);
                         _loadList();
                       }

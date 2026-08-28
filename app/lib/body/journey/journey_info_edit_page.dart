@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:memolanes/body/journey/journey_info_fields.dart';
 import 'package:memolanes/body/settings/import_data_page.dart' show ImportType;
+import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
@@ -56,11 +57,12 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
       BuildContext context, DateTime? datetime) async {
     final now = DateTime.now();
     final localDateTime = datetime?.toLocal() ?? now;
-    DateTime? selectedDateTime = await showDatePicker(
-      context: context,
+    DateTime? selectedDateTime = await showAppDatePickerDialog(
+      context,
       initialDate: localDateTime,
       firstDate: _firstSelectableDate.toLocalDateTime(),
       lastDate: now,
+      highlightInitialDate: true,
     );
 
     if (selectedDateTime == null) return null;
@@ -179,11 +181,13 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
             trailing: LabelTileContent(
                 content: _journeyDate != null ? _journeyDate!.toString() : ''),
             onTap: () async {
-              DateTime? time = await showDatePicker(
-                context: context,
-                initialDate: _journeyDate?.toLocalDateTime(),
+              final now = DateTime.now();
+              DateTime? time = await showAppDatePickerDialog(
+                context,
+                initialDate: _journeyDate?.toLocalDateTime() ?? now,
                 firstDate: _firstSelectableDate.toLocalDateTime(),
-                lastDate: DateTime.now(),
+                lastDate: now,
+                highlightInitialDate: true,
               );
               if (time != null) {
                 setState(() {
