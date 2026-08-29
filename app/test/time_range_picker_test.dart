@@ -4,13 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memolanes/body/time_machine/time_range_picker.dart';
 import 'package:memolanes/common/app_translation_loader.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 
 const _loader = AppTranslationLoader();
 const _enUs = Locale('en', 'US');
 
 Widget _buildTestApp({
-  required void Function(DateTime from, DateTime to) onRangeChanged,
+  required void Function(SimpleDate from, SimpleDate to) onRangeChanged,
 }) {
   return EasyLocalization(
     supportedLocales: const [_enUs],
@@ -28,7 +29,7 @@ Widget _buildTestApp({
             child: Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, bottom: 80),
               child: TimeRangePicker(
-                earliestDate: DateTime(2020),
+                earliestDate: SimpleDate(2020),
                 selectedJourneyKinds: const {JourneyKind.defaultKind},
                 onRangeChanged: onRangeChanged,
               ),
@@ -114,7 +115,7 @@ void main() {
   });
 
   testWidgets('defaults to the cumulative as-of range', (tester) async {
-    final ranges = <(DateTime, DateTime)>[];
+    final ranges = <(SimpleDate, SimpleDate)>[];
     final currentYear = DateTime.now().year;
     await tester.runAsync(() async {
       await tester.pumpWidget(
@@ -127,7 +128,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(ranges, isNotEmpty);
-    expect(ranges.last.$1, DateTime(2020));
-    expect(ranges.last.$2, DateTime(currentYear, 12, 31));
+    expect(ranges.last.$1, SimpleDate(2020));
+    expect(ranges.last.$2, SimpleDate(currentYear, 12, 31));
   });
 }

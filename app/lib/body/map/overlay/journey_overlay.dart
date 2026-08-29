@@ -15,13 +15,13 @@ import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/map_glass_back_button.dart';
 import 'package:memolanes/common/journey_kind_visuals.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/api/edit_session.dart' show EditSession;
 import 'package:memolanes/src/rust/api/import.dart' show JourneyInfo;
-import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -564,7 +564,7 @@ class _JourneyDetailCard extends StatefulWidget {
 class _JourneyDetailCardState extends State<_JourneyDetailCard> {
   static final DateTime _firstDate = DateTime(1990);
 
-  late DateTime _journeyDate;
+  late SimpleDate _journeyDate;
   DateTime? _startTime;
   DateTime? _endTime;
   late JourneyKind _journeyKind;
@@ -590,7 +590,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
   }
 
   void _resetFields() {
-    _journeyDate = naiveDateToDateTime(journey.journeyDate);
+    _journeyDate = journey.journeyDate.toSimpleDate();
     _startTime = journey.start;
     _endTime = journey.end;
     _journeyKind = journey.journeyKind;
@@ -638,13 +638,13 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
   Future<void> _selectJourneyDate() async {
     final selected = await showAppDatePickerDialog(
       context,
-      initialDate: _validInitialDate(_journeyDate),
+      initialDate: _validInitialDate(_journeyDate.toLocalDateTime()),
       firstDate: _firstDate,
       lastDate: DateTime.now(),
       highlightInitialDate: true,
     );
     if (selected == null || !mounted) return;
-    setState(() => _journeyDate = selected);
+    setState(() => _journeyDate = selected.toSimpleDate());
   }
 
   Future<void> _selectJourneyKind() async {
@@ -710,7 +710,7 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
     try {
       await widget.onSave(
         JourneyInfo(
-          journeyDate: dateTimeToNaiveDate(_journeyDate),
+          journeyDate: _journeyDate.toFrbNaiveDate(),
           startTime: _startTime,
           endTime: _endTime,
           note: _noteController.text,
@@ -732,7 +732,6 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
       JourneyKind.flight => context.tr('journey_kind.flight'),
     };
     final timeFormat = DateFormat('yyyy-MM-dd HH:mm');
-    final dateFormat = DateFormat('yyyy-MM-dd');
     final start = (isEditing ? _startTime : journey.start)?.toLocal();
     final end = (isEditing ? _endTime : journey.end)?.toLocal();
     final note = journey.note?.trim();
@@ -749,8 +748,8 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
               icon: Icons.calendar_today_rounded,
               label: context.tr('journey.journey_date'),
               value: isEditing
-                  ? dateFormat.format(_journeyDate)
-                  : naiveDateToString(date: journey.journeyDate),
+                  ? _journeyDate.toString()
+                  : journey.journeyDate.toSimpleDate().toString(),
               onTap: isEditing ? _selectJourneyDate : null,
             ),
             CompactJourneyInfoField(

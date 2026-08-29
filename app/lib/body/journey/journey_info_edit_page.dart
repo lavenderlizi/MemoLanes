@@ -10,9 +10,9 @@ import 'package:memolanes/common/component/app_date_picker_dialog.dart';
 import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
-import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 
 class JourneyInfoEditPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class JourneyInfoEditPage extends StatefulWidget {
 
   final DateTime? startTime;
   final DateTime? endTime;
-  final NaiveDate journeyDate;
+  final SimpleDate journeyDate;
   final String? note;
   final JourneyKind? journeyKind;
   final FutureOr<void> Function(
@@ -49,11 +49,10 @@ class JourneyInfoEditPage extends StatefulWidget {
 
 class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
   final DateFormat dateTimeFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-  final DateFormat dateFormat = DateFormat("yyyy-MM-dd");
-  final DateTime firstDate = DateTime(1990);
+  final SimpleDate _firstSelectableDate = SimpleDate(1970);
   DateTime? _startTime;
   DateTime? _endTime;
-  DateTime? _journeyDate;
+  SimpleDate? _journeyDate;
   JourneyKind _journeyKind = JourneyKind.defaultKind;
   bool _saving = false;
   final TextEditingController _noteController = TextEditingController();
@@ -66,7 +65,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     DateTime? selectedDateTime = await showAppDatePickerDialog(
       context,
       initialDate: localDateTime,
-      firstDate: firstDate,
+      firstDate: _firstSelectableDate.toLocalDateTime(),
       lastDate: now,
       highlightInitialDate: true,
     );
@@ -95,7 +94,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     super.initState();
     _startTime = widget.startTime?.toLocal();
     _endTime = widget.endTime?.toLocal();
-    _journeyDate = naiveDateToDateTime(widget.journeyDate);
+    _journeyDate = widget.journeyDate;
     _journeyKind = widget.journeyKind ?? _journeyKind;
     _noteController.text = widget.note ?? "";
     _preprocessor =
@@ -117,7 +116,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
     setState(() => _saving = true);
     try {
       final journeyInfo = import_api.JourneyInfo(
-        journeyDate: dateTimeToNaiveDate(_journeyDate!),
+        journeyDate: _journeyDate!.toFrbNaiveDate(),
         startTime: _startTime,
         endTime: _endTime,
         note: _noteController.text,
@@ -150,7 +149,7 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
             position: LabelTilePosition.single,
             trailing: LabelTileContent(
                 content: _startTime != null
-                    ? dateTimeFormat.format(_startTime!.toLocal())
+                    ? dateTimeFormat.format(_startTime!)
                     : ""),
             onTap: () async {
               DateTime? time = await selectDateAndTime(context, _startTime);
@@ -165,9 +164,8 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
             label: context.tr("journey.end_time"),
             position: LabelTilePosition.single,
             trailing: LabelTileContent(
-                content: _endTime != null
-                    ? dateTimeFormat.format(_endTime!.toLocal())
-                    : ""),
+                content:
+                    _endTime != null ? dateTimeFormat.format(_endTime!) : ""),
             onTap: () async {
               DateTime? time = await selectDateAndTime(context, _endTime);
               if (time != null) {
@@ -181,20 +179,18 @@ class _JourneyInfoEditPageState extends State<JourneyInfoEditPage> {
             label: context.tr("journey.journey_date"),
             position: LabelTilePosition.single,
             trailing: LabelTileContent(
-                content: _journeyDate != null
-                    ? dateFormat.format(_journeyDate!)
-                    : ''),
+                content: _journeyDate != null ? _journeyDate!.toString() : ''),
             onTap: () async {
               DateTime? time = await showAppDatePickerDialog(
                 context,
-                initialDate: _journeyDate ?? DateTime.now(),
-                firstDate: firstDate,
+                initialDate: _journeyDate?.toLocalDateTime() ?? DateTime.now(),
+                firstDate: _firstSelectableDate.toLocalDateTime(),
                 lastDate: DateTime.now(),
                 highlightInitialDate: true,
               );
               if (time != null) {
                 setState(() {
-                  _journeyDate = time;
+                  _journeyDate = time.toSimpleDate();
                 });
               }
             },

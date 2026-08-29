@@ -11,8 +11,8 @@ import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
 import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/common/loading_manager.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/constants/index.dart';
-import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 
@@ -117,7 +117,7 @@ class _JourneyBodyState extends State<JourneyBody> {
         return LabelTile(
           label: header.start != null
               ? timeFormat.format(header.start!.toLocal())
-              : naiveDateToString(date: header.journeyDate),
+              : header.journeyDate.toSimpleDate().toString(),
           prefix: Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Container(
@@ -194,7 +194,7 @@ class _JourneyBodyState extends State<JourneyBody> {
     );
   }
 
-  Widget _buildLandscapeBody(DateTime firstDate) {
+  Widget _buildLandscapeBody(SimpleDate firstDate) {
     final bottomPadding =
         _isSelectionMode ? 20.0 : StyleConstants.navBarSafeArea + 5;
     return LayoutBuilder(

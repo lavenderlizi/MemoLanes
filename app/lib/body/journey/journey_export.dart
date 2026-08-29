@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/common_export.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
-import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -12,7 +12,7 @@ Future<CommonExportResult> _generateJourneyExport(
   CommonExportFormat format,
 ) async {
   final temporaryDirectory = await getTemporaryDirectory();
-  final date = naiveDateToString(date: journey.journeyDate);
+  final date = journey.journeyDate.toSimpleDate().toString();
   final outputPath = path.join(
     temporaryDirectory.path,
     '$date-${journey.revision}.${format.extension}',

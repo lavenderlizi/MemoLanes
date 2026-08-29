@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
-import 'package:memolanes/src/rust/api/utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 
 class JourneyInfoPanelSurface extends StatelessWidget {
@@ -181,7 +181,7 @@ class ReadOnlyJourneyInfoCard extends StatelessWidget {
             CompactJourneyInfoField(
               icon: Icons.calendar_today_rounded,
               label: context.tr('journey.journey_date'),
-              value: naiveDateToString(date: journey.journeyDate),
+              value: journey.journeyDate.toSimpleDate().toString(),
             ),
             CompactJourneyInfoField(
               icon: Icons.sell_outlined,

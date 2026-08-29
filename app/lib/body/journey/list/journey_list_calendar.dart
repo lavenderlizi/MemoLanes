@@ -9,6 +9,7 @@ import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_calendar_mode_picker.dart';
 import 'package:memolanes/common/component/custom_popup.dart';
 import 'package:memolanes/common/loading_manager.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -16,7 +17,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 class JourneyListCalendar extends StatefulWidget {
   final JourneyListController controller;
-  final DateTime firstDate;
+  final SimpleDate firstDate;
   final bool compact;
 
   const JourneyListCalendar({
@@ -38,7 +39,8 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
   @override
   void initState() {
     super.initState();
-    _initialSelectedDate = DateUtils.dateOnly(widget.controller.selectedDate);
+    _initialSelectedDate =
+        DateUtils.dateOnly(widget.controller.selectedDate.toLocalDateTime());
   }
 
   void _setCalendarViewMode(CalendarDatePicker2Mode mode) {
@@ -60,8 +62,8 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
         (compact ? AppTypography.sectionLabel : AppTypography.cardTitle)
             .copyWith(color: StyleConstants.deepGreen);
     final config = CalendarDatePicker2Config(
-      firstDate: widget.firstDate,
-      lastDate: controller.lastDate,
+      firstDate: widget.firstDate.toLocalDateTime(),
+      lastDate: controller.lastDate.toLocalDateTime(),
       calendarViewMode: _calendarViewMode,
       centerAlignModePicker: true,
       disableMonthPicker: false,
@@ -217,12 +219,14 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
     return CalendarDatePicker2(
       key: ValueKey('journey-list-calendar-$_calendarPickerRevision'),
       config: config,
-      displayedMonthDate: controller.selectedDate,
-      value:
-          controller.hasJourneyOnSelectedDate ? [controller.selectedDate] : [],
+      displayedMonthDate: controller.selectedDate.toLocalDateTime(),
+      value: controller.hasJourneyOnSelectedDate
+          ? [controller.selectedDate.toLocalDateTime()]
+          : [],
       onValueChanged: (dates) {
         AppHaptics.selection();
-        _runWithLoading(() => controller.selectDate(dates.first));
+        _runWithLoading(
+            () => controller.selectDate(dates.first.toSimpleDate()));
       },
       onDisplayedMonthChanged: (value) {
         // CalendarDatePicker2 already returned its internal view to day mode.
@@ -230,7 +234,7 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
         // displayed month asynchronously.
         _calendarViewMode = CalendarDatePicker2Mode.day;
         AppHaptics.selection();
-        _runWithLoading(() => controller.displayMonth(value));
+        _runWithLoading(() => controller.displayMonth(value.toSimpleDate()));
       },
     );
   }
