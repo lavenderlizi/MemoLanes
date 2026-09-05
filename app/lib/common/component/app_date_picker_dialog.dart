@@ -94,7 +94,8 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
     required bool? isSelected,
   }) {
     final selected = isSelected == true;
-    final showInitialDate = widget.highlightInitialDate &&
+    final showInitialDate =
+        widget.highlightInitialDate &&
         DateUtils.isSameDay(date, widget.initialDate);
 
     return Center(
@@ -108,14 +109,14 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
                 color: StyleConstants.primaryGreen,
               )
             : showInitialDate
-                ? BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: StyleConstants.primaryGreen,
-                      width: 2,
-                    ),
-                  )
-                : null,
+            ? BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: StyleConstants.primaryGreen,
+                  width: 2,
+                ),
+              )
+            : null,
         child: Text(
           MaterialLocalizations.of(context).formatDecimal(date.day),
           style: selected
@@ -148,22 +149,19 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
       // month/year slots cannot open the opposite view after being reordered.
       disableModePicker: true,
       semanticsDictionary: yearFirstCalendarModePickerSemantics(context),
-      modePickerBuilder: ({
-        required viewMode,
-        required monthDate,
-        isMonthPicker,
-      }) {
-        return AppCalendarModePicker(
-          viewMode: viewMode,
-          monthDate: monthDate,
-          occupiesPackageMonthSlot: isMonthPicker == true,
-          textStyle: controlsTextStyle,
-          onModeChanged: (mode) {
-            AppHaptics.selection();
-            _setCalendarViewMode(mode);
+      modePickerBuilder:
+          ({required viewMode, required monthDate, isMonthPicker}) {
+            return AppCalendarModePicker(
+              viewMode: viewMode,
+              monthDate: monthDate,
+              occupiesPackageMonthSlot: isMonthPicker == true,
+              textStyle: controlsTextStyle,
+              onModeChanged: (mode) {
+                AppHaptics.selection();
+                _setCalendarViewMode(mode);
+              },
+            );
           },
-        );
-      },
       controlsHeight: 38,
       dayMaxWidth: 30,
       dynamicCalendarRows: true,
@@ -200,44 +198,47 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
             : StyleConstants.inkColor,
         fontWeight: FontWeight.w600,
       ),
-      monthBuilder: ({
-        required month,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isCurrentMonth,
-      }) {
-        final displayedYear = _displayedMonthDate.year;
-        return AppCalendarGridOption(
-          label: DateFormat.MMM(
-            Localizations.localeOf(context).toString(),
-          ).format(DateTime(displayedYear, month)),
-          isSelected: month == _displayedMonthDate.month,
-          isOriginal: displayedYear == widget.initialDate.year &&
-              month == widget.initialDate.month,
-          isCurrent: isCurrentMonth == true,
-          isDisabled: isDisabled == true,
-          textStyle: textStyle,
-        );
-      },
-      yearBuilder: ({
-        required year,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isCurrentYear,
-      }) {
-        return AppCalendarGridOption(
-          label: MaterialLocalizations.of(context).formatYear(DateTime(year)),
-          isSelected: year == _displayedMonthDate.year,
-          isOriginal: year == widget.initialDate.year,
-          isCurrent: isCurrentYear == true,
-          isDisabled: isDisabled == true,
-          textStyle: textStyle,
-        );
-      },
+      monthBuilder:
+          ({
+            required month,
+            textStyle,
+            decoration,
+            isSelected,
+            isDisabled,
+            isCurrentMonth,
+          }) {
+            final displayedYear = _displayedMonthDate.year;
+            return AppCalendarGridOption(
+              label: DateFormat.MMM(Localizations.localeOf(context).toString())
+                  .format(DateTime(displayedYear, month)),
+              isSelected: month == _displayedMonthDate.month,
+              isOriginal:
+                  displayedYear == widget.initialDate.year &&
+                  month == widget.initialDate.month,
+              isCurrent: isCurrentMonth == true,
+              isDisabled: isDisabled == true,
+              textStyle: textStyle,
+            );
+          },
+      yearBuilder:
+          ({
+            required year,
+            textStyle,
+            decoration,
+            isSelected,
+            isDisabled,
+            isCurrentYear,
+          }) {
+            return AppCalendarGridOption(
+              label: MaterialLocalizations.of(context)
+                  .formatYear(DateTime(year)),
+              isSelected: year == _displayedMonthDate.year,
+              isOriginal: year == widget.initialDate.year,
+              isCurrent: isCurrentYear == true,
+              isDisabled: isDisabled == true,
+              textStyle: textStyle,
+            );
+          },
       weekdayLabelTextStyle: AppTypography.micro.copyWith(
         color: StyleConstants.mutedInkColor,
       ),
@@ -255,20 +256,21 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
         color: StyleConstants.deepGreen,
         size: 20,
       ),
-      dayBuilder: ({
-        required date,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isToday,
-      }) {
-        return _buildDay(
-          date: date,
-          textStyle: textStyle,
-          isSelected: isSelected,
-        );
-      },
+      dayBuilder:
+          ({
+            required date,
+            textStyle,
+            decoration,
+            isSelected,
+            isDisabled,
+            isToday,
+          }) {
+            return _buildDay(
+              date: date,
+              textStyle: textStyle,
+              isSelected: isSelected,
+            );
+          },
     );
 
     return Dialog(
@@ -296,9 +298,7 @@ class _AppDatePickerDialogState extends State<_AppDatePickerDialog> {
                   width: double.infinity,
                   height: 290,
                   child: CalendarDatePicker2(
-                    key: ValueKey(
-                      'app-date-picker-$_calendarPickerRevision',
-                    ),
+                    key: ValueKey('app-date-picker-$_calendarPickerRevision'),
                     config: config,
                     displayedMonthDate: _displayedMonthDate,
                     value: [_selectedDate],

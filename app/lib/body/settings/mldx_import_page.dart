@@ -28,7 +28,7 @@ class MldxImportPage extends StatefulWidget {
 class _MldxImportPageState extends State<MldxImportPage> {
   late Set<String> _selectedIds;
   late final List<(JourneyHeader, MldxJourneyImportAnalyzeResult)>
-      _sortedJourneyWithoutIgnored;
+  _sortedJourneyWithoutIgnored;
   final Map<String, JourneyHeader> _localHeadersById = {};
   static final _lastModifiedFormat = DateFormat('yyyy-MM-dd');
   late final int _unchangedCount;
@@ -48,17 +48,20 @@ class _MldxImportPageState extends State<MldxImportPage> {
         .where((j) => j.$2 == MldxJourneyImportAnalyzeResult.new_)
         .map((j) => j.$1.id)
         .toSet();
-    _sortedJourneyWithoutIgnored = _sortJourneys(widget.journeys
-        .where((j) => j.$2 != MldxJourneyImportAnalyzeResult.unchanged)
-        .toList());
+    _sortedJourneyWithoutIgnored = _sortJourneys(
+      widget.journeys
+          .where((j) => j.$2 != MldxJourneyImportAnalyzeResult.unchanged)
+          .toList(),
+    );
     _loadLocalHeadersForConflicts();
   }
 
   static List<(JourneyHeader, MldxJourneyImportAnalyzeResult)> _sortJourneys(
     List<(JourneyHeader, MldxJourneyImportAnalyzeResult)> list,
   ) {
-    final result =
-        List<(JourneyHeader, MldxJourneyImportAnalyzeResult)>.from(list);
+    final result = List<(JourneyHeader, MldxJourneyImportAnalyzeResult)>.from(
+      list,
+    );
     result.sort((a, b) {
       final aConflict = a.$2 == MldxJourneyImportAnalyzeResult.conflict;
       final bConflict = b.$2 == MldxJourneyImportAnalyzeResult.conflict;
@@ -112,8 +115,9 @@ class _MldxImportPageState extends State<MldxImportPage> {
       setState(() => _selectedIds.clear());
       return;
     }
-    final hasConflict = _sortedJourneyWithoutIgnored
-        .any((j) => j.$2 == MldxJourneyImportAnalyzeResult.conflict);
+    final hasConflict = _sortedJourneyWithoutIgnored.any(
+      (j) => j.$2 == MldxJourneyImportAnalyzeResult.conflict,
+    );
     if (hasConflict) {
       final ok = await showCommonDialog(
         context,
@@ -166,12 +170,11 @@ class _MldxImportPageState extends State<MldxImportPage> {
   }
 
   Future<void> _openJourneyPreview(
-      (JourneyHeader, MldxJourneyImportAnalyzeResult) j) async {
+    (JourneyHeader, MldxJourneyImportAnalyzeResult) j,
+  ) async {
     try {
       final loaded = await showLoadingDialog(
-        asyncTask: widget.mldxReader.loadSingleJourney(
-          journeyId: j.$1.id,
-        ),
+        asyncTask: widget.mldxReader.loadSingleJourney(journeyId: j.$1.id),
       );
       if (!mounted) return;
       if (loaded == null) {
@@ -188,14 +191,18 @@ class _MldxImportPageState extends State<MldxImportPage> {
       );
     } catch (error, stackTrace) {
       log.error(
-          '[MldxImportPage] open journey preview failed: $error', stackTrace);
+        '[MldxImportPage] open journey preview failed: $error',
+        stackTrace,
+      );
       if (!mounted) return;
       await showCommonDialog(context, context.tr('import.parsing_failed'));
     }
   }
 
   Future<void> _onToggleItem(
-      (JourneyHeader, MldxJourneyImportAnalyzeResult) j, bool newValue) async {
+    (JourneyHeader, MldxJourneyImportAnalyzeResult) j,
+    bool newValue,
+  ) async {
     final isConflict = j.$2 == MldxJourneyImportAnalyzeResult.conflict;
     if (newValue && isConflict) {
       final ok = await showCommonDialog(
@@ -219,8 +226,10 @@ class _MldxImportPageState extends State<MldxImportPage> {
   Future<void> _confirmImport() async {
     if (_selectedIds.isEmpty) {
       if (mounted) {
-        await showCommonDialog(context,
-            context.tr('import.journey_selection.select_at_least_one'));
+        await showCommonDialog(
+          context,
+          context.tr('import.journey_selection.select_at_least_one'),
+        );
       }
       return;
     }
@@ -275,10 +284,8 @@ class _MldxImportPageState extends State<MldxImportPage> {
                         const SizedBox(height: 2),
                         Text(
                           context.tr('import.mldx_preview.conflict_label'),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: StyleConstants.dangerColor,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: StyleConstants.dangerColor),
                         ),
                       ],
                     ),
@@ -330,10 +337,7 @@ class _MldxImportPageState extends State<MldxImportPage> {
                 ),
               ),
             Text(
-              context.tr(
-                'import.mldx_preview.new_count',
-                args: ['$newCount'],
-              ),
+              context.tr('import.mldx_preview.new_count', args: ['$newCount']),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],

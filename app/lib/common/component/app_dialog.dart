@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 enum AppDialogSurfaceStyle { solid, glass }
 
@@ -17,9 +18,9 @@ class AppDialogSurface extends StatelessWidget {
     this.shadowBlurRadius = 32,
     this.shadowSpreadRadius = -8,
     this.shadowOffset = const Offset(0, 12),
-  })  : assert(glassBackgroundAlpha >= 0 && glassBackgroundAlpha <= 1),
-        assert(shadowAlpha >= 0 && shadowAlpha <= 1),
-        assert(shadowBlurRadius >= 0);
+  }) : assert(glassBackgroundAlpha >= 0 && glassBackgroundAlpha <= 1),
+       assert(shadowAlpha >= 0 && shadowAlpha <= 1),
+       assert(shadowBlurRadius >= 0);
 
   final Widget child;
   final AppDialogSurfaceStyle style;
@@ -55,9 +56,7 @@ class AppDialogSurface extends StatelessWidget {
         border: Border.all(color: StyleConstants.lineColor),
         boxShadow: [
           BoxShadow(
-            color: StyleConstants.shadowColor.withValues(
-              alpha: shadowAlpha,
-            ),
+            color: StyleConstants.shadowColor.withValues(alpha: shadowAlpha),
             blurRadius: shadowBlurRadius,
             spreadRadius: shadowSpreadRadius,
             offset: shadowOffset,
@@ -146,7 +145,9 @@ class AppDialogCard extends StatelessWidget {
             ] else
               const SizedBox(height: 8),
             Flexible(
+              fit: FlexFit.loose,
               child: SingleChildScrollView(
+                primary: false,
                 padding: contentPadding,
                 child: child,
               ),
@@ -164,52 +165,76 @@ class AppDialogCard extends StatelessWidget {
 }
 
 class AppDialogActions extends StatelessWidget {
-  const AppDialogActions({
-    super.key,
-    required this.children,
-    this.spacing = 10,
-  }) : assert(spacing >= 0);
+  const AppDialogActions({super.key, required this.children, this.spacing = 10})
+    : assert(spacing >= 0);
 
   final List<Widget> children;
   final double spacing;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) SizedBox(width: spacing),
-          Expanded(child: children[i]),
-        ],
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
+        final useColumn = constraints.maxWidth < 280 || textScale > 1.25;
+
+        if (useColumn) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0) SizedBox(height: spacing),
+                children[i],
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) SizedBox(width: spacing),
+              Expanded(child: children[i]),
+            ],
+          ],
+        );
+      },
     );
   }
 }
 
 Future<T?> showAppDialog<T>(
   BuildContext context, {
-  required Widget child,
+  required WidgetBuilder builder,
   bool barrierDismissible = true,
   Color? barrierColor,
   double maxWidth = 420,
-  EdgeInsets insetPadding =
-      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+  EdgeInsets insetPadding = const EdgeInsets.symmetric(
+    horizontal: 24,
+    vertical: 24,
+  ),
 }) {
   assert(maxWidth > 0);
   return showDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
-    barrierColor: barrierColor ??
+    barrierColor:
+        barrierColor ??
         StyleConstants.shadowColor.withValues(
           alpha: StyleConstants.isDarkMode ? 0.58 : 0.22,
         ),
-    builder: (dialogContext) => Dialog(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      insetPadding: insetPadding,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: SizedBox(width: double.infinity, child: child),
+    builder: (dialogContext) => PointerInterceptor(
+      child: Dialog(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        insetPadding: insetPadding,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: SizedBox(
+            width: double.infinity,
+            child: builder(dialogContext),
+          ),
+        ),
       ),
     ),
   );

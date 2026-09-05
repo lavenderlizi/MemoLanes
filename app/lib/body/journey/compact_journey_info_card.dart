@@ -114,7 +114,8 @@ class CompactJourneyInfoField extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: trailing ??
+                child:
+                    trailing ??
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -152,10 +153,7 @@ class CompactJourneyInfoField extends StatelessWidget {
 /// Read-only journey information using the same floating card primitives as
 /// the editable journey card on the map.
 class ReadOnlyJourneyInfoCard extends StatelessWidget {
-  const ReadOnlyJourneyInfoCard({
-    super.key,
-    required this.journey,
-  });
+  const ReadOnlyJourneyInfoCard({super.key, required this.journey});
 
   final JourneyHeader journey;
 

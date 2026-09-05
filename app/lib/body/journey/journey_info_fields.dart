@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
-import 'package:memolanes/common/component/basic_bottom_sheet.dart';
+import 'package:memolanes/common/component/basic_dialog_card.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
 import 'package:memolanes/common/component/tiles/label_tile_content.dart';
 import 'package:memolanes/common/journey_kind_visuals.dart';
@@ -13,17 +13,18 @@ import 'package:memolanes/src/rust/journey_header.dart';
 String importPreprocessorLabel(
   BuildContext context,
   import_api.ImportPreprocessor value,
-) =>
-    switch (value) {
-      import_api.ImportPreprocessor.none =>
-        context.tr('import.preprocessor.none'),
-      import_api.ImportPreprocessor.generic =>
-        context.tr('import.preprocessor.generic'),
-      import_api.ImportPreprocessor.flightTrack =>
-        context.tr('import.preprocessor.flight_track'),
-      import_api.ImportPreprocessor.spare =>
-        context.tr('import.preprocessor.spare'),
-    };
+) => switch (value) {
+  import_api.ImportPreprocessor.none => context.tr('import.preprocessor.none'),
+  import_api.ImportPreprocessor.generic => context.tr(
+    'import.preprocessor.generic',
+  ),
+  import_api.ImportPreprocessor.flightTrack => context.tr(
+    'import.preprocessor.flight_track',
+  ),
+  import_api.ImportPreprocessor.spare => context.tr(
+    'import.preprocessor.spare',
+  ),
+};
 
 String journeyKindLabel(BuildContext context, JourneyKind value) =>
     switch (value) {
@@ -143,9 +144,7 @@ class JourneyNoteTile extends StatelessWidget {
           textInputAction: TextInputAction.newline,
           maxLines: maxLines,
           minLines: 1,
-          style: AppTypography.body.copyWith(
-            color: StyleConstants.inkColor,
-          ),
+          style: AppTypography.body.copyWith(color: StyleConstants.inkColor),
           decoration: InputDecoration.collapsed(
             border: InputBorder.none,
             hintText: context.tr('common.please_enter'),
@@ -170,7 +169,7 @@ void _showOptionPicker<T>(
 }) {
   showBasicCard(
     context,
-    child: Column(
+    builder: (dialogContext) => Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var i = 0; i < values.length; i++) ...[
@@ -181,7 +180,7 @@ void _showOptionPicker<T>(
             selected: values[i] == selectedValue,
             trailing: AppOptionTileTrailing.selection,
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               onSelected(values[i]);
             },
           ),

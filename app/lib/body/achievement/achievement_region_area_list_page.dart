@@ -7,10 +7,7 @@ import 'package:memolanes/common/component/safe_area_wrapper.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-enum _RegionAreaSortMode {
-  area,
-  coverage,
-}
+enum _RegionAreaSortMode { area, coverage }
 
 const _areaFractionDigits = 2;
 const _coverageFractionDigits = 3;
@@ -73,9 +70,7 @@ class _AchievementRegionAreaListPageState
 
     return Scaffold(
       backgroundColor: StyleConstants.canvasColor,
-      appBar: CapsuleStyleAppBar(
-        title: widget.title,
-      ),
+      appBar: CapsuleStyleAppBar(title: widget.title),
       body: SafeAreaWrapper(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
@@ -103,10 +98,7 @@ class _AchievementRegionAreaListPageState
               OptionCard(
                 children: [
                   for (final item in items)
-                    _RegionAreaListTile(
-                      item: item,
-                      showIcon: widget.showIcons,
-                    ),
+                    _RegionAreaListTile(item: item, showIcon: widget.showIcons),
                 ],
               ),
             ],
@@ -123,15 +115,15 @@ class _AchievementRegionAreaListPageState
     sorted.sort((a, b) {
       return switch (_sortMode) {
         _RegionAreaSortMode.area => _compareWithSortKeyFallback(
-            b.visitedKm2.compareTo(a.visitedKm2),
-            a,
-            b,
-          ),
+          b.visitedKm2.compareTo(a.visitedKm2),
+          a,
+          b,
+        ),
         _RegionAreaSortMode.coverage => _compareWithSortKeyFallback(
-            b.progress.compareTo(a.progress),
-            a,
-            b,
-          ),
+          b.progress.compareTo(a.progress),
+          a,
+          b,
+        ),
       };
     });
     return sorted;
@@ -148,10 +140,7 @@ class _AchievementRegionAreaListPageState
 }
 
 class _RegionAreaSortControl extends StatelessWidget {
-  const _RegionAreaSortControl({
-    required this.value,
-    required this.onChanged,
-  });
+  const _RegionAreaSortControl({required this.value, required this.onChanged});
 
   final _RegionAreaSortMode value;
   final ValueChanged<_RegionAreaSortMode> onChanged;
@@ -169,9 +158,7 @@ class _RegionAreaSortControl extends StatelessWidget {
           ),
           ButtonSegment(
             value: _RegionAreaSortMode.coverage,
-            label: Text(
-              context.tr('achievement.region_list.sort_coverage'),
-            ),
+            label: Text(context.tr('achievement.region_list.sort_coverage')),
           ),
         ],
         selected: {value},
@@ -190,9 +177,7 @@ class _RegionAreaSortControl extends StatelessWidget {
             return StyleConstants.mutedInkColor;
           }),
           side: WidgetStatePropertyAll(
-            BorderSide(
-              color: StyleConstants.lineColor,
-            ),
+            BorderSide(color: StyleConstants.lineColor),
           ),
           textStyle: const WidgetStatePropertyAll(AppTypography.label),
           visualDensity: VisualDensity.compact,
@@ -234,9 +219,7 @@ class _RegionAreaListTile extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: StyleConstants.softGreen,
-                          border: Border.all(
-                            color: StyleConstants.lineColor,
-                          ),
+                          border: Border.all(color: StyleConstants.lineColor),
                         ),
                         child: Icon(
                           Icons.public_rounded,
@@ -351,11 +334,7 @@ class _RegionAreaListSkeletonTile extends StatelessWidget {
       child: Row(
         children: [
           if (showIcon) ...[
-            const _RegionAreaSkeletonBlock(
-              width: 42,
-              height: 42,
-              radius: 999,
-            ),
+            const _RegionAreaSkeletonBlock(width: 42, height: 42, radius: 999),
             const SizedBox(width: 12),
           ],
           Expanded(
@@ -367,10 +346,7 @@ class _RegionAreaListSkeletonTile extends StatelessWidget {
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: _RegionAreaSkeletonBlock(
-                          width: 128,
-                          height: 16,
-                        ),
+                        child: _RegionAreaSkeletonBlock(width: 128, height: 16),
                       ),
                     ),
                     SizedBox(width: 10),
@@ -515,9 +491,7 @@ class _RegionAreaListErrorCard extends StatelessWidget {
                 label: Text(context.tr('achievement.region_list.retry')),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: StyleConstants.deepGreen,
-                  side: BorderSide(
-                    color: StyleConstants.primaryGreen,
-                  ),
+                  side: BorderSide(color: StyleConstants.primaryGreen),
                 ),
               ),
             ],

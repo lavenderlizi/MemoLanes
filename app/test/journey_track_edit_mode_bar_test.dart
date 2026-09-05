@@ -12,14 +12,11 @@ void main() {
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/shared_preferences'),
-      (call) async => call.method == 'getAll' ? <String, Object>{} : null,
-    );
+          const MethodChannel('plugins.flutter.io/shared_preferences'),
+          (call) async => call.method == 'getAll' ? <String, Object>{} : null,
+        );
     await EasyLocalization.ensureInitialized();
-    await const AppTranslationLoader().load(
-      'assets/translations',
-      locale,
-    );
+    await const AppTranslationLoader().load('assets/translations', locale);
   });
 
   Widget buildApp({VoidCallback? onUndo, VoidCallback? onSave}) {
@@ -53,8 +50,9 @@ void main() {
     );
   }
 
-  testWidgets('editor controls fit a narrow viewport with the draw menu open',
-      (tester) async {
+  testWidgets('editor controls fit a narrow viewport with the draw menu open', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(320, 480);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -72,8 +70,9 @@ void main() {
     expect(find.byIcon(Icons.check_rounded), findsWidgets);
   });
 
-  testWidgets('undo and save are disabled when callbacks are absent',
-      (tester) async {
+  testWidgets('undo and save are disabled when callbacks are absent', (
+    tester,
+  ) async {
     await tester.runAsync(() async {
       await tester.pumpWidget(buildApp());
       await tester.pump(const Duration(seconds: 1));

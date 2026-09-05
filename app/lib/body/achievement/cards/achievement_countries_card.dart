@@ -94,10 +94,7 @@ class _CountriesErrorCard extends StatelessWidget {
 }
 
 class _CountriesHeader extends StatelessWidget {
-  const _CountriesHeader({
-    required this.count,
-    required this.hasCountries,
-  });
+  const _CountriesHeader({required this.count, required this.hasCountries});
 
   final int count;
   final bool hasCountries;
@@ -133,9 +130,7 @@ class _CountriesHeader extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: Text(
-                  context.tr('achievement.region_list.view_all'),
-                ),
+                label: Text(context.tr('achievement.region_list.view_all')),
                 style: TextButton.styleFrom(
                   foregroundColor: _countryGold,
                   textStyle: AppTypography.sectionLabel.copyWith(
@@ -177,11 +172,15 @@ class _CountriesGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final rows = <Widget>[];
 
-    for (var start = 0;
-        start < countries.length;
-        start += _countriesGridColumnCount) {
-      final rowCountries =
-          countries.skip(start).take(_countriesGridColumnCount).toList();
+    for (
+      var start = 0;
+      start < countries.length;
+      start += _countriesGridColumnCount
+    ) {
+      final rowCountries = countries
+          .skip(start)
+          .take(_countriesGridColumnCount)
+          .toList();
       rows.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -194,9 +193,11 @@ class _CountriesGrid extends StatelessWidget {
                   child: _CountryFlagItem(country: country),
                 ),
               ),
-            for (var i = rowCountries.length;
-                i < _countriesGridColumnCount;
-                i++)
+            for (
+              var i = rowCountries.length;
+              i < _countriesGridColumnCount;
+              i++
+            )
               const Expanded(child: SizedBox(height: _countryItemHeight)),
           ],
         ),
@@ -224,43 +225,39 @@ class _CountryFlagItem extends StatelessWidget {
       WorldviewManager.instance.currentWorldview.id,
     );
 
-    return Tooltip(
-      message: countryName,
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => navigatorPush(
-            context,
-            page: AchievementRegionListPage(
-              title: countryName,
-              level: achievementProvinceRegionKind,
-              parent: country.entityId,
-              emptyText: context.tr(
-                'achievement.region_list.region_empty',
-              ),
-            ),
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => navigatorPush(
+          context,
+          page: AchievementRegionListPage(
+            title: countryName,
+            level: achievementProvinceRegionKind,
+            parent: country.entityId,
+            emptyText: context.tr('achievement.region_list.region_empty'),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                vertical: _countryItemVerticalPadding),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AchievementCountryFlagBadge(
-                  countryCode: country.isoA3Eh ?? '',
-                  size: _countryFlagSize,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: _countryItemVerticalPadding,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AchievementCountryFlagBadge(
+                countryCode: country.isoA3Eh ?? '',
+                size: _countryFlagSize,
+              ),
+              const SizedBox(height: _countryNameTopSpacing),
+              SizedBox(
+                height: _countryNameSlotHeight,
+                child: FractionallySizedBox(
+                  widthFactor: _countryNameWidthFactor,
+                  child: _CountryNameText(countryName),
                 ),
-                const SizedBox(height: _countryNameTopSpacing),
-                SizedBox(
-                  height: _countryNameSlotHeight,
-                  child: FractionallySizedBox(
-                    widthFactor: _countryNameWidthFactor,
-                    child: _CountryNameText(countryName),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -280,9 +277,7 @@ class _CountryNameText extends StatelessWidget {
       textAlign: TextAlign.center,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: AppTypography.micro.copyWith(
-        color: StyleConstants.inkColor,
-      ),
+      style: AppTypography.micro.copyWith(color: StyleConstants.inkColor),
     );
   }
 }
@@ -366,10 +361,7 @@ class _CountrySkeletonItem extends StatelessWidget {
             child: FractionallySizedBox(
               widthFactor: _countryNameWidthFactor,
               child: Center(
-                child: _SkeletonBlock(
-                  width: double.infinity,
-                  height: 10,
-                ),
+                child: _SkeletonBlock(width: double.infinity, height: 10),
               ),
             ),
           ),

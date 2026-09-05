@@ -32,42 +32,49 @@ import 'package:memolanes/constants/index.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  runZonedGuarded(() async {
-    final startupStatus = await AppBootstrap.initAppRuntime();
-    if (startupStatus == AppStartupStatus.databaseVersionTooNew) {
-      runApp(_appRoot(
-        ChangeNotifierProvider(
-          create: (_) => AppThemeController(),
-          child: const MyApp(home: DatabaseVersionTooNewGate()),
+  runZonedGuarded(
+    () async {
+      final startupStatus = await AppBootstrap.initAppRuntime();
+      if (startupStatus == AppStartupStatus.databaseVersionTooNew) {
+        runApp(
+          _appRoot(
+            ChangeNotifierProvider(
+              create: (_) => AppThemeController(),
+              child: const MyApp(home: DatabaseVersionTooNewGate()),
+            ),
+          ),
+        );
+        return;
+      }
+
+      final gpsManager = GpsManager();
+      final updateNotifier = UpdateNotifier();
+      final achievementStatsStore = AchievementStatsStore();
+
+      runApp(
+        _appRoot(
+          MultiProvider(
+            providers: [
+              // Do NOT use `create: (_) => gpsManager` here
+              ChangeNotifierProvider.value(value: gpsManager),
+              ChangeNotifierProvider.value(value: updateNotifier),
+              ChangeNotifierProvider.value(value: achievementStatsStore),
+              ChangeNotifierProvider(create: (_) => AppThemeController()),
+            ],
+            child: const MyApp(),
+          ),
         ),
-      ));
-      return;
-    }
+      );
 
-    final gpsManager = GpsManager();
-    final updateNotifier = UpdateNotifier();
-    final achievementStatsStore = AchievementStatsStore();
-
-    runApp(_appRoot(
-      MultiProvider(
-        providers: [
-          // Do NOT use `create: (_) => gpsManager` here
-          ChangeNotifierProvider.value(value: gpsManager),
-          ChangeNotifierProvider.value(value: updateNotifier),
-          ChangeNotifierProvider.value(value: achievementStatsStore),
-          ChangeNotifierProvider(create: (_) => AppThemeController()),
-        ],
-        child: const MyApp(),
-      ),
-    ));
-
-    AppBootstrap.startAppServices(
-      gpsManager: gpsManager,
-      updateNotifier: updateNotifier,
-    );
-  }, (error, stackTrace) {
-    log.error('Uncaught exception in Flutter: $error', stackTrace);
-  });
+      AppBootstrap.startAppServices(
+        gpsManager: gpsManager,
+        updateNotifier: updateNotifier,
+      );
+    },
+    (error, stackTrace) {
+      log.error('Uncaught exception in Flutter: $error', stackTrace);
+    },
+  );
 }
 
 Widget _appRoot(Widget child) {
@@ -92,12 +99,14 @@ class MyApp extends StatelessWidget {
     final brightness = appThemeController.brightness;
     final systemOverlayStyle = SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness:
-          brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+      statusBarIconBrightness: brightness == Brightness.dark
+          ? Brightness.light
+          : Brightness.dark,
       statusBarBrightness: brightness,
       systemNavigationBarColor: StyleConstants.canvasColor,
-      systemNavigationBarIconBrightness:
-          brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+      systemNavigationBarIconBrightness: brightness == Brightness.dark
+          ? Brightness.light
+          : Brightness.dark,
       systemNavigationBarDividerColor: StyleConstants.lineColor,
     );
 
@@ -111,64 +120,61 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: systemOverlayStyle,
-          child: GlobalLoadingOverlay(
-            child: child ?? const SizedBox.shrink(),
-          ),
+          child: GlobalLoadingOverlay(child: child ?? const SizedBox.shrink()),
         );
       },
       theme: ThemeData(
         useMaterial3: true,
-        fontFamilyFallback:
-            Platform.isIOS ? ['.AppleSystemUIFont', 'PingFang SC'] : null,
+        fontFamilyFallback: Platform.isIOS
+            ? ['.AppleSystemUIFont', 'PingFang SC']
+            : null,
         brightness: brightness,
         scaffoldBackgroundColor: StyleConstants.canvasColor,
         canvasColor: StyleConstants.canvasColor,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: StyleConstants.primaryGreen,
-          brightness: brightness,
-          primary: StyleConstants.primaryActionColor,
-          onPrimary: StyleConstants.onPrimaryActionColor,
-          primaryContainer: StyleConstants.selectedSurfaceColor,
-          onPrimaryContainer: StyleConstants.deepGreen,
-          secondary: StyleConstants.warningColor,
-          onSecondary: StyleConstants.isDarkMode
-              ? StyleConstants.inverseInkColor
-              : StyleConstants.inkColor,
-          secondaryContainer: StyleConstants.warningSurfaceColor,
-          onSecondaryContainer: StyleConstants.warningInkColor,
-          error: StyleConstants.dangerColor,
-          onError: StyleConstants.onDangerColor,
-          errorContainer: StyleConstants.dangerSurfaceColor,
-          onErrorContainer: StyleConstants.dangerInkColor,
-          outline: StyleConstants.mutedInkColor,
-          outlineVariant: StyleConstants.lineColor,
-          surface: StyleConstants.surfaceColor,
-          onSurface: StyleConstants.inkColor,
-          onSurfaceVariant: StyleConstants.mutedInkColor,
-          shadow: StyleConstants.shadowColor,
-          scrim: StyleConstants.shadowColor,
-          surfaceTint: Colors.transparent,
-        ).copyWith(
-          surfaceContainerLowest: StyleConstants.canvasColor,
-          surfaceContainerLow: StyleConstants.surfaceColor,
-          surfaceContainer: StyleConstants.surfaceColor,
-          surfaceContainerHigh: StyleConstants.elevatedSurfaceColor,
-          surfaceContainerHighest: StyleConstants.elevatedSurfaceColor,
-        ),
-        textTheme: (brightness == Brightness.dark
-                ? ThemeData.dark()
-                : ThemeData.light())
-            .textTheme
-            .merge(
-              AppTypography.textTheme,
-            )
-            .apply(
-              bodyColor: StyleConstants.inkColor,
-              displayColor: StyleConstants.inkColor,
+        colorScheme:
+            ColorScheme.fromSeed(
+              seedColor: StyleConstants.primaryGreen,
+              brightness: brightness,
+              primary: StyleConstants.primaryActionColor,
+              onPrimary: StyleConstants.onPrimaryActionColor,
+              primaryContainer: StyleConstants.selectedSurfaceColor,
+              onPrimaryContainer: StyleConstants.deepGreen,
+              secondary: StyleConstants.warningColor,
+              onSecondary: StyleConstants.isDarkMode
+                  ? StyleConstants.inverseInkColor
+                  : StyleConstants.inkColor,
+              secondaryContainer: StyleConstants.warningSurfaceColor,
+              onSecondaryContainer: StyleConstants.warningInkColor,
+              error: StyleConstants.dangerColor,
+              onError: StyleConstants.onDangerColor,
+              errorContainer: StyleConstants.dangerSurfaceColor,
+              onErrorContainer: StyleConstants.dangerInkColor,
+              outline: StyleConstants.mutedInkColor,
+              outlineVariant: StyleConstants.lineColor,
+              surface: StyleConstants.surfaceColor,
+              onSurface: StyleConstants.inkColor,
+              onSurfaceVariant: StyleConstants.mutedInkColor,
+              shadow: StyleConstants.shadowColor,
+              scrim: StyleConstants.shadowColor,
+              surfaceTint: Colors.transparent,
+            ).copyWith(
+              surfaceContainerLowest: StyleConstants.canvasColor,
+              surfaceContainerLow: StyleConstants.surfaceColor,
+              surfaceContainer: StyleConstants.surfaceColor,
+              surfaceContainerHigh: StyleConstants.elevatedSurfaceColor,
+              surfaceContainerHighest: StyleConstants.elevatedSurfaceColor,
             ),
-        iconTheme: IconThemeData(
-          color: StyleConstants.inkColor,
-        ),
+        textTheme:
+            (brightness == Brightness.dark
+                    ? ThemeData.dark()
+                    : ThemeData.light())
+                .textTheme
+                .merge(AppTypography.textTheme)
+                .apply(
+                  bodyColor: StyleConstants.inkColor,
+                  displayColor: StyleConstants.inkColor,
+                ),
+        iconTheme: IconThemeData(color: StyleConstants.inkColor),
         dividerColor: StyleConstants.lineColor,
         cardTheme: CardThemeData(
           color: StyleConstants.surfaceColor,
@@ -318,9 +324,7 @@ class MyApp extends StatelessWidget {
               width: 1.4,
             ),
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         ),
         progressIndicatorTheme: ProgressIndicatorThemeData(
           color: StyleConstants.primaryActionColor,
@@ -394,9 +398,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       final mainMapReady = AppBootstrap.mainMapReady;
       if (!mainMapReady.isCompleted) {
-        await showLoadingDialog(
-          asyncTask: mainMapReady.future,
-        );
+        await showLoadingDialog(asyncTask: mainMapReady.future);
       }
       if (!context.mounted) return;
       await tryShowPermissionSheetIfFirstTime();
@@ -414,7 +416,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
         if (snapshot.hasError) {
           log.error(
-              'Deferred load failed ${snapshot.error}', snapshot.stackTrace);
+            'Deferred load failed ${snapshot.error}',
+            snapshot.stackTrace,
+          );
         }
 
         return const Center(child: CircularProgressIndicator());
@@ -471,13 +475,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildDeferredTabBody(int index) {
     return switch (index) {
       3 => _buildDeferredBody(
-          _achievementLib ??= achievement.loadLibrary(),
-          () => achievement.AchievementBody(),
-        ),
+        _achievementLib ??= achievement.loadLibrary(),
+        () => achievement.AchievementBody(),
+      ),
       4 => _buildDeferredBody(
-          _settingsLib ??= settings.loadLibrary(),
-          () => settings.SettingsBody(),
-        ),
+        _settingsLib ??= settings.loadLibrary(),
+        () => settings.SettingsBody(),
+      ),
       _ => throw RangeError('Invalid tab index: $index'),
     };
   }
@@ -489,10 +493,13 @@ class _MyHomePageState extends State<MyHomePage> {
     context.watch<AppThemeController>();
     final mediaQuery = MediaQuery.of(context);
     final navBarBottomInset = StyleConstants.navBarBottomInset(context);
-    final horizontalSafeArea =
-        math.max(mediaQuery.viewPadding.left, mediaQuery.viewPadding.right);
-    final mapCopyrightTextMarkdown =
-        MapStyle.findById(MMKVUtil.getString(MMKVKey.mapStyle)).copyright;
+    final horizontalSafeArea = math.max(
+      mediaQuery.viewPadding.left,
+      mediaQuery.viewPadding.right,
+    );
+    final mapCopyrightTextMarkdown = MapStyle.findById(
+      MMKVUtil.getString(MMKVKey.mapStyle),
+    ).copyright;
     const mapCopyrightNavBarGap = 6.0;
     const mapCopyrightTrailingGap = 8.0;
 
@@ -522,15 +529,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: SizedBox(
-                    width: mediaQuery.size.width -
+                    width:
+                        mediaQuery.size.width -
                         BottomNavBar.designHorizontalMargin * 2,
                     height: BottomNavBar.height,
                     child: BottomNavBar(
                       selectedIndex: _selectedIndex,
                       onIndexChanged: (index) =>
                           setState(() => _selectedIndex = index),
-                      hasUpdateNotification:
-                          context.watch<UpdateNotifier>().hasUpdateNotification,
+                      hasUpdateNotification: context
+                          .watch<UpdateNotifier>()
+                          .hasUpdateNotification,
                     ),
                   ),
                 ),
@@ -539,7 +548,8 @@ class _MyHomePageState extends State<MyHomePage> {
             if (_selectedIndex <= 2)
               Positioned(
                 right: mediaQuery.viewPadding.right + mapCopyrightTrailingGap,
-                bottom: navBarBottomInset +
+                bottom:
+                    navBarBottomInset +
                     BottomNavBar.height +
                     mapCopyrightNavBarGap,
                 child: MapCopyrightButton(

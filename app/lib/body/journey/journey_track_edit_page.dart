@@ -22,11 +22,7 @@ class JourneyTrackEditPage extends StatefulWidget {
   State<JourneyTrackEditPage> createState() => _JourneyTrackEditPageState();
 }
 
-enum _EditorToastRequest {
-  syncCurrentState,
-  saveSuccess,
-  clear,
-}
+enum _EditorToastRequest { syncCurrentState, saveSuccess, clear }
 
 class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
   static const int _minEditZoom = 13;
@@ -287,10 +283,7 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
       return;
     }
 
-    _applyMode(
-      OperationMode.edit,
-      clearLinkedDrawError: wasErrorLocked,
-    );
+    _applyMode(OperationMode.edit, clearLinkedDrawError: wasErrorLocked);
   }
 
   void _handleMapZoomUpdate(int? zoom) {
@@ -320,8 +313,9 @@ class _JourneyTrackEditPageState extends State<JourneyTrackEditPage> {
         _clearLinkedDrawConstraintError();
       }
 
-      final recordPoints =
-          points.map((p) => (p.lat, p.lng)).toList(growable: false);
+      final recordPoints = points
+          .map((p) => (p.lat, p.lng))
+          .toList(growable: false);
       final outcome = await _editSession.addLines(
         points: recordPoints,
         snapEndpoints: _isLinkedDrawEnabled,

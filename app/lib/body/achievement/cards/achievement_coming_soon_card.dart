@@ -23,8 +23,9 @@ class AchievementComingSoonCard extends StatelessWidget {
                   color: StyleConstants.warningSurfaceColor,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: StyleConstants.achievementGoldColor
-                        .withValues(alpha: 0.38),
+                    color: StyleConstants.achievementGoldColor.withValues(
+                      alpha: 0.38,
+                    ),
                   ),
                 ),
                 child: Icon(

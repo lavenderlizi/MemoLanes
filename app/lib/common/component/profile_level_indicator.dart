@@ -83,8 +83,10 @@ class ProfileLevelIndicator extends StatelessWidget {
               right: 0,
               child: Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: StyleConstants.isDarkMode
                         ? StyleConstants.inverseInkColor
@@ -111,10 +113,7 @@ class CircularProgressPainter extends CustomPainter {
   final double progress;
   final double strokeWidth;
 
-  CircularProgressPainter({
-    required this.progress,
-    required this.strokeWidth,
-  });
+  CircularProgressPainter({required this.progress, required this.strokeWidth});
 
   @override
   void paint(Canvas canvas, ui.Size size) {

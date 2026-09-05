@@ -29,8 +29,11 @@ Future<void> _showPrivacyAndRegionSheet(
   if (!privacyAlreadyAccepted) {
     // NOTE: we also use the same mechanism to show public beta testing notice.
     await showCommonDialog(
-        context, context.tr("beta_testing_notice.content_md"),
-        title: context.tr("beta_testing_notice.title"), markdown: true);
+      context,
+      context.tr("beta_testing_notice.content_md"),
+      title: context.tr("beta_testing_notice.title"),
+      markdown: true,
+    );
   }
 
   // A little weird, but shouldn't happen.
@@ -39,9 +42,8 @@ Future<void> _showPrivacyAndRegionSheet(
   final accepted = await showSetupCard<_FirstLaunchAccepted>(
     context,
     barrierDismissible: false,
-    child: FirstLaunchSetupSheet(
-      initialPrivacyAccepted: privacyAlreadyAccepted,
-    ),
+    builder: (_) =>
+        FirstLaunchSetupSheet(initialPrivacyAccepted: privacyAlreadyAccepted),
   );
 
   if (accepted == null) {
@@ -62,8 +64,10 @@ Future<void> _showPrivacyAndRegionSheet(
 
 /// Shows the privacy / welcome UI when needed.
 Future<void> showFirstLaunchSetupIfNeeded(BuildContext context) async {
-  var acceptedVersion =
-      MMKVUtil.getInt(MMKVKey.privacyAgreementAccepted, defaultValue: 0);
+  var acceptedVersion = MMKVUtil.getInt(
+    MMKVKey.privacyAgreementAccepted,
+    defaultValue: 0,
+  );
   final privacyAlreadyAccepted =
       acceptedVersion >= _latestPrivacyAgreementVersion;
   final setupCompletedVersion = MMKVUtil.getInt(
@@ -131,17 +135,19 @@ class _FirstLaunchSetupSheetState extends State<FirstLaunchSetupSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SetupBottomSheet(
+    return SetupDialogCard(
       title: context.tr("privacy.setup_title"),
       maxHeightFactor: 0.75,
       actions: [
         AppButton(
           label: context.tr("privacy.disagree_and_exit"),
+          labelMaxLines: 2,
           onPressed: _onDisagree,
           variant: AppButtonVariant.secondary,
         ),
         AppButton(
           label: context.tr("common.continue"),
+          labelMaxLines: 2,
           onPressed: _privacyAccepted ? _onContinue : null,
         ),
       ],
@@ -239,10 +245,7 @@ class _PrivacyAgreementTile extends StatelessWidget {
           ),
         ),
       ),
-      trailing: AppCheckbox(
-        value: accepted,
-        onChanged: onChanged,
-      ),
+      trailing: AppCheckbox(value: accepted, onChanged: onChanged),
     );
   }
 }

@@ -3,10 +3,7 @@ import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
 class LabelTileTitle extends StatelessWidget {
-  const LabelTileTitle({
-    super.key,
-    required this.label,
-  });
+  const LabelTileTitle({super.key, required this.label});
 
   final String label;
 

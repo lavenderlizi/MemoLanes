@@ -7,7 +7,6 @@ import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class DialogButton {
@@ -40,54 +39,53 @@ class CommonDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final messageBody = switch (markdown) {
       false => ListBody(
-          children: const LineSplitter()
-              .convert(content)
-              .map(
-                (line) => Text(
-                  line,
-                  style: AppTypography.body.copyWith(
-                    color: StyleConstants.inkColor,
-                  ),
+        children: const LineSplitter()
+            .convert(content)
+            .map(
+              (line) => Text(
+                line,
+                style: AppTypography.body.copyWith(
+                  color: StyleConstants.inkColor,
                 ),
-              )
-              .toList(),
-        ),
+              ),
+            )
+            .toList(),
+      ),
       true => MarkdownBody(
-          data: content,
-          onTapLink: (text, href, title) async {
-            if (href == null) return;
-            if (!await launchUrlString(
-              href,
-              mode: LaunchMode.externalApplication,
-            )) {
-              throw Exception('Could not launch url: $href');
-            }
-          },
-        ),
+        data: content,
+        onTapLink: (text, href, title) async {
+          if (href == null) return;
+          if (!await launchUrlString(
+            href,
+            mode: LaunchMode.externalApplication,
+          )) {
+            throw Exception('Could not launch url: $href');
+          }
+        },
+      ),
     };
 
-    return PointerInterceptor(
-      child: AppDialogCard(
-        title: title,
-        maxHeightFactor: 0.78,
-        contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
-        actions: buttons.isEmpty
-            ? null
-            : AppDialogActions(
-                children: [
-                  for (final button in buttons)
-                    AppButton(
-                      label: button.text,
-                      variant: button.variant,
-                      onPressed: () {
-                        AppHaptics.selection();
-                        button.onPressed();
-                      },
-                    ),
-                ],
-              ),
-        child: messageBody,
-      ),
+    return AppDialogCard(
+      title: title,
+      maxHeightFactor: 0.78,
+      contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+      actions: buttons.isEmpty
+          ? null
+          : AppDialogActions(
+              children: [
+                for (final button in buttons)
+                  AppButton(
+                    label: button.text,
+                    labelMaxLines: 2,
+                    variant: button.variant,
+                    onPressed: () {
+                      AppHaptics.selection();
+                      button.onPressed();
+                    },
+                  ),
+              ],
+            ),
+      child: messageBody,
     );
   }
 }

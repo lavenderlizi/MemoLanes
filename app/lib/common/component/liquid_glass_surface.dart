@@ -24,13 +24,15 @@ class LiquidGlassSurface extends StatelessWidget {
     this.shadowSpreadRadius = StyleConstants.mapOverlayShadowSpreadRadius,
     this.shadowOffset = StyleConstants.mapOverlayShadowOffset,
     this.padding,
-  })  : assert(backgroundAlpha == null ||
-            backgroundAlpha >= 0 && backgroundAlpha <= 1),
-        assert(borderAlpha == null || borderAlpha >= 0 && borderAlpha <= 1),
-        assert(blurSigma >= 0),
-        assert(reflectionAlpha >= 0 && reflectionAlpha <= 1),
-        assert(shadowAlpha == null || shadowAlpha >= 0 && shadowAlpha <= 1),
-        assert(shadowBlurRadius >= 0);
+  }) : assert(
+         backgroundAlpha == null ||
+             backgroundAlpha >= 0 && backgroundAlpha <= 1,
+       ),
+       assert(borderAlpha == null || borderAlpha >= 0 && borderAlpha <= 1),
+       assert(blurSigma >= 0),
+       assert(reflectionAlpha >= 0 && reflectionAlpha <= 1),
+       assert(shadowAlpha == null || shadowAlpha >= 0 && shadowAlpha <= 1),
+       assert(shadowBlurRadius >= 0);
 
   final Widget child;
   final BorderRadius borderRadius;
@@ -109,11 +111,13 @@ class LiquidGlassSurface extends StatelessWidget {
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: _decoration(
-                    color: StyleConstants.glassColor
-                        .withValues(alpha: effectiveBackgroundAlpha),
+                    color: StyleConstants.glassColor.withValues(
+                      alpha: effectiveBackgroundAlpha,
+                    ),
                     border: Border.all(
-                      color: StyleConstants.glassBorderColor
-                          .withValues(alpha: effectiveBorderAlpha),
+                      color: StyleConstants.glassBorderColor.withValues(
+                        alpha: effectiveBorderAlpha,
+                      ),
                       width: 1.1,
                     ),
                   ),
@@ -144,25 +148,6 @@ class LiquidGlassSurface extends StatelessWidget {
                     ),
                   ),
                 ),
-              Positioned(
-                left: circular ? 10 : 14,
-                right: circular ? 10 : 14,
-                top: 1,
-                height: 1.2,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        StyleConstants.glassHighlightColor.withValues(alpha: 0),
-                        StyleConstants.glassHighlightColor.withValues(
-                          alpha: StyleConstants.isDarkMode ? 0.32 : 0.88,
-                        ),
-                        StyleConstants.glassHighlightColor.withValues(alpha: 0),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
               if (padding == null)
                 child
               else

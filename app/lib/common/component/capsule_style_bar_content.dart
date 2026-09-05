@@ -170,11 +170,7 @@ class CapsuleBarContent extends StatelessWidget {
               ),
             if (!showOnlyBackButton) ...[
               const SizedBox(width: 12),
-              Expanded(
-                child: Center(
-                  child: _titlePill(),
-                ),
-              ),
+              Expanded(child: Center(child: _titlePill())),
               const SizedBox(width: 12),
               if (moreMenuContent != null)
                 CustomPopup(

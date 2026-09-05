@@ -39,8 +39,9 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
   @override
   void initState() {
     super.initState();
-    _initialSelectedDate =
-        DateUtils.dateOnly(widget.controller.selectedDate.toLocalDateTime());
+    _initialSelectedDate = DateUtils.dateOnly(
+      widget.controller.selectedDate.toLocalDateTime(),
+    );
   }
 
   void _setCalendarViewMode(CalendarDatePicker2Mode mode) {
@@ -78,95 +79,94 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
           .copyWith(color: StyleConstants.inkColor),
       selectedDayTextStyle:
           (compact ? AppTypography.caption : AppTypography.body).copyWith(
-        color: StyleConstants.isDarkMode
-            ? StyleConstants.onPrimaryActionColor
-            : StyleConstants.inkColor,
-      ),
-      todayTextStyle:
-          (compact ? AppTypography.caption : AppTypography.body).copyWith(
-        color: StyleConstants.deepGreen,
-        fontWeight: FontWeight.w700,
-      ),
+            color: StyleConstants.isDarkMode
+                ? StyleConstants.onPrimaryActionColor
+                : StyleConstants.inkColor,
+          ),
+      todayTextStyle: (compact ? AppTypography.caption : AppTypography.body)
+          .copyWith(
+            color: StyleConstants.deepGreen,
+            fontWeight: FontWeight.w700,
+          ),
       weekdayLabelTextStyle:
           (compact ? AppTypography.micro : AppTypography.label).copyWith(
-        color: StyleConstants.mutedInkColor,
-      ),
+            color: StyleConstants.mutedInkColor,
+          ),
       controlsTextStyle: controlsTextStyle,
       modePickersGap: 8,
-      modePickerBuilder: ({
-        required viewMode,
-        required monthDate,
-        isMonthPicker,
-      }) {
-        final occupiesPackageMonthSlot = isMonthPicker == true;
-        return AppCalendarModePicker(
-          viewMode: viewMode,
-          monthDate: monthDate,
-          occupiesPackageMonthSlot: occupiesPackageMonthSlot,
-          textStyle: controlsTextStyle,
-          onModeChanged: (mode) {
-            AppHaptics.selection();
-            _setCalendarViewMode(mode);
+      modePickerBuilder:
+          ({required viewMode, required monthDate, isMonthPicker}) {
+            final occupiesPackageMonthSlot = isMonthPicker == true;
+            return AppCalendarModePicker(
+              viewMode: viewMode,
+              monthDate: monthDate,
+              occupiesPackageMonthSlot: occupiesPackageMonthSlot,
+              textStyle: controlsTextStyle,
+              onModeChanged: (mode) {
+                AppHaptics.selection();
+                _setCalendarViewMode(mode);
+              },
+              trailing: occupiesPackageMonthSlot
+                  ? null
+                  : _buildFilterButton(context),
+            );
           },
-          trailing:
-              occupiesPackageMonthSlot ? null : _buildFilterButton(context),
-        );
-      },
       selectableYearPredicate: (year) =>
           controller.yearsWithJourneys.contains(year),
       selectableMonthPredicate: (year, month) =>
           controller.monthsForYear(year).contains(month),
       selectableDayPredicate: (day) =>
           controller.daysForMonth(day.year, day.month).contains(day.day),
-      dayBuilder: ({
-        required date,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isToday,
-      }) {
-        if (!controller
-            .daysForMonth(date.year, date.month)
-            .contains(date.day)) {
-          return null;
-        }
-        return Container(
-          decoration: isSelected == true
-              ? BoxDecoration(
-                  color: StyleConstants.primaryGreen,
-                  shape: BoxShape.circle,
-                )
-              : null,
-          child: Center(
-            child: Stack(
-              alignment: AlignmentDirectional.center,
-              children: [
-                Text(
-                  MaterialLocalizations.of(context).formatDecimal(date.day),
-                  style: textStyle,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: compact ? 20 : 27.5),
-                  child: Container(
-                    height: compact ? 3 : 4,
-                    width: compact ? 3 : 4,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: StyleConstants.journeyYellow,
+      dayBuilder:
+          ({
+            required date,
+            textStyle,
+            decoration,
+            isSelected,
+            isDisabled,
+            isToday,
+          }) {
+            if (!controller
+                .daysForMonth(date.year, date.month)
+                .contains(date.day)) {
+              return null;
+            }
+            return Container(
+              decoration: isSelected == true
+                  ? BoxDecoration(
+                      color: StyleConstants.primaryGreen,
+                      shape: BoxShape.circle,
+                    )
+                  : null,
+              child: Center(
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    Text(
+                      MaterialLocalizations.of(context).formatDecimal(date.day),
+                      style: textStyle,
                     ),
-                  ),
+                    Padding(
+                      padding: EdgeInsets.only(top: compact ? 20 : 27.5),
+                      child: Container(
+                        height: compact ? 3 : 4,
+                        width: compact ? 3 : 4,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: StyleConstants.journeyYellow,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
+              ),
+            );
+          },
       dynamicCalendarRows: true,
       disabledDayTextStyle:
           (compact ? AppTypography.caption : AppTypography.body).copyWith(
-        color: StyleConstants.mutedInkColor.withValues(alpha: 0.5),
-      ),
+            color: StyleConstants.mutedInkColor.withValues(alpha: 0.5),
+          ),
       disabledMonthTextStyle: AppTypography.body.copyWith(
         color: StyleConstants.mutedInkColor.withValues(alpha: 0.5),
         fontWeight: FontWeight.w400,
@@ -175,44 +175,47 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
         color: StyleConstants.mutedInkColor.withValues(alpha: 0.5),
         fontWeight: FontWeight.w400,
       ),
-      monthBuilder: ({
-        required month,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isCurrentMonth,
-      }) {
-        final selectedDate = controller.selectedDate;
-        return AppCalendarGridOption(
-          label: DateFormat.MMM(
-            Localizations.localeOf(context).toString(),
-          ).format(DateTime(selectedDate.year, month)),
-          isSelected: month == selectedDate.month,
-          isOriginal: selectedDate.year == _initialSelectedDate.year &&
-              month == _initialSelectedDate.month,
-          isCurrent: isCurrentMonth == true,
-          isDisabled: isDisabled == true,
-          textStyle: textStyle,
-        );
-      },
-      yearBuilder: ({
-        required year,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isCurrentYear,
-      }) {
-        return AppCalendarGridOption(
-          label: MaterialLocalizations.of(context).formatYear(DateTime(year)),
-          isSelected: year == controller.selectedDate.year,
-          isOriginal: year == _initialSelectedDate.year,
-          isCurrent: isCurrentYear == true,
-          isDisabled: isDisabled == true,
-          textStyle: textStyle,
-        );
-      },
+      monthBuilder:
+          ({
+            required month,
+            textStyle,
+            decoration,
+            isSelected,
+            isDisabled,
+            isCurrentMonth,
+          }) {
+            final selectedDate = controller.selectedDate;
+            return AppCalendarGridOption(
+              label: DateFormat.MMM(Localizations.localeOf(context).toString())
+                  .format(DateTime(selectedDate.year, month)),
+              isSelected: month == selectedDate.month,
+              isOriginal:
+                  selectedDate.year == _initialSelectedDate.year &&
+                  month == _initialSelectedDate.month,
+              isCurrent: isCurrentMonth == true,
+              isDisabled: isDisabled == true,
+              textStyle: textStyle,
+            );
+          },
+      yearBuilder:
+          ({
+            required year,
+            textStyle,
+            decoration,
+            isSelected,
+            isDisabled,
+            isCurrentYear,
+          }) {
+            return AppCalendarGridOption(
+              label: MaterialLocalizations.of(context)
+                  .formatYear(DateTime(year)),
+              isSelected: year == controller.selectedDate.year,
+              isOriginal: year == _initialSelectedDate.year,
+              isCurrent: isCurrentYear == true,
+              isDisabled: isDisabled == true,
+              textStyle: textStyle,
+            );
+          },
       disableVibration: true,
     );
 
@@ -226,7 +229,8 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
       onValueChanged: (dates) {
         AppHaptics.selection();
         _runWithLoading(
-            () => controller.selectDate(dates.first.toSimpleDate()));
+          () => controller.selectDate(dates.first.toSimpleDate()),
+        );
       },
       onDisplayedMonthChanged: (value) {
         // CalendarDatePicker2 already returned its internal view to day mode.
@@ -242,7 +246,6 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
   Widget _buildFilterButton(BuildContext context) {
     final controller = widget.controller;
     final label = _filterLabel(context);
-    final tooltip = '${context.tr('journey.list.filter_layers')}: $label';
     return CustomPopup(
       position: PopupPosition.bottom,
       horizontalOffset: -8,
@@ -260,30 +263,21 @@ class _JourneyListCalendarState extends State<JourneyListCalendar> {
         ),
       ),
       child: PointerInterceptor(
-        child: Tooltip(
-          message: tooltip,
-          child: Semantics(
-            label: tooltip,
-            button: true,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: (widget.compact
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style:
+                    (widget.compact
                             ? AppTypography.sectionLabel
                             : AppTypography.cardTitle)
                         .copyWith(color: StyleConstants.deepGreen),
-                  ),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    color: StyleConstants.deepGreen,
-                  ),
-                ],
               ),
-            ),
+              Icon(Icons.arrow_drop_down, color: StyleConstants.deepGreen),
+            ],
           ),
         ),
       ),

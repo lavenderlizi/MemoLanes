@@ -70,14 +70,16 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final viewPadding = mediaQuery.viewPadding;
-    final bottom =
-        StyleConstants.mapPrimaryControlBottomInsetForContext(context);
+    final bottom = StyleConstants.mapPrimaryControlBottomInsetForContext(
+      context,
+    );
     final availableHeight = math.max(
       260.0,
       mediaQuery.size.height - bottom - viewPadding.top - 12,
     );
-    final preferredHeight =
-        (mediaQuery.size.height * 0.62).clamp(390.0, 530.0).toDouble();
+    final preferredHeight = (mediaQuery.size.height * 0.62)
+        .clamp(390.0, 530.0)
+        .toDouble();
     final pickerHeight = math.min(preferredHeight, availableHeight);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
     final pickerMaxWidth = isLandscape ? 720.0 : 480.0;
@@ -174,10 +176,7 @@ class _JourneyMapDetailPageState extends State<_JourneyMapDetailPage> {
   }
 
   Future<void> _saveJourneyInformation(JourneyInfo journeyInfo) async {
-    await api.updateJourneyMetadata(
-      id: _journey.id,
-      journeyInfo: journeyInfo,
-    );
+    await api.updateJourneyMetadata(id: _journey.id, journeyInfo: journeyInfo);
   }
 
   Future<void> _deleteJourney() async {
@@ -376,7 +375,7 @@ class _CollapsibleJourneyDetailState extends State<_CollapsibleJourneyDetail> {
       switchOutCurve: Curves.easeInCubic,
       layoutBuilder: (currentChild, previousChildren) => Stack(
         alignment: Alignment.bottomCenter,
-        children: [...previousChildren, if (currentChild != null) currentChild],
+        children: [...previousChildren, ?currentChild],
       ),
       transitionBuilder: (child, animation) {
         final slide = Tween<Offset>(
@@ -444,8 +443,9 @@ class _CollapsibleJourneyDetailState extends State<_CollapsibleJourneyDetail> {
                           width: 34,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: StyleConstants.mutedInkColor
-                                .withValues(alpha: 0.42),
+                            color: StyleConstants.mutedInkColor.withValues(
+                              alpha: 0.42,
+                            ),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -677,8 +677,9 @@ class _JourneyDetailCardState extends State<_JourneyDetailCard> {
                     title: context.tr('journey_kind.default'),
                     selected: _journeyKind == JourneyKind.defaultKind,
                     selectionMode: true,
-                    onTap: () => Navigator.of(dialogContext)
-                        .pop(JourneyKind.defaultKind),
+                    onTap: () =>
+                        Navigator.of(dialogContext)
+                            .pop(JourneyKind.defaultKind),
                   ),
                   const SizedBox(height: 8),
                   _EditChoiceTile(
@@ -925,8 +926,9 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
     _isPm = _hour >= 12;
     final displayHour = _hour % 12 == 0 ? 12 : _hour % 12;
     _hour24Controller = FixedExtentScrollController(initialItem: _hour);
-    _hour12Controller =
-        FixedExtentScrollController(initialItem: displayHour - 1);
+    _hour12Controller = FixedExtentScrollController(
+      initialItem: displayHour - 1,
+    );
     _minuteController = FixedExtentScrollController(initialItem: _minute);
     _periodController = FixedExtentScrollController(initialItem: _isPm ? 1 : 0);
   }
@@ -995,8 +997,9 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
   Widget build(BuildContext context) {
     final localizations = MaterialLocalizations.of(context);
     final use24HourFormat = MediaQuery.alwaysUse24HourFormatOf(context);
-    final selectedHourIndex =
-        use24HourFormat ? _hour : ((_hour % 12 == 0 ? 12 : _hour % 12) - 1);
+    final selectedHourIndex = use24HourFormat
+        ? _hour
+        : ((_hour % 12 == 0 ? 12 : _hour % 12) - 1);
 
     return Dialog(
       elevation: 0,
@@ -1113,9 +1116,9 @@ class _CompactJourneyTimeDialogState extends State<_CompactJourneyTimeDialog> {
                         icon: Icons.check_rounded,
                         label: localizations.okButtonLabel,
                         variant: AppButtonVariant.primary,
-                        onPressed: () => Navigator.of(context).pop(
-                          TimeOfDay(hour: _hour, minute: _minute),
-                        ),
+                        onPressed: () =>
+                            Navigator.of(context)
+                                .pop(TimeOfDay(hour: _hour, minute: _minute)),
                       ),
                     ),
                   ],

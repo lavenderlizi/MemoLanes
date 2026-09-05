@@ -47,8 +47,9 @@ class FrostedBarContainer extends StatelessWidget {
                   vertical: mainAxisPadding,
                 ),
           decoration: BoxDecoration(
-            color: StyleConstants.glassColor
-                .withValues(alpha: effectiveBackgroundAlpha),
+            color: StyleConstants.glassColor.withValues(
+              alpha: effectiveBackgroundAlpha,
+            ),
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(
               color: StyleConstants.glassBorderColor.withValues(

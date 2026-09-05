@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/component/app_button.dart';
-import 'package:memolanes/common/component/basic_bottom_sheet.dart';
+import 'package:memolanes/common/component/basic_dialog_card.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/common_export.dart';
@@ -55,10 +55,7 @@ class _RawDataSwitchState extends State<RawDataSwitch> {
       child: LabelTile(
         label: context.tr("general.advanced_settings.raw_data_mode"),
         position: LabelTilePosition.single,
-        trailing: Switch(
-          value: enabled,
-          onChanged: _busy ? null : _setMode,
-        ),
+        trailing: Switch(value: enabled, onChanged: _busy ? null : _setMode),
       ),
     );
   }
@@ -90,14 +87,14 @@ class _RawDataPage extends State<RawDataPage> {
     showBasicCard(
       context,
       title: context.tr("common.export"),
-      child: Column(
+      builder: (dialogContext) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           AppOptionTile(
             icon: Icons.table_chart_outlined,
             title: context.tr("general.advanced_settings.raw_data_export_csv"),
             onTap: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               showCommonExport(context, filePath, deleteFile: false);
             },
           ),
@@ -106,9 +103,10 @@ class _RawDataPage extends State<RawDataPage> {
             icon: Icons.route_outlined,
             title: context.tr("general.advanced_settings.raw_data_export_gpx"),
             onTap: () async {
-              Navigator.of(context).pop();
-              final gpxPath =
-                  await api.exportRawDataGpxFile(csvFilepath: filePath);
+              Navigator.of(dialogContext).pop();
+              final gpxPath = await api.exportRawDataGpxFile(
+                csvFilepath: filePath,
+              );
               if (!context.mounted) return;
               showCommonExport(context, gpxPath, deleteFile: true);
             },
@@ -142,16 +140,17 @@ class _RawDataPage extends State<RawDataPage> {
                   },
                   trailing: AppIconButton(
                     icon: Icons.delete_outline_rounded,
-                    tooltip: context.tr("common.delete"),
                     variant: AppButtonVariant.danger,
                     size: 38,
                     onPressed: () async {
                       if (await showCommonDialog(
-                          context, context.tr("journey.delete_journey_message"),
-                          hasCancel: true,
-                          title: context.tr("journey.delete_journey_title"),
-                          confirmButtonText: context.tr("common.delete"),
-                          confirmVariant: AppButtonVariant.danger)) {
+                        context,
+                        context.tr("journey.delete_journey_message"),
+                        hasCancel: true,
+                        title: context.tr("journey.delete_journey_title"),
+                        confirmButtonText: context.tr("common.delete"),
+                        confirmVariant: AppButtonVariant.danger,
+                      )) {
                         await api.deleteRawDataFile(filename: item.name);
                         await _loadList();
                       }

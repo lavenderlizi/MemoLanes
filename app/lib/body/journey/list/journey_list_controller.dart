@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:memolanes/common/async_load_token.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -17,10 +18,10 @@ class JourneyListController extends ChangeNotifier {
     EarliestJourneyDateLoader? earliestJourneyDateLoader,
     JourneyDatesLoader? journeyDatesLoader,
     JourneyHeadersLoader? journeyHeadersLoader,
-  })  : _earliestJourneyDateLoader =
-            earliestJourneyDateLoader ?? _loadEarliestJourneyDate,
-        _journeyDatesLoader = journeyDatesLoader ?? _loadJourneyDates,
-        _journeyHeadersLoader = journeyHeadersLoader ?? _loadJourneyHeaders;
+  }) : _earliestJourneyDateLoader =
+           earliestJourneyDateLoader ?? _loadEarliestJourneyDate,
+       _journeyDatesLoader = journeyDatesLoader ?? _loadJourneyDates,
+       _journeyHeadersLoader = journeyHeadersLoader ?? _loadJourneyHeaders;
 
   final EarliestJourneyDateLoader _earliestJourneyDateLoader;
   final JourneyDatesLoader _journeyDatesLoader;
@@ -37,8 +38,8 @@ class JourneyListController extends ChangeNotifier {
   List<JourneyHeader> journeyHeaders = [];
   bool isInitialLoading = true;
   bool isJourneyListLoading = false;
-  Object? _activeDateRefresh;
-  Object? _activeHeaderLoad;
+  final _dateRefreshGuard = AsyncLoadToken();
+  final _headerLoadGuard = AsyncLoadToken();
   bool _isDisposed = false;
 
   bool get hasFilteredJourneys => journeyDates.isNotEmpty;
@@ -67,8 +68,7 @@ class JourneyListController extends ChangeNotifier {
   }
 
   Future<void> refresh({bool adjustSelectedDate = false}) async {
-    final refreshToken = Object();
-    _activeDateRefresh = refreshToken;
+    final refreshToken = _dateRefreshGuard.begin();
     final pendingHeaderToken = _beginJourneyListLoad();
     final journeyKinds = Set<JourneyKind>.from(selectedJourneyKinds);
     try {
@@ -92,8 +92,8 @@ class JourneyListController extends ChangeNotifier {
       _finishJourneyListLoad(pendingHeaderToken);
       rethrow;
     } finally {
-      if (identical(refreshToken, _activeDateRefresh)) {
-        _activeDateRefresh = null;
+      if (_dateRefreshGuard.isActive(refreshToken)) {
+        _dateRefreshGuard.clear();
       }
     }
   }
@@ -106,16 +106,22 @@ class JourneyListController extends ChangeNotifier {
   Future<void> displayMonth(SimpleDate displayedMonth) async {
     final earliest = firstDate;
     if (earliest == null) return;
-    var date =
-        SimpleDate(displayedMonth.year, displayedMonth.month, selectedDate.day);
-    final lastDay =
-        SimpleDate(displayedMonth.year, displayedMonth.month + 1, 0);
+    var date = SimpleDate(
+      displayedMonth.year,
+      displayedMonth.month,
+      selectedDate.day,
+    );
+    final lastDay = SimpleDate(
+      displayedMonth.year,
+      displayedMonth.month + 1,
+      0,
+    );
     if (selectedDate.day > lastDay.day) date = lastDay;
     if (lastDate.isBefore(date)) date = lastDate;
     if (earliest.isAfter(date)) date = earliest;
     selectedDate =
         _nearestDateInMonth(displayedMonth.year, displayedMonth.month, date) ??
-            date;
+        date;
     if (!_hasJourneyOn(selectedDate)) {
       _showEmptyJourneyList();
       return;
@@ -130,10 +136,8 @@ class JourneyListController extends ChangeNotifier {
     await refresh(adjustSelectedDate: true);
   }
 
-  Future<void> showAllJourneyKinds() => setJourneyKinds({
-        JourneyKind.defaultKind,
-        JourneyKind.flight,
-      });
+  Future<void> showAllJourneyKinds() =>
+      setJourneyKinds({JourneyKind.defaultKind, JourneyKind.flight});
 
   Future<void> _loadJourneysOnSelectedDate({
     Set<JourneyKind>? journeyKinds,
@@ -144,7 +148,7 @@ class JourneyListController extends ChangeNotifier {
     try {
       final headers = await _journeyHeadersLoader(date, kinds);
       if (_isDisposed ||
-          !identical(loadToken, _activeHeaderLoad) ||
+          !_headerLoadGuard.isActive(loadToken) ||
           !setEquals(kinds, selectedJourneyKinds) ||
           date != selectedDate) {
         return;
@@ -156,29 +160,28 @@ class JourneyListController extends ChangeNotifier {
   }
 
   Object _beginJourneyListLoad() {
-    final token = Object();
-    _activeHeaderLoad = token;
+    final token = _headerLoadGuard.begin();
     isJourneyListLoading = true;
     notifyListeners();
     return token;
   }
 
   void _finishJourneyListLoad(Object token) {
-    if (_isDisposed || !identical(token, _activeHeaderLoad)) return;
-    _activeHeaderLoad = null;
+    if (_isDisposed || !_headerLoadGuard.isActive(token)) return;
+    _headerLoadGuard.clear();
     isJourneyListLoading = false;
     notifyListeners();
   }
 
   void _showEmptyJourneyList() {
-    _activeHeaderLoad = null;
+    _headerLoadGuard.clear();
     journeyHeaders = [];
     isJourneyListLoading = false;
     notifyListeners();
   }
 
   bool _isActiveDateRefresh(Object token) =>
-      !_isDisposed && identical(token, _activeDateRefresh);
+      !_isDisposed && _dateRefreshGuard.isActive(token);
 
   bool _hasJourneyOn(SimpleDate date) => journeyDates.contains(date);
 
@@ -208,8 +211,8 @@ class JourneyListController extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
-    _activeDateRefresh = null;
-    _activeHeaderLoad = null;
+    _dateRefreshGuard.clear();
+    _headerLoadGuard.clear();
     super.dispose();
   }
 }
@@ -228,10 +231,9 @@ Future<List<SimpleDate>> _loadJourneyDates(
 Future<List<JourneyHeader>> _loadJourneyHeaders(
   SimpleDate date,
   Set<JourneyKind> journeyKinds,
-) =>
-    api.listJourneysOnDate(
-      year: date.year,
-      month: date.month,
-      day: date.day,
-      journeyKinds: journeyKinds,
-    );
+) => api.listJourneysOnDate(
+  year: date.year,
+  month: date.month,
+  day: date.day,
+  journeyKinds: journeyKinds,
+);

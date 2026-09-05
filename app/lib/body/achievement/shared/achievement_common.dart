@@ -33,10 +33,7 @@ extension RegionEntityDisplay on RegionEntity {
 }
 
 class FormattedArea {
-  const FormattedArea({
-    required this.value,
-    required this.unit,
-  });
+  const FormattedArea({required this.value, required this.unit});
 
   final String value;
   final String unit;
@@ -123,11 +120,7 @@ class AchievementCountryFlag extends StatelessWidget {
 
     return CountryFlag.fromCountryCode(
       countryCode,
-      theme: ImageTheme(
-        width: size,
-        height: size,
-        shape: const Circle(),
-      ),
+      theme: ImageTheme(width: size, height: size, shape: const Circle()),
     );
   }
 }
@@ -168,43 +161,32 @@ class AchievementCountryFlagBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: AchievementCountryFlag(
-        countryCode: countryCode,
-        size: flagSize,
-      ),
+      child: AchievementCountryFlag(countryCode: countryCode, size: flagSize),
     );
   }
 }
 
 class _FallbackCountryFlag extends StatelessWidget {
-  const _FallbackCountryFlag({
-    required this.countryCode,
-    required this.size,
-  });
+  const _FallbackCountryFlag({required this.countryCode, required this.size});
 
   final String countryCode;
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      label: countryCode,
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: StyleConstants.canvasColor,
-          border: Border.all(
-            color: StyleConstants.lineColor,
-          ),
-        ),
-        child: Icon(
-          Icons.public_rounded,
-          color: StyleConstants.mutedInkColor,
-          size: size * 0.54,
-        ),
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: StyleConstants.canvasColor,
+        border: Border.all(color: StyleConstants.lineColor),
+      ),
+      child: Icon(
+        Icons.public_rounded,
+        color: StyleConstants.mutedInkColor,
+        size: size * 0.54,
       ),
     );
   }
@@ -258,15 +240,12 @@ class AchievementCardTitleRow extends StatelessWidget {
               ),
             ),
           ),
-          child: Tooltip(
-            message: context.tr('common.info'),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 1),
-              child: Icon(
-                Icons.info_outline_rounded,
-                color: StyleConstants.mutedInkColor,
-                size: 18,
-              ),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(
+              Icons.info_outline_rounded,
+              color: StyleConstants.mutedInkColor,
+              size: 18,
             ),
           ),
         ),

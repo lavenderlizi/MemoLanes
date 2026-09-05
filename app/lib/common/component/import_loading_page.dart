@@ -21,7 +21,8 @@ class ImportLoadingPage<T> extends StatefulWidget {
     BuildContext context,
     Object error,
     StackTrace stackTrace,
-  ) onError;
+  )
+  onError;
 
   @override
   State<ImportLoadingPage<T>> createState() => _ImportLoadingPageState<T>();
@@ -48,16 +49,12 @@ class _ImportLoadingPageState<T> extends State<ImportLoadingPage<T>> {
   }
 
   @override
-  Widget build(BuildContext context) => ImportLoadingScaffold(
-        filePath: widget.filePath,
-      );
+  Widget build(BuildContext context) =>
+      ImportLoadingScaffold(filePath: widget.filePath);
 }
 
 class ImportLoadingScaffold extends StatelessWidget {
-  const ImportLoadingScaffold({
-    super.key,
-    required this.filePath,
-  });
+  const ImportLoadingScaffold({super.key, required this.filePath});
 
   final String filePath;
 
@@ -72,9 +69,7 @@ class ImportLoadingScaffold extends StatelessWidget {
       canPop: false,
       child: Scaffold(
         backgroundColor: StyleConstants.canvasColor,
-        appBar: CapsuleStyleAppBar(
-          title: context.tr('data.import_data.title'),
-        ),
+        appBar: CapsuleStyleAppBar(title: context.tr('data.import_data.title')),
         body: SafeArea(
           top: false,
           child: Center(

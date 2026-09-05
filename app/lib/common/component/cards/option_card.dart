@@ -8,29 +8,33 @@ class OptionCard extends StatelessWidget {
     required this.children,
     this.useSafeArea = true,
     this.separators = true,
+    this.embedded = false,
   });
 
   final List<Widget> children;
   final bool useSafeArea;
   final bool separators;
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     final card = Container(
-      decoration: BoxDecoration(
-        color: StyleConstants.surfaceColor,
-        borderRadius: BorderRadius.circular(16.0),
-        border: Border.all(color: StyleConstants.lineColor),
-        boxShadow: [
-          BoxShadow(
-            color: StyleConstants.shadowColor.withValues(
-              alpha: StyleConstants.isDarkMode ? 0.34 : 0.055,
+      decoration: embedded
+          ? null
+          : BoxDecoration(
+              color: StyleConstants.surfaceColor,
+              borderRadius: BorderRadius.circular(16.0),
+              border: Border.all(color: StyleConstants.lineColor),
+              boxShadow: [
+                BoxShadow(
+                  color: StyleConstants.shadowColor.withValues(
+                    alpha: StyleConstants.isDarkMode ? 0.34 : 0.055,
+                  ),
+                  blurRadius: 20,
+                  offset: const Offset(0, 7),
+                ),
+              ],
             ),
-            blurRadius: 20,
-            offset: const Offset(0, 7),
-          ),
-        ],
-      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.0),
         child: Column(

@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-enum LabelTilePosition {
-  single,
-  top,
-  middle,
-  bottom,
-}
+enum LabelTilePosition { single, top, middle, bottom }
 
 class LabelTile extends StatelessWidget {
   const LabelTile({
@@ -76,10 +71,7 @@ class LabelTile extends StatelessWidget {
     }
     if (position == LabelTilePosition.single ||
         position == LabelTilePosition.top) {
-      borderRadius = borderRadius.copyWith(
-        topLeft: radius,
-        topRight: radius,
-      );
+      borderRadius = borderRadius.copyWith(topLeft: radius, topRight: radius);
     }
 
     List<Widget> children = [
@@ -157,7 +149,8 @@ class LabelTile extends StatelessWidget {
                     color: StyleConstants.surfaceColor,
                     borderRadius: borderRadius,
                     border: Border(
-                      bottom: position == LabelTilePosition.top ||
+                      bottom:
+                          position == LabelTilePosition.top ||
                               position == LabelTilePosition.middle
                           ? BorderSide(color: StyleConstants.lineColor)
                           : BorderSide.none,

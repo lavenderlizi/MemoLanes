@@ -106,9 +106,7 @@ class _AchievementStatsCards extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AchievementSourceCard(stats: stats),
-      ],
+      children: [AchievementSourceCard(stats: stats)],
     );
   }
 }
@@ -152,9 +150,7 @@ class _AchievementStatsSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _SourceSkeletonCard(),
-      ],
+      children: [_SourceSkeletonCard()],
     );
   }
 }
@@ -344,11 +340,7 @@ class _OngoingJourneyBanner extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              Icons.info_outline_rounded,
-              color: accent,
-              size: 19,
-            ),
+            Icon(Icons.info_outline_rounded, color: accent, size: 19),
             const SizedBox(width: 10),
             Expanded(
               child: Column(

@@ -24,20 +24,20 @@ class JourneyListEmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final (titleKey, descriptionKey, icon) = switch (type) {
       JourneyListEmptyType.all => (
-          'journey.list.empty_all_title',
-          'journey.list.empty_all_description',
-          Icons.explore_outlined,
-        ),
+        'journey.list.empty_all_title',
+        'journey.list.empty_all_description',
+        Icons.explore_outlined,
+      ),
       JourneyListEmptyType.filtered => (
-          'journey.list.empty_filtered_title',
-          'journey.list.empty_filtered_description',
-          Icons.layers_clear_outlined,
-        ),
+        'journey.list.empty_filtered_title',
+        'journey.list.empty_filtered_description',
+        Icons.layers_clear_outlined,
+      ),
       JourneyListEmptyType.month => (
-          'journey.list.empty_month_title',
-          'journey.list.empty_month_description',
-          Icons.calendar_month_outlined,
-        ),
+        'journey.list.empty_month_title',
+        'journey.list.empty_month_description',
+        Icons.calendar_month_outlined,
+      ),
     };
 
     return Align(
@@ -69,11 +69,7 @@ class JourneyListEmptyState extends StatelessWidget {
                     color: StyleConstants.softYellow,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    icon,
-                    color: StyleConstants.deepYellow,
-                    size: 25,
-                  ),
+                  child: Icon(icon, color: StyleConstants.deepYellow, size: 25),
                 ),
                 const SizedBox(height: 14),
                 Text(
@@ -96,8 +92,9 @@ class JourneyListEmptyState extends StatelessWidget {
                   AppButton(
                     onPressed: onShowAll,
                     icon: Icons.layers_outlined,
-                    size:
-                        compact ? AppButtonSize.compact : AppButtonSize.regular,
+                    size: compact
+                        ? AppButtonSize.compact
+                        : AppButtonSize.regular,
                     label: context.tr('journey.list.show_all_layers'),
                   ),
                 ],

@@ -38,7 +38,7 @@ class AppCalendarModePicker extends StatelessWidget {
     final label = targetMode == CalendarDatePicker2Mode.year
         ? MaterialLocalizations.of(context).formatYear(monthDate)
         : DateFormat.MMMM(Localizations.localeOf(context).toString())
-            .format(monthDate);
+              .format(monthDate);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -72,10 +72,7 @@ class AppCalendarModePicker extends StatelessWidget {
             ),
           ),
         ),
-        if (trailing != null) ...[
-          SizedBox(width: trailingGap),
-          trailing!,
-        ],
+        if (trailing != null) ...[SizedBox(width: trailingGap), trailing!],
       ],
     );
   }
@@ -107,26 +104,23 @@ class AppCalendarGridOption extends StatelessWidget {
     final foregroundColor = isDisabled
         ? StyleConstants.mutedInkColor.withValues(alpha: 0.42)
         : isSelected
-            ? (StyleConstants.isDarkMode
-                ? StyleConstants.onPrimaryActionColor
-                : StyleConstants.inkColor)
-            : isCurrent
-                ? StyleConstants.deepGreen
-                : StyleConstants.inkColor;
+        ? (StyleConstants.isDarkMode
+              ? StyleConstants.onPrimaryActionColor
+              : StyleConstants.inkColor)
+        : isCurrent
+        ? StyleConstants.deepGreen
+        : StyleConstants.inkColor;
     final decoration = isSelected
         ? BoxDecoration(
             color: StyleConstants.primaryGreen,
             borderRadius: BorderRadius.circular(18),
           )
         : isOriginal
-            ? BoxDecoration(
-                border: Border.all(
-                  color: StyleConstants.primaryGreen,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(18),
-              )
-            : null;
+        ? BoxDecoration(
+            border: Border.all(color: StyleConstants.primaryGreen, width: 2),
+            borderRadius: BorderRadius.circular(18),
+          )
+        : null;
 
     return Center(
       child: Container(
@@ -143,8 +137,8 @@ class AppCalendarGridOption extends StatelessWidget {
               fontWeight: isCurrent
                   ? FontWeight.w700
                   : isSelected
-                      ? FontWeight.w600
-                      : FontWeight.w400,
+                  ? FontWeight.w600
+                  : FontWeight.w400,
             ),
           ),
         ),
@@ -156,9 +150,11 @@ class AppCalendarGridOption extends StatelessWidget {
 /// calendar_date_picker2 assigns semantics to its physical slots. Since the
 /// visual and interactive contents are reversed, the slot labels must follow.
 Map<CalendarDatePicker2SemanticsLabel, String?>
-    yearFirstCalendarModePickerSemantics(BuildContext context) => {
-          CalendarDatePicker2SemanticsLabel.selectMonth:
-              context.tr('common.select_year'),
-          CalendarDatePicker2SemanticsLabel.selectYear:
-              context.tr('common.select_month'),
-        };
+yearFirstCalendarModePickerSemantics(BuildContext context) => {
+  CalendarDatePicker2SemanticsLabel.selectMonth: context.tr(
+    'common.select_year',
+  ),
+  CalendarDatePicker2SemanticsLabel.selectYear: context.tr(
+    'common.select_month',
+  ),
+};

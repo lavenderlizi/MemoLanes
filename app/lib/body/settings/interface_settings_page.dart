@@ -22,9 +22,7 @@ class InterfaceSettingsPage extends StatelessWidget {
         children: [
           AppOptionTile(
             icon: Icons.brightness_auto_outlined,
-            title: context.tr(
-              'general.interface_settings.mode_name.system',
-            ),
+            title: context.tr('general.interface_settings.mode_name.system'),
             selected: controller.preference == AppThemePreference.system,
             trailing: AppOptionTileTrailing.selection,
             onTap: () => controller.setPreference(AppThemePreference.system),
@@ -32,9 +30,7 @@ class InterfaceSettingsPage extends StatelessWidget {
           const SizedBox(height: 8),
           AppOptionTile(
             icon: Icons.light_mode_outlined,
-            title: context.tr(
-              'general.interface_settings.mode_name.light',
-            ),
+            title: context.tr('general.interface_settings.mode_name.light'),
             selected: controller.preference == AppThemePreference.light,
             trailing: AppOptionTileTrailing.selection,
             onTap: () => controller.setPreference(AppThemePreference.light),
@@ -42,9 +38,7 @@ class InterfaceSettingsPage extends StatelessWidget {
           const SizedBox(height: 8),
           AppOptionTile(
             icon: Icons.dark_mode_outlined,
-            title: context.tr(
-              'general.interface_settings.mode_name.dark',
-            ),
+            title: context.tr('general.interface_settings.mode_name.dark'),
             selected: controller.preference == AppThemePreference.dark,
             trailing: AppOptionTileTrailing.selection,
             onTap: () => controller.setPreference(AppThemePreference.dark),

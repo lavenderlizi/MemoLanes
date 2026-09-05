@@ -57,10 +57,7 @@ class MultiJourneyCollapsibleHeader {
 }
 
 class _CollapsedImportHeader extends StatelessWidget {
-  const _CollapsedImportHeader({
-    required this.icon,
-    required this.text,
-  });
+  const _CollapsedImportHeader({required this.icon, required this.text});
 
   final IconData icon;
   final String text;
@@ -142,16 +139,11 @@ class MultiJourneyImportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: StyleConstants.canvasColor,
-      appBar: CapsuleStyleAppBar(
-        title: title,
-        showTitleBackground: false,
-      ),
+      appBar: CapsuleStyleAppBar(title: title, showTitleBackground: false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: _buildCollapsibleList(context, collapsibleHeader),
-          ),
+          Expanded(child: _buildCollapsibleList(context, collapsibleHeader)),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -176,9 +168,7 @@ class MultiJourneyImportPage extends StatelessWidget {
       slivers: [
         SliverPersistentHeader(
           pinned: true,
-          delegate: _CollapsibleHeaderDelegate(
-            config: collapsibleHeader,
-          ),
+          delegate: _CollapsibleHeaderDelegate(config: collapsibleHeader),
         ),
         if (items.isNotEmpty)
           SliverToBoxAdapter(child: _buildListSectionHeader(context)),
@@ -198,10 +188,7 @@ class MultiJourneyImportPage extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
-          Text(
-            listSectionTitle,
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
+          Text(listSectionTitle, style: Theme.of(context).textTheme.titleSmall),
           const Spacer(),
           TextButton.icon(
             onPressed: () => onToggleAll(!_allSelected),

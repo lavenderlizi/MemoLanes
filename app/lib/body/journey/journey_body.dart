@@ -169,9 +169,7 @@ class _JourneyBodyState extends State<JourneyBody> {
         trackColor: WidgetStatePropertyAll(
           StyleConstants.softGreen.withValues(alpha: 0.88),
         ),
-        trackBorderColor: WidgetStatePropertyAll(
-          StyleConstants.lineColor,
-        ),
+        trackBorderColor: WidgetStatePropertyAll(StyleConstants.lineColor),
       ),
       child: Scrollbar(
         controller: _journeyListScrollController,
@@ -195,11 +193,13 @@ class _JourneyBodyState extends State<JourneyBody> {
   }
 
   Widget _buildLandscapeBody(SimpleDate firstDate) {
-    final bottomPadding =
-        _isSelectionMode ? 20.0 : StyleConstants.navBarSafeArea + 5;
+    final bottomPadding = _isSelectionMode
+        ? 20.0
+        : StyleConstants.navBarSafeArea + 5;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth -
+        final availableWidth =
+            constraints.maxWidth -
             _landscapeContentPadding * 2 -
             _landscapeColumnGap;
         final preferredCalendarWidth = availableWidth * 0.42;
@@ -296,13 +296,14 @@ class _JourneyBodyState extends State<JourneyBody> {
           SizedBox(height: _isCompactPicker ? 10 : 16),
           Text(
             context.tr('journey.records_title'),
-            style: (_isCompactPicker
-                    ? AppTypography.itemTitle
-                    : AppTypography.subpageTitle)
-                .copyWith(
-              color: StyleConstants.inkColor,
-              fontWeight: FontWeight.w700,
-            ),
+            style:
+                (_isCompactPicker
+                        ? AppTypography.itemTitle
+                        : AppTypography.subpageTitle)
+                    .copyWith(
+                      color: StyleConstants.inkColor,
+                      fontWeight: FontWeight.w700,
+                    ),
           ),
           SizedBox(height: _isCompactPicker ? 6 : 10),
           Expanded(child: _buildJourneyHeaderList()),
@@ -341,23 +342,26 @@ class _JourneyPageHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          context.tr(selectionMode
-              ? 'journey.picker_title'
-              : 'journey.editor_overview_title'),
-          style: (selectionMode
-                  ? AppTypography.compactPageTitle
-                  : AppTypography.pageTitle)
-              .copyWith(color: StyleConstants.inkColor),
-        ),
-        const SizedBox(height: 7),
-        Text(
-          context.tr(selectionMode
-              ? 'journey.picker_subtitle'
-              : 'journey.editor_overview_subtitle'),
-          style: AppTypography.body.copyWith(
-            color: StyleConstants.mutedInkColor,
+          context.tr(
+            selectionMode
+                ? 'journey.picker_title'
+                : 'journey.editor_overview_title',
           ),
+          style:
+              (selectionMode
+                      ? AppTypography.compactPageTitle
+                      : AppTypography.pageTitle)
+                  .copyWith(color: StyleConstants.inkColor),
         ),
+        if (selectionMode) ...[
+          const SizedBox(height: 7),
+          Text(
+            context.tr('journey.picker_subtitle'),
+            style: AppTypography.body.copyWith(
+              color: StyleConstants.mutedInkColor,
+            ),
+          ),
+        ],
       ],
     );
   }

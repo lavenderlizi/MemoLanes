@@ -21,9 +21,9 @@ enum AppThemePreference {
 
 class AppThemeController extends ChangeNotifier with WidgetsBindingObserver {
   AppThemeController()
-      : _preference = AppThemePreference.fromId(
-          MMKVUtil.getStringOpt(MMKVKey.interfaceThemeMode),
-        ) {
+    : _preference = AppThemePreference.fromId(
+        MMKVUtil.getStringOpt(MMKVKey.interfaceThemeMode),
+      ) {
     WidgetsBinding.instance.addObserver(this);
     _applyPalette();
   }
@@ -33,11 +33,11 @@ class AppThemeController extends ChangeNotifier with WidgetsBindingObserver {
   AppThemePreference get preference => _preference;
 
   Brightness get brightness => switch (_preference) {
-        AppThemePreference.system =>
-          WidgetsBinding.instance.platformDispatcher.platformBrightness,
-        AppThemePreference.light => Brightness.light,
-        AppThemePreference.dark => Brightness.dark,
-      };
+    AppThemePreference.system =>
+      WidgetsBinding.instance.platformDispatcher.platformBrightness,
+    AppThemePreference.light => Brightness.light,
+    AppThemePreference.dark => Brightness.dark,
+  };
 
   void setPreference(AppThemePreference preference) {
     if (_preference == preference) return;

@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-enum CardLabelTilePosition {
-  single,
-  top,
-  middle,
-  bottom,
-}
+enum CardLabelTilePosition { single, top, middle, bottom }
 
 class CardLabelTile extends StatelessWidget {
   const CardLabelTile({
@@ -49,10 +44,7 @@ class CardLabelTile extends StatelessWidget {
     if (position == CardLabelTilePosition.single ||
         position == CardLabelTilePosition.top) {
       margin = EdgeInsets.only(top: top ? 8.0 : 0.0);
-      borderRadius = borderRadius.copyWith(
-        topLeft: radius,
-        topRight: radius,
-      );
+      borderRadius = borderRadius.copyWith(topLeft: radius, topRight: radius);
     }
 
     return Container(
@@ -70,9 +62,7 @@ class CardLabelTile extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(minHeight: 54),
                 child: Ink(
-                  decoration: BoxDecoration(
-                    borderRadius: borderRadius,
-                  ),
+                  decoration: BoxDecoration(borderRadius: borderRadius),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 10,
@@ -96,10 +86,7 @@ class CardLabelTile extends StatelessWidget {
           ),
           (position == CardLabelTilePosition.top ||
                   position == CardLabelTilePosition.middle)
-              ? Container(
-                  height: 0.5,
-                  color: StyleConstants.lineColor,
-                )
+              ? Container(height: 0.5, color: StyleConstants.lineColor)
               : SizedBox.shrink(),
         ],
       ),

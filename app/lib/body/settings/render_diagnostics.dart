@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -31,12 +32,14 @@ class _RenderDiagnosticsPageState extends State<RenderDiagnosticsPage> {
   }
 
   Future<
-      ({
-        int status,
-        Uint8List body,
-        String contentType,
-        Map<String, String> headers
-      })> _handleInterceptedRequest(WebUri url) async {
+    ({
+      int status,
+      Uint8List body,
+      String contentType,
+      Map<String, String> headers,
+    })
+  >
+  _handleInterceptedRequest(WebUri url) async {
     final path = url.path.replaceFirst(RegExp(r'^/?(api/)?'), '');
     final result = await _mapRendererProxy.handleRequest(
       path: path,
@@ -51,11 +54,14 @@ class _RenderDiagnosticsPageState extends State<RenderDiagnosticsPage> {
   }
 
   Future<void> _injectApiEndpoint() async {
-    final cgiEndpoint =
-        Platform.isIOS ? 'memolanes://api' : 'https://memolanes.local/api';
+    final cgiEndpoint = Platform.isIOS
+        ? 'memolanes://api'
+        : 'https://memolanes.local/api';
     final interfaceTheme = StyleConstants.isDarkMode ? 'dark' : 'light';
 
-    await _controller?.evaluateJavascript(source: '''
+    await _controller?.evaluateJavascript(
+      source:
+          '''
       document.documentElement.dataset.theme = "$interfaceTheme";
       window.EXTERNAL_PARAMS = {
         cgi_endpoint: "$cgiEndpoint"
@@ -69,7 +75,8 @@ class _RenderDiagnosticsPageState extends State<RenderDiagnosticsPage> {
       } else {
         console.log("JS not ready yet, params stored for later");
       }
-    ''');
+    ''',
+    );
   }
 
   @override
@@ -135,7 +142,8 @@ class _RenderDiagnosticsPageState extends State<RenderDiagnosticsPage> {
         },
         onConsoleMessage: (controller, consoleMessage) {
           debugPrint(
-              '[${consoleMessage.messageLevel.name}] ${consoleMessage.message}');
+            '[${consoleMessage.messageLevel.name}] ${consoleMessage.message}',
+          );
         },
         onReceivedError: (controller, request, error) {
           debugPrint('WebView error: ${error.description}');

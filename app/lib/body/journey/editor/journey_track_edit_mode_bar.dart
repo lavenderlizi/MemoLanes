@@ -8,17 +8,9 @@ import 'package:memolanes/common/component/liquid_glass_surface.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 
-enum OperationMode {
-  move,
-  edit,
-  editReadonly,
-  delete,
-}
+enum OperationMode { move, edit, editReadonly, delete }
 
-enum DrawEntryMode {
-  freehand,
-  linked,
-}
+enum DrawEntryMode { freehand, linked }
 
 class ModeSwitchBar extends StatelessWidget {
   static const double extent = 56.0;
@@ -51,8 +43,9 @@ class ModeSwitchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedModeWidth =
-        MediaQuery.sizeOf(context).width < 340 ? 58.0 : 66.0;
+    final selectedModeWidth = MediaQuery.sizeOf(context).width < 340
+        ? 58.0
+        : 66.0;
     final saveCallback = onSave;
 
     return Align(
@@ -189,8 +182,9 @@ class _EditorModeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor =
-        isCaution ? StyleConstants.warningInkColor : StyleConstants.deepGreen;
+    final activeColor = isCaution
+        ? StyleConstants.warningInkColor
+        : StyleConstants.deepGreen;
     final activeBackground = isCaution
         ? StyleConstants.warningColor.withValues(alpha: 0.28)
         : StyleConstants.primaryGreen.withValues(alpha: 0.25);
@@ -271,10 +265,7 @@ class _EditorModeButton extends StatelessWidget {
 }
 
 class _UndoButton extends StatelessWidget {
-  const _UndoButton({
-    required this.label,
-    required this.onTap,
-  });
+  const _UndoButton({required this.label, required this.onTap});
 
   final String label;
   final VoidCallback? onTap;
@@ -299,13 +290,16 @@ class _UndoButton extends StatelessWidget {
                     tapCallback();
                   },
             style: IconButton.styleFrom(
-              backgroundColor:
-                  StyleConstants.surfaceColor.withValues(alpha: 0.56),
+              backgroundColor: StyleConstants.surfaceColor.withValues(
+                alpha: 0.56,
+              ),
               foregroundColor: StyleConstants.deepGreen,
-              disabledBackgroundColor:
-                  StyleConstants.surfaceColor.withValues(alpha: 0.24),
-              disabledForegroundColor:
-                  StyleConstants.mutedInkColor.withValues(alpha: 0.38),
+              disabledBackgroundColor: StyleConstants.surfaceColor.withValues(
+                alpha: 0.24,
+              ),
+              disabledForegroundColor: StyleConstants.mutedInkColor.withValues(
+                alpha: 0.38,
+              ),
               side: BorderSide(
                 color: StyleConstants.lineColor.withValues(alpha: 0.82),
               ),
@@ -319,10 +313,7 @@ class _UndoButton extends StatelessWidget {
 }
 
 class _DrawModeMenu extends StatelessWidget {
-  const _DrawModeMenu({
-    required this.currentMode,
-    required this.onModeChanged,
-  });
+  const _DrawModeMenu({required this.currentMode, required this.onModeChanged});
 
   final DrawEntryMode currentMode;
   final ValueChanged<DrawEntryMode> onModeChanged;
@@ -382,8 +373,9 @@ class _DrawModeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contentColor =
-        isSelected ? StyleConstants.deepGreen : StyleConstants.mutedInkColor;
+    final contentColor = isSelected
+        ? StyleConstants.deepGreen
+        : StyleConstants.mutedInkColor;
 
     return Semantics(
       selected: isSelected,
@@ -417,8 +409,9 @@ class _DrawModeOption extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.label.copyWith(
                         color: contentColor,
-                        fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                       ),
                     ),
                   ),

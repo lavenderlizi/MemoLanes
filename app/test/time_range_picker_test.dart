@@ -47,22 +47,40 @@ void main() {
   setUpAll(() async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('plugins.flutter.io/shared_preferences'),
-      (call) async => call.method == 'getAll' ? <String, Object>{} : null,
-    );
+          const MethodChannel('plugins.flutter.io/shared_preferences'),
+          (call) async => call.method == 'getAll' ? <String, Object>{} : null,
+        );
     await EasyLocalization.ensureInitialized();
     await _loader.load('assets/translations', _enUs);
   });
 
-  testWidgets(
-      'mode menu keeps its content size and leaves the timeline interactive',
-      (tester) async {
-    tester.view.physicalSize = const Size(1080, 1920);
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final app = _buildTestApp(onRangeChanged: (_, __) {});
+  testWidgets('custom date tiles use the shared app date picker', (
+    tester,
+  ) async {
+    final app = EasyLocalization(
+      supportedLocales: const [_enUs],
+      path: 'assets/translations',
+      assetLoader: _loader,
+      fallbackLocale: _enUs,
+      child: Builder(
+        builder: (context) => MaterialApp(
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          home: Scaffold(
+            body: Center(
+              child: TimeRangeOverlayPicker(
+                fromDate: DateTime(2020, 1, 2),
+                toDate: DateTime(2024, 12, 31),
+                earliest: DateTime(2020),
+                onFromChanged: (_) {},
+                onToChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
     await tester.runAsync(() async {
       await tester.pumpWidget(app);
@@ -70,48 +88,16 @@ void main() {
     });
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(TimeRangeControllerBall));
-    await tester.pumpAndSettle();
-
-    final periodText = find.text('Period');
-    expect(periodText, findsOneWidget);
-    final menuGlass = find.ancestor(
-      of: periodText,
-      matching: find.byType(BackdropFilter),
+    final dateTiles = find.descendant(
+      of: find.byType(TimeRangeOverlayPicker),
+      matching: find.byType(InkWell),
     );
-    expect(menuGlass, findsOneWidget);
-    final menuSize = tester.getSize(menuGlass);
-    expect(menuSize.width, lessThan(tester.view.physicalSize.width / 3));
-    expect(menuSize.height, lessThan(tester.view.physicalSize.height / 3));
-
-    await tester.drag(find.byType(TimeRuler), const Offset(-80, 0));
-    await tester.pumpAndSettle();
-    expect(periodText, findsOneWidget);
-
-    await tester.tapAt(const Offset(350, 20));
-    await tester.pumpAndSettle();
-    expect(periodText, findsNothing);
-  });
-
-  testWidgets('mode menu remains usable on a 320px viewport', (tester) async {
-    tester.view.physicalSize = const Size(320, 480);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.runAsync(() async {
-      await tester.pumpWidget(_buildTestApp(onRangeChanged: (_, __) {}));
-      await tester.pump(const Duration(seconds: 1));
-    });
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byType(TimeRangeControllerBall));
+    await tester.tap(dateTiles.first);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Period'), findsOneWidget);
-    expect(find.text('Granularity'), findsOneWidget);
-    expect(find.text('Ground'), findsOneWidget);
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(find.byType(DatePickerDialog), findsNothing);
   });
 
   testWidgets('defaults to the cumulative as-of range', (tester) async {
@@ -119,9 +105,7 @@ void main() {
     final currentYear = DateTime.now().year;
     await tester.runAsync(() async {
       await tester.pumpWidget(
-        _buildTestApp(
-          onRangeChanged: (from, to) => ranges.add((from, to)),
-        ),
+        _buildTestApp(onRangeChanged: (from, to) => ranges.add((from, to))),
       );
       await tester.pump(const Duration(seconds: 1));
     });

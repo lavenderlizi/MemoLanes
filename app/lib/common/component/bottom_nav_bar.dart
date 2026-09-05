@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:badges/badges.dart' as badges;
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
@@ -23,12 +22,12 @@ class BottomNavBar extends StatelessWidget {
   static const double designHorizontalMargin = 24;
 
   Alignment get _selectionAlignment => switch (selectedIndex) {
-        0 => Alignment.centerLeft,
-        1 => const Alignment(-0.5, 0),
-        2 => Alignment.center,
-        3 => const Alignment(0.5, 0),
-        _ => Alignment.centerRight,
-      };
+    0 => Alignment.centerLeft,
+    1 => const Alignment(-0.5, 0),
+    2 => Alignment.center,
+    3 => const Alignment(0.5, 0),
+    _ => Alignment.centerRight,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +57,8 @@ class BottomNavBar extends StatelessWidget {
                             ? StyleConstants.primaryGreen
                             : StyleConstants.softGreen)
                         .withValues(
-                      alpha: StyleConstants.isDarkMode ? 0.22 : 0.54,
-                    ),
+                          alpha: StyleConstants.isDarkMode ? 0.22 : 0.54,
+                        ),
                     (StyleConstants.isDarkMode
                             ? StyleConstants.primaryGreen
                             : StyleConstants.surfaceColor)
@@ -80,11 +79,15 @@ class BottomNavBar extends StatelessWidget {
               curve: Curves.linear,
               builder: (context, progress, child) {
                 const expansionEnd = 0.38;
-                final expansionProgress =
-                    (progress / expansionEnd).clamp(0.0, 1.0);
+                final expansionProgress = (progress / expansionEnd).clamp(
+                  0.0,
+                  1.0,
+                );
                 final settlingProgress =
-                    ((progress - expansionEnd) / (1 - expansionEnd))
-                        .clamp(0.0, 1.0);
+                    ((progress - expansionEnd) / (1 - expansionEnd)).clamp(
+                      0.0,
+                      1.0,
+                    );
                 final expansion = progress <= expansionEnd
                     ? Curves.easeOutCubic.transform(expansionProgress)
                     : 1 - Curves.easeOutCubic.transform(settlingProgress);
@@ -100,25 +103,31 @@ class BottomNavBar extends StatelessWidget {
                 widthFactor: 0.2,
                 heightFactor: 1,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 5,
+                  ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(19),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: (StyleConstants.isDarkMode
-                                  ? StyleConstants.primaryGreen
-                                  : StyleConstants.strongLineColor)
-                              .withValues(
-                            alpha: StyleConstants.isDarkMode ? 0.16 : 0.22,
-                          ),
+                          color:
+                              (StyleConstants.isDarkMode
+                                      ? StyleConstants.primaryGreen
+                                      : StyleConstants.strongLineColor)
+                                  .withValues(
+                                    alpha: StyleConstants.isDarkMode
+                                        ? 0.16
+                                        : 0.22,
+                                  ),
                           borderRadius: BorderRadius.circular(19),
                           boxShadow: [
                             BoxShadow(
-                              color: StyleConstants.deepGreen
-                                  .withValues(alpha: 0.14),
+                              color: StyleConstants.deepGreen.withValues(
+                                alpha: 0.14,
+                              ),
                               blurRadius: 12,
                               spreadRadius: -1,
                               offset: const Offset(0, 4),
@@ -136,39 +145,21 @@ class BottomNavBar extends StatelessWidget {
             color: Colors.transparent,
             child: Row(
               children: [
+                _buildNavItem(Icons.explore_outlined, Icons.explore_rounded, 0),
                 _buildNavItem(
-                  context,
-                  Icons.explore_outlined,
-                  Icons.explore_rounded,
-                  'navigation.record',
-                  0,
-                ),
-                _buildNavItem(
-                  context,
                   Icons.access_time_rounded,
                   Icons.history_rounded,
-                  'navigation.time_machine',
                   1,
                 ),
+                _buildNavItem(Icons.route_outlined, Icons.route, 2),
                 _buildNavItem(
-                  context,
-                  Icons.route_outlined,
-                  Icons.edit_road_rounded,
-                  'navigation.edit',
-                  2,
-                ),
-                _buildNavItem(
-                  context,
                   Icons.emoji_events_outlined,
                   Icons.emoji_events_rounded,
-                  'navigation.achievement',
                   3,
                 ),
                 _buildNavItem(
-                  context,
                   Icons.settings_outlined,
                   Icons.settings_rounded,
-                  'navigation.settings',
                   4,
                 ),
               ],
@@ -179,64 +170,57 @@ class BottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, IconData icon, IconData activeIcon,
-      String labelKey, int index) {
+  Widget _buildNavItem(IconData icon, IconData activeIcon, int index) {
     final isSelected = selectedIndex == index;
-    final label = context.tr(labelKey);
 
     return Expanded(
-      child: Semantics(
-        selected: isSelected,
-        button: true,
-        label: label,
-        child: InkWell(
-          onTap: () {
-            if (!isSelected) AppHaptics.selection();
-            onIndexChanged(index);
-          },
-          borderRadius: BorderRadius.circular(22),
-          child: Center(
-            child: badges.Badge(
-              showBadge: index == 4 && hasUpdateNotification(),
-              position: badges.BadgePosition.topEnd(top: -4, end: -5),
-              badgeStyle: badges.BadgeStyle(
-                badgeColor: StyleConstants.warningColor,
-                padding: EdgeInsets.all(4),
-              ),
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: isSelected ? 1 : 0),
-                duration: const Duration(milliseconds: 420),
-                curve: Curves.easeInOutCubic,
-                builder: (context, progress, _) {
-                  // Both selecting and deselecting pass through the midpoint.
-                  // Blur peaks there, hiding the glyph swap and creating a
-                  // short refraction-like focus transition.
-                  final blurProgress = 4 * progress * (1 - progress);
-                  final blurSigma = blurProgress * 2.2;
-                  final scale = 1 + progress * 0.1 + blurProgress * 0.045;
-                  final color = Color.lerp(
-                    StyleConstants.mutedInkColor,
-                    StyleConstants.deepGreen,
-                    progress,
-                  );
+      child: InkWell(
+        onTap: () {
+          if (!isSelected) AppHaptics.selection();
+          onIndexChanged(index);
+        },
+        borderRadius: BorderRadius.circular(22),
+        child: Center(
+          child: badges.Badge(
+            showBadge: index == 4 && hasUpdateNotification(),
+            position: badges.BadgePosition.topEnd(top: -4, end: -5),
+            badgeStyle: badges.BadgeStyle(
+              badgeColor: StyleConstants.warningColor,
+              padding: EdgeInsets.all(4),
+            ),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: isSelected ? 1 : 0),
+              duration: const Duration(milliseconds: 420),
+              curve: Curves.easeInOutCubic,
+              builder: (context, progress, _) {
+                // Both selecting and deselecting pass through the midpoint.
+                // Blur peaks there, hiding the glyph swap and creating a
+                // short refraction-like focus transition.
+                final blurProgress = 4 * progress * (1 - progress);
+                final blurSigma = blurProgress * 2.2;
+                final scale = 1 + progress * 0.1 + blurProgress * 0.045;
+                final color = Color.lerp(
+                  StyleConstants.mutedInkColor,
+                  StyleConstants.deepGreen,
+                  progress,
+                );
 
-                  return Transform.scale(
-                    scale: scale,
-                    child: ImageFiltered(
-                      imageFilter: ImageFilter.blur(
-                        sigmaX: blurSigma,
-                        sigmaY: blurSigma,
-                        tileMode: TileMode.decal,
-                      ),
-                      child: Icon(
-                        isSelected ? activeIcon : icon,
-                        color: color,
-                        size: 27 + progress * 2,
-                      ),
+                return Transform.scale(
+                  scale: scale,
+                  child: ImageFiltered(
+                    imageFilter: ImageFilter.blur(
+                      sigmaX: blurSigma,
+                      sigmaY: blurSigma,
+                      tileMode: TileMode.decal,
                     ),
-                  );
-                },
-              ),
+                    child: Icon(
+                      isSelected ? activeIcon : icon,
+                      color: color,
+                      size: 27 + progress * 2,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),

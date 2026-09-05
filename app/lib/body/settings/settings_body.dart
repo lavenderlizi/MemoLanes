@@ -9,7 +9,7 @@ import 'package:memolanes/body/settings/import_data_page.dart';
 import 'package:memolanes/body/settings/interface_settings_page.dart';
 import 'package:memolanes/body/settings/map_settings_page.dart';
 import 'package:memolanes/common/app_theme_controller.dart';
-import 'package:memolanes/common/component/basic_bottom_sheet.dart';
+import 'package:memolanes/common/component/basic_dialog_card.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/common_export.dart';
@@ -83,8 +83,8 @@ class _SettingsBodyState extends State<SettingsBody> {
     // } else {
     //   allowedExtensions = ['kml', 'gpx', 'csv'];
     // }
-    final result = await FilePicker.pickFiles(type: FileType.any);
-    final path = result?.files.single.path;
+    final result = await FilePicker.pickFile(type: FileType.any);
+    final path = result?.path;
     if (path != null && context.mounted) {
       navigatorPush(
         context,
@@ -135,15 +135,11 @@ class _SettingsBodyState extends State<SettingsBody> {
           useSafeArea: false,
           separators: false,
           children: [
-            LabelTileTitle(
-              label: context.tr("general.title"),
-            ),
+            LabelTileTitle(label: context.tr("general.title")),
             LabelTile(
               label: context.tr("general.version.title"),
               position: LabelTilePosition.middle,
-              prefix: _SettingsTileIcon(
-                icon: Icons.info_outline_rounded,
-              ),
+              prefix: _SettingsTileIcon(icon: Icons.info_outline_rounded),
               trailing: updateUrl != null
                   ? badges.Badge(
                       badgeStyle: badges.BadgeStyle(
@@ -158,13 +154,9 @@ class _SettingsBodyState extends State<SettingsBody> {
                           color: StyleConstants.inverseInkColor,
                         ),
                       ),
-                      child: LabelTileContent(
-                        content: _version,
-                      ),
+                      child: LabelTileContent(content: _version),
                     )
-                  : LabelTileContent(
-                      content: _version,
-                    ),
+                  : LabelTileContent(content: _version),
               onTap: () async {
                 if (updateUrl != null) {
                   _launchUrl(updateUrl);
@@ -187,14 +179,10 @@ class _SettingsBodyState extends State<SettingsBody> {
             LabelTile(
               label: context.tr("general.interface_settings.title"),
               position: LabelTilePosition.middle,
-              prefix: _SettingsTileIcon(
-                icon: Icons.palette_outlined,
-              ),
+              prefix: _SettingsTileIcon(icon: Icons.palette_outlined),
               trailing: LabelTileContent(showArrow: true),
-              onTap: () => navigatorPush(
-                context,
-                page: const InterfaceSettingsPage(),
-              ),
+              onTap: () =>
+                  navigatorPush(context, page: const InterfaceSettingsPage()),
             ),
             LabelTile(
               label: context.tr("general.advanced_settings.title"),
@@ -211,9 +199,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           useSafeArea: false,
           separators: false,
           children: [
-            LabelTileTitle(
-              label: context.tr("data.title"),
-            ),
+            LabelTileTitle(label: context.tr("data.title")),
             // TODO: This is unused, but we may use it depending on the design of
             // import/export workflow.
             //
@@ -275,19 +261,22 @@ class _SettingsBodyState extends State<SettingsBody> {
                   exportFile: (format) async {
                     var tmpDir = await getTemporaryDirectory();
                     final now = DateTime.now();
-                    final timestamp =
-                        DateFormat('yyyy-MM-dd-HH-mm-ss').format(now);
+                    final timestamp = DateFormat('yyyy-MM-dd-HH-mm-ss')
+                        .format(now);
                     final filepath =
                         "${tmpDir.path}/all-journeys-$timestamp.${format.extension}";
                     final exportResult = switch (format) {
-                      CommonExportFormat.mldx =>
-                        await api.generateFullArchive(targetFilepath: filepath),
-                      CommonExportFormat.fwss => await api
-                          .exportAllJourneysAsFwss(targetFilepath: filepath),
+                      CommonExportFormat.mldx => await api.generateFullArchive(
+                        targetFilepath: filepath,
+                      ),
+                      CommonExportFormat.fwss =>
+                        await api.exportAllJourneysAsFwss(
+                          targetFilepath: filepath,
+                        ),
                       CommonExportFormat.kml ||
-                      CommonExportFormat.gpx =>
-                        throw UnsupportedError(
-                            'Unsupported export format: $format'),
+                      CommonExportFormat.gpx => throw UnsupportedError(
+                        'Unsupported export format: $format',
+                      ),
                     };
                     return CommonExportResult.create(exportResult, filepath);
                   },
@@ -301,9 +290,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           useSafeArea: false,
           separators: false,
           children: [
-            LabelTileTitle(
-              label: context.tr("settings.other"),
-            ),
+            LabelTileTitle(label: context.tr("settings.other")),
             LabelTile(
               label: context.tr("unexpected_exit_notification.setting_title"),
               position: defaultTargetPlatform == TargetPlatform.android
@@ -327,14 +314,17 @@ class _SettingsBodyState extends State<SettingsBody> {
                       await showCommonDialog(
                         context,
                         context.tr(
-                            "unexpected_exit_notification.notification_permission_denied"),
+                          "unexpected_exit_notification.notification_permission_denied",
+                        ),
                       );
                       Geolocator.openAppSettings();
                       return;
                     }
                   }
                   MMKVUtil.putBool(
-                      MMKVKey.isUnexpectedExitNotificationEnabled, value);
+                    MMKVKey.isUnexpectedExitNotificationEnabled,
+                    value,
+                  );
                   setState(() {
                     _isUnexpectedExitNotificationEnabled = value;
                   });
@@ -342,10 +332,11 @@ class _SettingsBodyState extends State<SettingsBody> {
                       GpsRecordingStatus.recording) {
                     if (!context.mounted) return;
                     await showCommonDialog(
-                        context,
-                        context.tr(
-                          "unexpected_exit_notification.change_affect_next_time",
-                        ));
+                      context,
+                      context.tr(
+                        "unexpected_exit_notification.change_affect_next_time",
+                      ),
+                    );
                   }
                 },
               ),
@@ -355,20 +346,19 @@ class _SettingsBodyState extends State<SettingsBody> {
                 label: context.tr("recording_health.setting_title"),
                 position: LabelTilePosition.bottom,
                 bottom: false,
-                prefix: _SettingsTileIcon(
-                  icon: Icons.monitor_heart_outlined,
-                ),
+                prefix: _SettingsTileIcon(icon: Icons.monitor_heart_outlined),
                 trailing: ListenableBuilder(
                   listenable: RecordingHealthService.instance,
                   builder: (context, _) => Switch(
                     value: RecordingHealthService
-                        .instance.isHeartbeatDetectionEnabled,
+                        .instance
+                        .isHeartbeatDetectionEnabled,
                     onChanged: (value) {
                       RecordingHealthService.instance
                           .setHeartbeatDetectionEnabled(
-                        value,
-                        recordingStatus: gpsManager.recordingStatus,
-                      );
+                            value,
+                            recordingStatus: gpsManager.recordingStatus,
+                          );
                     },
                   ),
                 ),
@@ -380,9 +370,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           useSafeArea: false,
           separators: false,
           children: [
-            LabelTileTitle(
-              label: context.tr("settings.about"),
-            ),
+            LabelTileTitle(label: context.tr("settings.about")),
             LabelTile(
               label: context.tr("privacy.name"),
               position: LabelTilePosition.middle,
@@ -392,8 +380,10 @@ class _SettingsBodyState extends State<SettingsBody> {
               ),
               trailing: LabelTileContent(rightIcon: Icons.open_in_new),
               onTap: () async {
-                await launchUrlString(context.tr("privacy.url"),
-                    mode: LaunchMode.externalApplication);
+                await launchUrlString(
+                  context.tr("privacy.url"),
+                  mode: LaunchMode.externalApplication,
+                );
               },
             ),
             LabelTile(
@@ -414,12 +404,12 @@ class _SettingsBodyState extends State<SettingsBody> {
   }
 
   void _showImportDataCard(BuildContext context) {
-    showBasicBottomSheet<void>(
+    showBasicDialogCard<void>(
       context,
       title: context.tr("data.import_data.title"),
       maxHeightFactor: 0.68,
       contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
-      child: Column(
+      builder: (dialogContext) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
@@ -435,15 +425,13 @@ class _SettingsBodyState extends State<SettingsBody> {
                 icon: Icons.inventory_2_outlined,
                 title: context.tr("journey.import_mldx_data"),
                 onTap: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   // TODO: FilePicker is weird and `allowedExtensions` does not really work.
                   // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
-                  var result = await FilePicker.pickFiles(
-                    type: FileType.any,
-                  );
+                  var result = await FilePicker.pickFile(type: FileType.any);
                   if (!context.mounted) return;
                   if (result != null) {
-                    var path = result.files.single.path;
+                    var path = result.path;
                     if (path != null) {
                       await importMldx(context, path);
                     }
@@ -455,7 +443,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                 icon: Icons.route_outlined,
                 title: context.tr("import.vector.title"),
                 onTap: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   await showCommonDialog(
                     context,
                     context.tr("import.vector.description_md"),
@@ -470,7 +458,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                 icon: Icons.grid_4x4_outlined,
                 title: context.tr("journey.import_fog_of_world_data"),
                 onTap: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   await showCommonDialog(
                     context,
                     context.tr("import.import_fow_data.description_md"),
@@ -499,10 +487,7 @@ class _SettingsBodyState extends State<SettingsBody> {
 }
 
 class _SettingsTileIcon extends StatelessWidget {
-  const _SettingsTileIcon({
-    required this.icon,
-    this.yellow = false,
-  });
+  const _SettingsTileIcon({required this.icon, this.yellow = false});
 
   final IconData icon;
   final bool yellow;
@@ -537,9 +522,7 @@ class _SettingsPageHeader extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Text(
         context.tr('settings.page_title'),
-        style: AppTypography.pageTitle.copyWith(
-          color: StyleConstants.inkColor,
-        ),
+        style: AppTypography.pageTitle.copyWith(color: StyleConstants.inkColor),
       ),
     );
   }

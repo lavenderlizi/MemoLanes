@@ -38,17 +38,17 @@ class FrostedBarItem extends StatelessWidget {
 
     final Color bgColor = isSelected
         ? (isEnabled
-            ? themeColor.withValues(alpha: 0.12)
-            : (StyleConstants.isDarkMode
-                ? StyleConstants.lineColor.withValues(alpha: 0.36)
-                : StyleConstants.inkColor.withValues(alpha: 0.05)))
+              ? themeColor.withValues(alpha: 0.12)
+              : (StyleConstants.isDarkMode
+                    ? StyleConstants.lineColor.withValues(alpha: 0.36)
+                    : StyleConstants.inkColor.withValues(alpha: 0.05)))
         : Colors.transparent;
 
     final Color contentColor = !isEnabled
         ? baseDisabledColor
         : isSelected
-            ? themeColor
-            : baseUnselectedColor;
+        ? themeColor
+        : baseUnselectedColor;
 
     return GestureDetector(
       onTap: onTap,

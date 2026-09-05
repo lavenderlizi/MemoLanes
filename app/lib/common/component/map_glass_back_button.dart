@@ -4,10 +4,7 @@ import 'package:memolanes/constants/style_constants.dart';
 
 /// Back button shared by cards and controls floating directly over the map.
 class MapGlassBackButton extends StatelessWidget {
-  const MapGlassBackButton({
-    super.key,
-    required this.onPressed,
-  });
+  const MapGlassBackButton({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
@@ -29,8 +26,8 @@ class MapGlassBackButton extends StatelessWidget {
               Icons.arrow_back_ios_new_rounded,
               size: 18,
               color: StyleConstants.deepGreen,
-              semanticLabel:
-                  MaterialLocalizations.of(context).backButtonTooltip,
+              semanticLabel: MaterialLocalizations.of(context)
+                  .backButtonTooltip,
             ),
           ),
         ),

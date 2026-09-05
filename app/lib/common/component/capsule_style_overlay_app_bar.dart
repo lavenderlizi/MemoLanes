@@ -31,10 +31,11 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
   final CapsuleBarSurfaceStyle surfaceStyle;
 
   @override
-  Size get preferredSize =>
-      const Size.fromHeight(CapsuleBarConstants.barContentHeight +
-          CapsuleBarConstants.barBottomInset +
-          CapsuleBarConstants.maxSafeTop);
+  Size get preferredSize => const Size.fromHeight(
+    CapsuleBarConstants.barContentHeight +
+        CapsuleBarConstants.barBottomInset +
+        CapsuleBarConstants.maxSafeTop,
+  );
 
   /// Returns a transparent bar that can be placed in a [Stack] (non-layout, floats over content), e.g. with [SlidingUpPanel].
   /// If [moreMenuContent] is set, the more button shows it via [CustomPopup] on tap.
@@ -69,7 +70,8 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
     double minVisibleMapHeight = 120.0,
   }) {
     final mediaQuery = MediaQuery.of(context);
-    final top = mediaQuery.padding.top * 0.8 +
+    final top =
+        mediaQuery.padding.top * 0.8 +
         CapsuleBarConstants.barContentHeight +
         CapsuleBarConstants.barBottomInset +
         edgePadding;
@@ -128,18 +130,19 @@ class CapsuleStyleOverlayAppBar extends StatelessWidget
         : CapsuleBarConstants.barBorderColor;
 
     return Container(
-      height: topInset +
+      height:
+          topInset +
           CapsuleBarConstants.barContentHeight +
           CapsuleBarConstants.barBottomInset,
       decoration: BoxDecoration(
         color: barColor,
-        border: Border(
-          bottom: BorderSide(color: borderColor, width: 0.5),
-        ),
+        border: Border(bottom: BorderSide(color: borderColor, width: 0.5)),
       ),
       child: Padding(
         padding: EdgeInsets.only(
-            top: topInset, bottom: CapsuleBarConstants.barBottomInset),
+          top: topInset,
+          bottom: CapsuleBarConstants.barBottomInset,
+        ),
         child: CapsuleBarContent(
           showOnlyBackButton: showOnlyBackButton,
           title: title,
@@ -189,13 +192,16 @@ class _OverlayBarOnly extends StatelessWidget {
       left: 0,
       right: 0,
       child: Container(
-        height: topInset +
+        height:
+            topInset +
             CapsuleBarConstants.barContentHeight +
             CapsuleBarConstants.barBottomInset,
         color: Colors.transparent,
         child: Padding(
           padding: EdgeInsets.only(
-              top: topInset, bottom: CapsuleBarConstants.barBottomInset),
+            top: topInset,
+            bottom: CapsuleBarConstants.barBottomInset,
+          ),
           child: CapsuleBarContent(
             showOnlyBackButton: showOnlyBackButton,
             title: title,
@@ -245,7 +251,8 @@ class _CapsuleOverlayConnection extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     final topInset = padding.top * 0.8;
-    final totalBarHeight = topInset +
+    final totalBarHeight =
+        topInset +
         CapsuleBarConstants.barContentHeight +
         CapsuleBarConstants.barBottomInset;
 
@@ -253,7 +260,9 @@ class _CapsuleOverlayConnection extends StatelessWidget {
       color: Colors.transparent,
       child: Padding(
         padding: EdgeInsets.only(
-            top: topInset, bottom: CapsuleBarConstants.barBottomInset),
+          top: topInset,
+          bottom: CapsuleBarConstants.barBottomInset,
+        ),
         child: CapsuleBarContent(
           showOnlyBackButton: showOnlyBackButton,
           title: title,
@@ -280,12 +289,7 @@ class _CapsuleOverlayConnection extends StatelessWidget {
         ),
       ],
       child: CustomScrollView(
-        slivers: [
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: child,
-          ),
-        ],
+        slivers: [SliverFillRemaining(hasScrollBody: false, child: child)],
       ),
     );
   }

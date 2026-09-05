@@ -16,14 +16,12 @@ import 'package:permission_handler/permission_handler.dart';
 /// Shows the unified permission request card (layout + copy only).
 ///
 /// Completes after the sheet is closed.
-Future<void> showPermissionRequestSheet(
-  BuildContext context,
-) async {
+Future<void> showPermissionRequestSheet(BuildContext context) async {
   final permissions = PermissionService();
   unawaited(permissions.logPermissionState('sheet_open'));
   await showSetupCard<void>(
     context,
-    child: _PermissionRequestSheetContent(),
+    builder: (_) => _PermissionRequestSheetContent(),
   );
   await permissions.logPermissionState('sheet_close');
 }
@@ -35,13 +33,15 @@ class _PermissionRequestSheetContent extends StatefulWidget {
 }
 
 class _PermissionRequestSheetContentState
-    extends State<_PermissionRequestSheetContent> with WidgetsBindingObserver {
+    extends State<_PermissionRequestSheetContent>
+    with WidgetsBindingObserver {
   final PermissionService _permissions = PermissionService();
 
   PermissionTileStatus _location = const PermissionTileStatus(granted: false);
   PermissionTileStatus _battery = const PermissionTileStatus(granted: false);
-  PermissionTileStatus _notification =
-      const PermissionTileStatus(granted: false);
+  PermissionTileStatus _notification = const PermissionTileStatus(
+    granted: false,
+  );
   bool _isClosing = false;
 
   Future<void> _showLocationRationaleDialog() async {
@@ -118,7 +118,8 @@ class _PermissionRequestSheetContentState
     _isClosing = true;
     if (!popCurrentRoute(context)) {
       log.warning(
-          '[PermissionSheet] close failed: popCurrentRoute returned false');
+        '[PermissionSheet] close failed: popCurrentRoute returned false',
+      );
       _isClosing = false;
     }
   }
@@ -186,7 +187,7 @@ class _PermissionRequestSheetContentState
 
   @override
   Widget build(BuildContext context) {
-    return SetupBottomSheet(
+    return SetupDialogCard(
       title: context.tr("permission_sheet.title"),
       maxHeightFactor: 0.6,
       leading: IconButton(
@@ -204,11 +205,13 @@ class _PermissionRequestSheetContentState
       actions: [
         AppButton(
           label: context.tr("permission_sheet.skip"),
+          labelMaxLines: 2,
           onPressed: _onSkip,
           variant: AppButtonVariant.secondary,
         ),
         AppButton(
           label: context.tr("permission_sheet.enable_all"),
+          labelMaxLines: 2,
           onPressed: _onEnableAll,
         ),
       ],
@@ -221,8 +224,6 @@ class _PermissionRequestSheetContentState
             status: _location,
             onTap: _requestLocation,
             onRationaleTap: _showLocationRationaleDialog,
-            rationaleTooltip:
-                context.tr("permission_sheet.location_help_tooltip"),
           ),
           if (Platform.isAndroid)
             _PermissionTile(
@@ -232,8 +233,6 @@ class _PermissionRequestSheetContentState
               status: _battery,
               onTap: _requestBattery,
               onRationaleTap: _showBatteryRationaleDialog,
-              rationaleTooltip:
-                  context.tr("permission_sheet.battery_help_tooltip"),
             ),
           _PermissionTile(
             icon: Icons.notifications_outlined,
@@ -242,8 +241,6 @@ class _PermissionRequestSheetContentState
             status: _notification,
             onTap: _requestNotification,
             onRationaleTap: _showNotificationRationaleDialog,
-            rationaleTooltip:
-                context.tr("permission_sheet.notification_help_tooltip"),
           ),
         ],
       ),
@@ -258,7 +255,6 @@ class _PermissionTile extends StatelessWidget {
   final PermissionTileStatus status;
   final VoidCallback onTap;
   final VoidCallback? onRationaleTap;
-  final String? rationaleTooltip;
 
   const _PermissionTile({
     required this.icon,
@@ -267,7 +263,6 @@ class _PermissionTile extends StatelessWidget {
     required this.status,
     required this.onTap,
     this.onRationaleTap,
-    this.rationaleTooltip,
   });
 
   @override
@@ -279,10 +274,7 @@ class _PermissionTile extends StatelessWidget {
       onTap: onTap,
       titleTrailing: onRationaleTap == null
           ? null
-          : _PermissionInfoIcon(
-              onTap: onRationaleTap!,
-              tooltip: rationaleTooltip,
-            ),
+          : _PermissionInfoIcon(onTap: onRationaleTap!),
       extraContent: status.permanentlyDenied
           ? Padding(
               padding: const EdgeInsets.only(top: 6),
@@ -362,11 +354,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
                 border: Border.all(color: color.withValues(alpha: 0.75)),
               ),
               alignment: Alignment.center,
-              child: Icon(
-                Icons.close,
-                color: color,
-                size: 18,
-              ),
+              child: Icon(Icons.close, color: color, size: 18),
             ),
           ),
         ),
@@ -376,10 +364,7 @@ class _PermissionStatusIndicator extends StatelessWidget {
     final label = context.tr('permission_sheet.allow');
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        minWidth: 52,
-        minHeight: 40,
-      ),
+      constraints: const BoxConstraints(minWidth: 52, minHeight: 40),
       child: Center(
         child: InkWell(
           onTap: onTap,
@@ -409,17 +394,13 @@ class _PermissionStatusIndicator extends StatelessWidget {
 }
 
 class _PermissionInfoIcon extends StatelessWidget {
-  const _PermissionInfoIcon({
-    required this.onTap,
-    this.tooltip,
-  });
+  const _PermissionInfoIcon({required this.onTap});
 
   final VoidCallback onTap;
-  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
-    Widget icon = GestureDetector(
+    return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Icon(
@@ -428,9 +409,5 @@ class _PermissionInfoIcon extends StatelessWidget {
         color: StyleConstants.mutedInkColor,
       ),
     );
-    if (tooltip != null && tooltip!.isNotEmpty) {
-      icon = Tooltip(message: tooltip!, child: icon);
-    }
-    return icon;
   }
 }

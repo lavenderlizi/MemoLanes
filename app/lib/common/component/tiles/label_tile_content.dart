@@ -28,14 +28,10 @@ class LabelTileContent extends StatelessWidget {
   Widget _buildContent(BuildContext context) {
     final width = MediaQueryData.fromView(View.of(context)).size.width;
     return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: width * maxWidthPercent,
-      ),
+      constraints: BoxConstraints(maxWidth: width * maxWidthPercent),
       child: Text(
         content,
-        style: AppTypography.body.copyWith(
-          color: StyleConstants.mutedInkColor,
-        ),
+        style: AppTypography.body.copyWith(color: StyleConstants.mutedInkColor),
         textAlign: TextAlign.end,
         maxLines: contentMaxLines,
         overflow: TextOverflow.ellipsis,
@@ -63,10 +59,7 @@ class LabelTileContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildContent(context),
-        if (icon != null) ...[
-          const SizedBox(width: 8),
-          icon,
-        ],
+        if (icon != null) ...[const SizedBox(width: 8), icon],
       ],
     );
   }
