@@ -4,6 +4,7 @@ import 'package:memolanes/theme/app_colors.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:memolanes/body/achievement/achievement_map_view.dart';
 import 'package:memolanes/body/achievement/cards/achievement_coming_soon_card.dart';
 import 'package:memolanes/body/achievement/cards/achievement_countries_card.dart';
 import 'package:memolanes/body/achievement/cards/achievement_source_card.dart';
@@ -11,10 +12,8 @@ import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/achievement_stats_store.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/safe_area_wrapper.dart';
-import 'package:memolanes/common/component/scroll_views/single_child_scroll_view.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/constants/app_typography.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:provider/provider.dart';
 
 class AchievementBody extends StatefulWidget {
@@ -73,24 +72,22 @@ class _AchievementBodyState extends State<AchievementBody> {
     final hasOngoingJourney =
         context.watch<GpsManager>().recordingStatus != GpsRecordingStatus.none;
 
-    return MlSingleChildScrollView(
-      padding: EdgeInsets.only(
-        top: widget.topSafeArea + 16,
-        bottom: widget.bottomSafeArea + 16,
-      ),
-      children: [
-        const _AchievementPageTitle(),
-        const SizedBox(height: StyleConstants.pageTitleCardSpacing),
-        if (hasOngoingJourney) ...[
-          const _OngoingJourneyBanner(),
+    return AchievementMapView(
+      topSafeArea: widget.topSafeArea,
+      bottomSafeArea: widget.bottomSafeArea,
+      cardBuilder: (onCountrySelected) => Column(
+        children: [
+          if (hasOngoingJourney) ...[
+            const _OngoingJourneyBanner(),
+            const SizedBox(height: 14),
+          ],
+          AchievementCountriesCard(onCountrySelected: onCountrySelected),
           const SizedBox(height: 14),
+          const _AchievementStatsCards(),
+          const SizedBox(height: 14),
+          const AchievementComingSoonCard(),
         ],
-        const _AchievementStatsCards(),
-        const SizedBox(height: 14),
-        const AchievementCountriesCard(),
-        const SizedBox(height: 14),
-        const AchievementComingSoonCard(),
-      ],
+      ),
     );
   }
 }
@@ -305,28 +302,6 @@ class _SkeletonBlock extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
       ),
       child: SizedBox(width: width, height: height),
-    );
-  }
-}
-
-class _AchievementPageTitle extends StatelessWidget {
-  const _AchievementPageTitle();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeAreaWrapper(
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          context.tr('achievement.title'),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.left,
-          style: AppTypography.pageTitle.copyWith(
-            color: context.appColors.inkColor,
-          ),
-        ),
-      ),
     );
   }
 }

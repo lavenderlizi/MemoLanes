@@ -238,6 +238,19 @@
   },
   "achievement": {
     "title": "Achievements",
+    "map": {
+      "ground": "Ground explored",
+      "flight": "Flight explored",
+      "globe": "Globe",
+      "fit_country": "Fit entire country",
+      "ranking": "Region ranking",
+      "country_area": "Ground explored: {}",
+      "region_explored": "{} explored",
+      "region_unlocked": "{}% unlocked",
+      "total_label": "Total area: {}",
+      "load_error": "Could not load the country map. Please retry.",
+      "retry": "Retry"
+    },
     "area_units": {
       "square_meters": "m²",
       "square_kilometers": "km²",

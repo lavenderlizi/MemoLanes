@@ -32,6 +32,7 @@ class AchievementRegionListPage extends StatefulWidget {
     this.showCountryFlags = false,
     this.loadRegionView,
     this.worldviewId,
+    this.onCountrySelected,
   });
 
   final String title;
@@ -41,6 +42,8 @@ class AchievementRegionListPage extends StatefulWidget {
   final bool showCountryFlags;
   final AchievementRegionViewLoader? loadRegionView;
   final String? worldviewId;
+  final void Function(achievement_api.GeoEntityId, RegionEntity)?
+  onCountrySelected;
 
   @override
   State<AchievementRegionListPage> createState() =>
@@ -110,18 +113,25 @@ class _AchievementRegionListPageState extends State<AchievementRegionListPage> {
             flagCountryCode: widget.showCountryFlags ? entity.isoA3Eh : null,
             sortKey: entity.isoA3Eh ?? entity.nameKey.value,
             onTap: widget.level == achievementCountryRegionKind
-                ? () => navigatorPush(
-                    context,
-                    page: AchievementRegionListPage(
-                      title: regionName,
-                      level: achievementProvinceRegionKind,
-                      parent: entry.key,
-                      emptyText: context.tr(
-                        'achievement.region_list.region_empty',
+                ? () {
+                    if (widget.onCountrySelected != null) {
+                      Navigator.of(context).pop();
+                      widget.onCountrySelected!(entry.key, entity);
+                      return;
+                    }
+                    navigatorPush(
+                      context,
+                      page: AchievementRegionListPage(
+                        title: regionName,
+                        level: achievementProvinceRegionKind,
+                        parent: entry.key,
+                        emptyText: context.tr(
+                          'achievement.region_list.region_empty',
+                        ),
+                        worldviewId: worldviewId,
                       ),
-                      worldviewId: worldviewId,
-                    ),
-                  )
+                    );
+                  }
                 : null,
           );
         })

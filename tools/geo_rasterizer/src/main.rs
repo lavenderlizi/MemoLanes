@@ -252,15 +252,7 @@ fn rasterize_one(
         &geo_rasterizer::policy::default_path(),
         worldview_id,
     )?;
-    if let Some(existing) = read_provenance_hash(&output)? {
-        if existing == provenance_hash {
-            eprintln!(
-                "[geo_rasterizer] inputs unchanged (hash match) — output up to date in {:.0?}",
-                started.elapsed()
-            );
-            return Ok(());
-        }
-    }
+    let raster_current = read_provenance_hash(&output)? == Some(provenance_hash);
 
     // 2. Parse + validate.
     eprintln!("[geo_rasterizer] parsing inputs...");
@@ -297,6 +289,20 @@ fn rasterize_one(
         model.geometry_for_country.len(),
         model.geometry_for_province.len(),
     );
+
+    // Generate vectors even when the much more expensive raster is cached.
+    // Custom fixture outputs keep their companion beside the fixture.
+    if raster_current {
+        let data = geo_data_format::GeoData::open(&output)?;
+        geo_rasterizer::map_geometry::write_map_geometry(
+            &model,
+            &data.entities()?,
+            output.parent().unwrap(),
+            worldview_id,
+        )?;
+        eprintln!("[geo_rasterizer] raster up to date; map geometry refreshed");
+        return Ok(());
+    }
 
     // 4. Rasterize countries, then provinces, then merge inside the country mask.
     eprintln!("[geo_rasterizer] rasterizing countries...");
@@ -353,6 +359,12 @@ fn rasterize_one(
     let parents = resolve_province_parents(&model, &tally, worldview)?;
     attach_province_entities(&mut model, &parents);
     validate_tier_order(&model.entities)?;
+    geo_rasterizer::map_geometry::write_map_geometry(
+        &model,
+        &model.entities,
+        output.parent().unwrap(),
+        worldview_id,
+    )?;
     let (tile_lookup, block_lookup) = refine_raster(
         (&country_raster.0, &country_raster.1),
         (&province_raster.0, &province_raster.1),

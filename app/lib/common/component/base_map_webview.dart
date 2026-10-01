@@ -42,6 +42,12 @@ class BaseMapWebview extends StatefulWidget {
   final MapBounds? flyToBounds;
   final EdgeInsets? flyToBoundsPadding;
   final MapView? flyToView;
+
+  /// Explicitly repeat a fit even if its geographic bounds have not changed.
+  final int cameraRevision;
+
+  /// Declarative achievement boundaries and callouts, restored after reloads.
+  final Map<String, dynamic>? achievementOverlay;
   final TrackingMode trackingMode;
   final bool isEditor;
   final void Function()? onMapMoved;
@@ -58,6 +64,8 @@ class BaseMapWebview extends StatefulWidget {
     this.flyToBounds,
     this.flyToBoundsPadding,
     this.flyToView,
+    this.cameraRevision = 0,
+    this.achievementOverlay,
     this.trackingMode = TrackingMode.off,
     this.isEditor = false,
     this.onMapMoved,
@@ -145,6 +153,9 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
   @override
   void didUpdateWidget(BaseMapWebview oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.achievementOverlay != widget.achievementOverlay) {
+      unawaited(_syncAchievementOverlay());
+    }
     if (oldWidget.trackingMode != widget.trackingMode) {
       if (widget.trackingMode == TrackingMode.off) {
         _hideLocationMarker();
@@ -159,6 +170,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     if (oldWidget.mapRendererProxy != widget.mapRendererProxy ||
         oldWidget.flyToBounds != widget.flyToBounds ||
         oldWidget.flyToView != widget.flyToView ||
+        oldWidget.cameraRevision != widget.cameraRevision ||
         paddingChanged) {
       if (paddingChanged) {
         // fitBounds must see the WebView's new size after a rotation.
@@ -214,6 +226,23 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
       );
     } catch (error, stackTrace) {
       log.error('[base_map_webview] Map data sync failed: $error', stackTrace);
+    }
+  }
+
+  /// Updating callout layout must not restart the camera animation.
+  Future<void> _syncAchievementOverlay() async {
+    if (!_readyForDisplay || !mounted) return;
+    try {
+      await runJavaScript('''
+      if (typeof setAchievementOverlay === 'function') {
+        setAchievementOverlay(${jsonEncode(widget.achievementOverlay)});
+      }
+    ''');
+    } catch (error, stackTrace) {
+      log.error(
+        '[base_map_webview] Achievement overlay sync failed: $error',
+        stackTrace,
+      );
     }
   }
 
@@ -327,7 +356,12 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
             _setStateIfMounted(() {
               _readyForDisplay = true;
             });
-            if (_pendingMapDataSync) unawaited(_syncMapDataAndCamera());
+            if (_pendingMapDataSync) {
+              unawaited(_syncMapDataAndCamera());
+            }
+            if (widget.achievementOverlay != null) {
+              unawaited(_syncAchievementOverlay());
+            }
             if (recoveredAfterReload) {
               log.info(
                 '[base_map_webview] WebGL context recovered after WebView reload',

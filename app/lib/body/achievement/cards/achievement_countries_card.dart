@@ -20,7 +20,9 @@ const _countryNameSlotHeight = 30.0;
 const _countryNameWidthFactor = 0.9;
 
 class AchievementCountriesCard extends StatelessWidget {
-  const AchievementCountriesCard({super.key});
+  const AchievementCountriesCard({super.key, this.onCountrySelected});
+
+  final ValueChanged<AchievementCountryStats>? onCountrySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +48,16 @@ class AchievementCountriesCard extends StatelessWidget {
               _CountriesHeader(
                 count: countries.length,
                 hasCountries: countries.isNotEmpty,
+                onCountrySelected: onCountrySelected,
               ),
               const SizedBox(height: 18),
               if (countries.isEmpty)
                 const _CountriesEmptyState()
               else
-                _CountriesGrid(countries: countries),
+                _CountriesGrid(
+                  countries: countries,
+                  onCountrySelected: onCountrySelected,
+                ),
             ],
           ),
         ),
@@ -93,7 +99,13 @@ class _CountriesErrorCard extends StatelessWidget {
 }
 
 class _CountriesHeader extends StatelessWidget {
-  const _CountriesHeader({required this.count, required this.hasCountries});
+  const _CountriesHeader({
+    required this.count,
+    required this.hasCountries,
+    this.onCountrySelected,
+  });
+
+  final ValueChanged<AchievementCountryStats>? onCountrySelected;
 
   final int count;
   final bool hasCountries;
@@ -125,6 +137,20 @@ class _CountriesHeader extends StatelessWidget {
                       level: achievementCountryRegionKind,
                       emptyText: context.tr('achievement.countries.empty'),
                       showCountryFlags: true,
+                      onCountrySelected: onCountrySelected == null
+                          ? null
+                          : (id, entity) {
+                              onCountrySelected!(
+                                AchievementCountryStats(
+                                  entityId: id,
+                                  entity: entity,
+                                  visitedKm2:
+                                      entity.visitedAreaM2.toDouble() / 1000000,
+                                  totalKm2:
+                                      entity.totalAreaM2.toDouble() / 1000000,
+                                ),
+                              );
+                            },
                     ),
                   );
                 },
@@ -163,7 +189,9 @@ class _CountriesHeader extends StatelessWidget {
 }
 
 class _CountriesGrid extends StatelessWidget {
-  const _CountriesGrid({required this.countries});
+  const _CountriesGrid({required this.countries, this.onCountrySelected});
+
+  final ValueChanged<AchievementCountryStats>? onCountrySelected;
 
   final List<AchievementCountryStats> countries;
 
@@ -189,7 +217,10 @@ class _CountriesGrid extends StatelessWidget {
               Expanded(
                 child: SizedBox(
                   height: _countryItemHeight,
-                  child: _CountryFlagItem(country: country),
+                  child: _CountryFlagItem(
+                    country: country,
+                    onCountrySelected: onCountrySelected,
+                  ),
                 ),
               ),
             for (
@@ -214,7 +245,9 @@ class _CountriesGrid extends StatelessWidget {
 }
 
 class _CountryFlagItem extends StatelessWidget {
-  const _CountryFlagItem({required this.country});
+  const _CountryFlagItem({required this.country, this.onCountrySelected});
+
+  final ValueChanged<AchievementCountryStats>? onCountrySelected;
 
   final AchievementCountryStats country;
 
@@ -228,15 +261,21 @@ class _CountryFlagItem extends StatelessWidget {
       type: MaterialType.transparency,
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        onTap: () => navigatorPush(
-          context,
-          page: AchievementRegionListPage(
-            title: countryName,
-            level: achievementProvinceRegionKind,
-            parent: country.entityId,
-            emptyText: context.tr('achievement.region_list.region_empty'),
-          ),
-        ),
+        onTap: () {
+          if (onCountrySelected != null) {
+            onCountrySelected!(country);
+            return;
+          }
+          navigatorPush(
+            context,
+            page: AchievementRegionListPage(
+              title: countryName,
+              level: achievementProvinceRegionKind,
+              parent: country.entityId,
+              emptyText: context.tr('achievement.region_list.region_empty'),
+            ),
+          );
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(
             vertical: _countryItemVerticalPadding,

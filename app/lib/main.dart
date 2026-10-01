@@ -305,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage> {
               removeTop: edgeToEdgeScroll,
               removeBottom: edgeToEdgeScroll,
               child: SafeAreaWrapper(
-                useSafeArea: _selectedIndex > 2,
+                useSafeArea: _selectedIndex > 3,
                 child: _buildPageContent(
                   topSafeArea: edgeToEdgeScroll ? mediaQuery.padding.top : 0,
                   bottomSafeArea:
@@ -348,7 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-            if (_selectedIndex <= 2 && _journeys.appChromeVisible)
+            if (_selectedIndex <= 3 && _journeys.appChromeVisible)
               Positioned(
                 right: mediaQuery.viewPadding.right + mapCopyrightTrailingGap,
                 bottom:

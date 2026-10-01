@@ -238,6 +238,19 @@
   },
   "achievement": {
     "title": "成就",
+    "map": {
+      "ground": "地表探索面积",
+      "flight": "飞行探索面积",
+      "globe": "地球",
+      "fit_country": "查看国家全貌",
+      "ranking": "区域排行",
+      "country_area": "地表已探索 {}",
+      "region_explored": "已探索 {}",
+      "region_unlocked": "解锁 {}%",
+      "total_label": "总面积 {}",
+      "load_error": "无法加载国家地图，请重试。",
+      "retry": "重试"
+    },
     "area_units": {
       "square_meters": "m²",
       "square_kilometers": "km²",

@@ -8,6 +8,8 @@ assets/geo/geo_data*.bin
 assets/geo/geo_data*.bin.tmp
 assets/geo/region_names.*.json
 assets/geo/region_names.*.json.tmp
+assets/geo/map_geometry_*.json
+assets/geo/map_geometry_*.json.tmp
 
 # flutter rust bridge generated files
 lib/src/rust/**/*.dart

@@ -7,6 +7,7 @@ pub mod cache;
 pub mod cldr;
 pub mod download;
 pub mod entities;
+pub mod map_geometry;
 pub mod names;
 pub mod overrides;
 pub mod policy;

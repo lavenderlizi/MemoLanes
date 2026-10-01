@@ -478,9 +478,18 @@ export class MapController {
       if (customIndex === -1) {
         console.log(`${JOURNEY_LAYER_ID} not found, adding to map`);
         this.switchRenderingLayer();
-      } else if (customIndex !== orderedLayerIds.length - 1) {
-        console.log(`${JOURNEY_LAYER_ID} is not frontmost, moving to front`);
-        this.map.moveLayer(JOURNEY_LAYER_ID);
+      } else {
+        // Achievement outlines must stay above the fog/track canvas.
+        const overlayId = "achievement-region-hit-area";
+        const overlayIndex = orderedLayerIds.indexOf(overlayId);
+        const targetIndex =
+          overlayIndex < 0 ? orderedLayerIds.length - 1 : overlayIndex - 1;
+        if (customIndex !== targetIndex) {
+          this.map.moveLayer(
+            JOURNEY_LAYER_ID,
+            overlayIndex < 0 ? undefined : overlayId,
+          );
+        }
       }
     });
   }

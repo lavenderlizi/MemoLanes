@@ -12,6 +12,10 @@ import * as maplibregl from "maplibre-gl";
 import { MapController } from "./map-controller";
 import { LocationFollowController } from "./location-follow-controller";
 import { MAX_MAP_ZOOM } from "./layer-config";
+import {
+  AchievementOverlay,
+  type AchievementOverlayData,
+} from "./achievement-overlay";
 
 interface MapBounds {
   west: number;
@@ -56,6 +60,7 @@ declare global {
     refreshMapData?: () => Promise<boolean | null>;
     flyToBounds?: (bounds: MapBounds, padding: MapPadding) => void;
     flyToView?: (view: MapView) => void;
+    setAchievementOverlay?: (data: AchievementOverlayData | null) => void;
   }
 }
 
@@ -171,6 +176,8 @@ export class FlutterBridge {
    * Setup all window methods that Flutter can call
    */
   setupFlutterCallableMethods(): void {
+    const achievementOverlay = new AchievementOverlay(this.map);
+    window.setAchievementOverlay = (data) => achievementOverlay.setData(data);
     // Update location marker
     window.updateLocationMarker = (
       lng: number,
