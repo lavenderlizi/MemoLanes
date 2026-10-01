@@ -361,18 +361,19 @@ pub fn get_empty_map_renderer_proxy() -> MapRendererProxy {
 }
 
 /// [journey_kinds]: empty = no layers; len 1 = that kind only; len 2 = both (pass None).
+/// Returns finalized coverage and its matching bounds for fitting the current range.
 pub fn get_map_renderer_proxy_for_journey_date_range(
     from_date_inclusive: NaiveDate,
     to_date_inclusive: NaiveDate,
     journey_kinds: HashSet<JourneyKind>,
-) -> Result<MapRendererProxy> {
+) -> Result<(MapRendererProxy, Option<MapBounds>)> {
     let state = get();
     let get = |journey_kind| {
         state
             .storage
             .get_range_bitmap(from_date_inclusive, to_date_inclusive, journey_kind)
     };
-    let journey_bitmap = match (
+    let mut journey_bitmap = match (
         journey_kinds.contains(&JourneyKind::DefaultKind),
         journey_kinds.contains(&JourneyKind::Flight),
     ) {
@@ -382,10 +383,26 @@ pub fn get_map_renderer_proxy_for_journey_date_range(
         (true, true) => get(None)?,
     };
 
+    let bounds = get_bounds_from_journey_bitmap(&mut journey_bitmap);
     let map_renderer = MapRenderer::new(journey_bitmap);
-    Ok(MapRendererProxy::DynamicRenderer(Arc::new(Mutex::new(
-        map_renderer,
-    ))))
+    Ok((
+        MapRendererProxy::DynamicRenderer(Arc::new(Mutex::new(map_renderer))),
+        bounds,
+    ))
+}
+
+/// All finalized journeys on a calendar date, including both ground and flight
+/// layers. Ongoing recording data is deliberately excluded.
+pub fn get_map_renderer_proxy_for_journey_date(
+    date: NaiveDate,
+) -> Result<(MapRendererProxy, Option<MapBounds>)> {
+    let mut journey_bitmap = get().storage.get_range_bitmap(date, date, None)?;
+    let bounds = get_bounds_from_journey_bitmap(&mut journey_bitmap);
+    let map_renderer = MapRenderer::new(journey_bitmap);
+    Ok((
+        MapRendererProxy::DynamicRenderer(Arc::new(Mutex::new(map_renderer))),
+        bounds,
+    ))
 }
 
 fn get_map_renderer_proxy_for_journey_data_internal(

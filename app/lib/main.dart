@@ -159,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
     if (_selectedIndex == 2 && !_journeys.leave()) return;
+    if (index == 2) unawaited(_journeys.loadOverview());
     setState(() => _selectedIndex = index);
   }
 
@@ -211,9 +212,9 @@ class _MyHomePageState extends State<MyHomePage> {
     SystemNavigator.pop();
   }
 
-  /// Tabs 0, 1 and 2 share one MapBody and only switch its overlay. This keeps
-  /// the current map position while moving between Record, Timeline and
-  /// Journeys. Tabs 3 and 4 are separate pages.
+  /// Tabs 0, 1 and 2 share one MapBody, switching overlays and renderer data
+  /// without reloading the map. Journeys also fits the daily tracks into view.
+  /// Tabs 3 and 4 are separate pages.
   Widget _buildPageContent({
     required double topSafeArea,
     required double bottomSafeArea,

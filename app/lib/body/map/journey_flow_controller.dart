@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:memolanes/common/async_load_token.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/loading_manager.dart';
+import 'package:memolanes/common/log.dart';
+import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/api/import.dart' show JourneyInfo;
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -39,23 +43,78 @@ class JourneyFlowController extends ChangeNotifier {
   MapView? _returnToView;
   int _pickerRevision = 0;
   final _loadToken = AsyncLoadToken();
+  final _overviewLoadToken = AsyncLoadToken();
+  (api.MapRendererProxy, MapBounds?)? _overviewMapData;
+  SimpleDate? _overviewDate;
+  bool _isOverviewLoading = false;
   bool _disposed = false;
 
   JourneyPhase get phase => _phase;
   JourneyDetailSession? get session => _session;
   MapView? get returnToView => _returnToView;
   int get pickerRevision => _pickerRevision;
+  (api.MapRendererProxy, MapBounds?)? get overviewMapData => _overviewMapData;
+  bool get isOverviewLoading => _isOverviewLoading;
+  SimpleDate? get overviewDate => _overviewDate;
   bool get appChromeVisible => _session == null;
   bool get isEditing =>
       _phase == JourneyPhase.editing || _phase == JourneyPhase.saving;
   bool get _isMutating =>
       _phase == JourneyPhase.saving || _phase == JourneyPhase.deleting;
 
+  /// Each tab visit shows the latest date with completed journeys, up to today.
+  /// Future-dated imports and the ongoing recording are excluded.
+  Future<void> loadOverview({DateTime? now, SimpleDate? date}) async {
+    if (_disposed || _phase != JourneyPhase.picker) return;
+    final token = _overviewLoadToken.begin();
+    _overviewMapData ??= (api.getEmptyMapRendererProxy(), null);
+    _isOverviewLoading = true;
+    notifyListeners();
+    try {
+      if (date == null) {
+        final localNow = (now ?? DateTime.now()).toLocal();
+        final today = SimpleDate(localNow.year, localNow.month, localNow.day);
+        final dates = await api.journeyDates();
+        if (!_overviewLoadToken.isActive(token)) return;
+        for (final value in dates) {
+          // FRB calendar dates are UTC midnights, not local timestamps.
+          final candidate = SimpleDate(value.year, value.month, value.day);
+          if (!candidate.isAfter(today) &&
+              (date == null || candidate.isAfter(date))) {
+            date = candidate;
+          }
+        }
+      }
+      if (date == null) {
+        _overviewMapData = (api.getEmptyMapRendererProxy(), null);
+        _overviewDate = null;
+        return;
+      }
+      final mapData = await api.getMapRendererProxyForJourneyDate(
+        date: date.toFrbNaiveDate(),
+      );
+      if (!_overviewLoadToken.isActive(token)) return;
+      _overviewMapData = mapData;
+      _overviewDate = date;
+    } catch (error, stackTrace) {
+      if (!_overviewLoadToken.isActive(token)) return;
+      log.error('Loading daily journey map failed: $error', stackTrace);
+    } finally {
+      if (_overviewLoadToken.isActive(token)) {
+        _overviewLoadToken.clear();
+        _isOverviewLoading = false;
+        notifyListeners();
+      }
+    }
+  }
+
   Future<void> open(
     JourneyHeader journey, {
     required Future<MapView?> Function() readMapView,
   }) async {
-    if (_disposed || _phase != JourneyPhase.picker) return;
+    if (_disposed || _isOverviewLoading || _phase != JourneyPhase.picker) {
+      return;
+    }
     final token = _loadToken.begin();
     _phase = JourneyPhase.opening;
     notifyListeners();
@@ -119,6 +178,10 @@ class JourneyFlowController extends ChangeNotifier {
   bool leave() {
     if (_disposed || _isMutating) return false;
     _loadToken.invalidate();
+    _overviewLoadToken.invalidate();
+    _overviewMapData = null;
+    _overviewDate = null;
+    _isOverviewLoading = false;
     if (_session != null) _pickerRevision++;
     _session = null;
     _returnToView = null;
@@ -223,12 +286,17 @@ class JourneyFlowController extends ChangeNotifier {
     _phase = JourneyPhase.picker;
     _pickerRevision++;
     notifyListeners();
+    // Editing dates/kinds, deleting, or changing a track can alter the daily map.
+    if (_overviewMapData != null) {
+      unawaited(loadOverview(date: _overviewDate));
+    }
   }
 
   @override
   void dispose() {
     _disposed = true;
     _loadToken.invalidate();
+    _overviewLoadToken.invalidate();
     super.dispose();
   }
 }

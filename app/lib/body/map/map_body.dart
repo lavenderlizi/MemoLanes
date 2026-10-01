@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -8,12 +9,14 @@ import 'package:memolanes/body/map/journey_flow_controller.dart';
 import 'package:memolanes/body/map/overlay/journey_detail_overlay.dart';
 import 'package:memolanes/body/map/overlay/normal_map_overlay.dart';
 import 'package:memolanes/body/map/overlay/time_machine_overlay.dart';
+import 'package:memolanes/body/time_machine/time_range_picker.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/component/capsule_style_overlay_app_bar.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/common/utils.dart';
+import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -70,11 +73,13 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   /// GlobalKey).
   final _mapRendererProxy = api.getMapRendererProxyForMainMap();
   MapView? _roughMapView;
-  api.MapRendererProxy? _journeyMapRendererProxy;
+  (api.MapRendererProxy, MapBounds?)? _timeMachineMapData;
+  late final _emptyMapRendererProxy = api.getEmptyMapRendererProxy();
   TrackingMode _currentTrackingMode = TrackingMode.off;
+  bool _journeyPickerExpanded = false;
 
   /// Map tracking controls only belong to Record mode. Timeline and Journeys
-  /// keep the current viewport but do not follow the user's live location.
+  /// do not follow the user's live location.
   TrackingMode get _effectiveTrackingMode =>
       widget.mode == MapMode.normal ? _currentTrackingMode : TrackingMode.off;
 
@@ -83,8 +88,9 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   final GlobalKey<BaseMapWebviewState> _mainMapKey =
       GlobalKey<BaseMapWebviewState>();
 
-  void setJourneyMapRendererProxy(api.MapRendererProxy? proxy) {
-    setState(() => _journeyMapRendererProxy = proxy);
+  void _setTimeMachineMapData((api.MapRendererProxy, MapBounds?) mapData) {
+    if (!mounted || widget.mode != MapMode.timeMachine) return;
+    setState(() => _timeMachineMapData = mapData);
   }
 
   Future<void> _openJourneyDetails(JourneyHeader journey) async {
@@ -158,6 +164,8 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   void didUpdateWidget(covariant MapBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.mode == widget.mode) return;
+    _journeyPickerExpanded = false;
+    if (widget.mode == MapMode.timeMachine) _timeMachineMapData = null;
     final gpsManager = Provider.of<GpsManager>(context, listen: false);
     if (widget.mode != MapMode.normal) {
       gpsManager.toggleMapTracking(false);
@@ -228,35 +236,46 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   }
 
   Widget _buildMapLayer() {
-    // After Time Machine date selection: reuse same WebView, only swap proxy;
-    // didUpdateWidget triggers refreshMapData(), no full page reload.
+    // Swap data and its matching bounds together on the existing WebView.
     final session = widget.journeys.session;
-    final proxy = widget.mode == MapMode.journeys && session != null
-        ? session.mapData.$1
-        : (widget.mode == MapMode.timeMachine &&
-              _journeyMapRendererProxy != null)
-        ? _journeyMapRendererProxy!
-        : _mapRendererProxy;
+    final journeyMapData = session?.mapData ?? widget.journeys.overviewMapData;
+    final (proxy, bounds) = switch (widget.mode) {
+      MapMode.journeys => journeyMapData ?? (_emptyMapRendererProxy, null),
+      MapMode.timeMachine =>
+        _timeMachineMapData ?? (_emptyMapRendererProxy, null),
+      MapMode.normal => (_mapRendererProxy, null),
+    };
     final detailCardPadding =
         MediaQuery.orientationOf(context) == Orientation.landscape
         ? 190.0
         : 330.0;
-    final journeyBounds = session?.mapData.$2;
+    // The overview always fits the union of the day's tracks, including when
+    // returning from a single journey or rotating the screen.
+    final safeArea = MediaQuery.viewPaddingOf(context);
     final mainMap = BaseMapWebview(
       key: _mainMapKey,
       mapRendererProxy: proxy,
       initialMapView: _roughMapView,
-      flyToBounds: widget.mode == MapMode.journeys ? journeyBounds : null,
-      flyToView: widget.mode == MapMode.journeys
-          ? widget.journeys.returnToView
-          : null,
-      flyToBoundsPadding: journeyBounds == null
+      flyToBounds: bounds,
+      flyToBoundsPadding: bounds == null
           ? null
-          : CapsuleStyleOverlayAppBar.mapFitPaddingForBottomOverlay(
+          : widget.mode == MapMode.journeys && session != null
+          ? CapsuleStyleOverlayAppBar.mapFitPaddingForBottomOverlay(
               context,
               edgePadding: 28,
-              bottomOverlayHeight:
-                  detailCardPadding + MediaQuery.viewPaddingOf(context).bottom,
+              bottomOverlayHeight: detailCardPadding + safeArea.bottom,
+            )
+          : EdgeInsets.fromLTRB(
+              safeArea.left + 28,
+              safeArea.top + 28,
+              safeArea.right + 28,
+              StyleConstants.mapPrimaryControlBottomInsetForContext(context) +
+                  (widget.mode == MapMode.timeMachine
+                      ? TimeRangePicker.controlHeight
+                      : _journeyPickerExpanded
+                      ? JourneyOverlay.pickerHeightForContext(context)
+                      : JourneyOverlay.collapsedHeight) +
+                  28,
             ),
       trackingMode: _effectiveTrackingMode,
       onRoughMapViewUpdate: (roughMapView) {
@@ -288,14 +307,20 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
           onTrackingPressed: _trackingModeButton,
         );
       case MapMode.timeMachine:
-        return TimeMachineOverlay(
-          onJourneyRangeLoaded: setJourneyMapRendererProxy,
-        );
+        return TimeMachineOverlay(onJourneyRangeLoaded: _setTimeMachineMapData);
       case MapMode.journeys:
         final session = widget.journeys.session;
         return JourneyOverlay(
           onJourneySelected: _openJourneyDetails,
-          isLoading: widget.journeys.phase == JourneyPhase.opening,
+          selectedDate: widget.journeys.overviewDate,
+          onDateSelected: (date) =>
+              unawaited(widget.journeys.loadOverview(date: date)),
+          onExpandedChanged: (expanded) =>
+              setState(() => _journeyPickerExpanded = expanded),
+          isOpening: widget.journeys.phase == JourneyPhase.opening,
+          isLoading:
+              widget.journeys.isOverviewLoading ||
+              widget.journeys.phase == JourneyPhase.opening,
           refreshRevision: widget.journeys.pickerRevision,
           detail: session == null
               ? null

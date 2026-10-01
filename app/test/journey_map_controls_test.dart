@@ -160,11 +160,24 @@ void main() {
       ),
     );
 
+    expect(find.byType(JourneyListCalendar).hitTestable(), findsNothing);
+    expect(find.text('Choose a journey').hitTestable(), findsOneWidget);
+    final arrow = find.byKey(const ValueKey('journey-picker-expand'));
+    expect(tester.getSize(arrow), const Size(116, 32));
+    await tester.tap(arrow);
+    await tester.pumpAndSettle();
     final controller = tester
         .widget<JourneyListCalendar>(find.byType(JourneyListCalendar))
         .controller;
     await controller.displayMonth(SimpleDate(2023, 12, 1));
     await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('journey-picker-toggle')));
+    await tester.pumpAndSettle();
+    expect(find.byType(JourneyListCalendar).hitTestable(), findsNothing);
+    await tester.tap(arrow);
+    await tester.pumpAndSettle();
+    expect(find.text('Dec'), findsOneWidget);
 
     updateHost(() => showingDetail = true);
     await tester.pumpAndSettle();
@@ -175,6 +188,48 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Dec'), findsOneWidget);
   });
+
+  testWidgets(
+    'calendar date taps publish the selected day and keep the card open',
+    (tester) async {
+      AppHaptics.debugHapticsEnabledOverride = false;
+      mockApi.availableDates = [
+        DateTime.utc(2023, 11, 14),
+        DateTime.utc(2023, 11, 15),
+      ];
+      addTearDown(() {
+        AppHaptics.debugHapticsEnabledOverride = null;
+        mockApi.availableDates = null;
+      });
+      final selectedDates = <SimpleDate>[];
+      final expandedStates = <bool>[];
+      await pumpApp(
+        tester,
+        Scaffold(
+          body: JourneyOverlay(
+            onJourneySelected: (_) async {},
+            selectedDate: SimpleDate(2023, 11, 14),
+            onDateSelected: selectedDates.add,
+            onExpandedChanged: expandedStates.add,
+            isLoading: false,
+            refreshRevision: 0,
+          ),
+        ),
+      );
+      expect(selectedDates, isEmpty);
+      await tester.tap(find.byKey(const ValueKey('journey-picker-expand')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('15'));
+      await tester.pumpAndSettle();
+      expect(selectedDates, [SimpleDate(2023, 11, 15)]);
+      expect(expandedStates, [true]);
+      expect(
+        find.byKey(const ValueKey('journey-picker-toggle')).hitTestable(),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   for (final keepSelectedMonth in [false, true]) {
     testWidgets('calendar follows a changed earliest date with '
@@ -776,6 +831,7 @@ class _JourneyListApi extends Fake implements RustLibApi {
 
   final JourneyHeader journey;
   final List<JourneyInfo> savedMetadata = [];
+  List<DateTime>? availableDates;
   Completer<void>? pendingSave;
   Completer<void>? pendingDelete;
 
@@ -821,7 +877,7 @@ class _JourneyListApi extends Fake implements RustLibApi {
   @override
   Future<List<DateTime>> crateApiApiJourneyDates({
     Set<JourneyKind>? journeyKinds,
-  }) async => [journey.journeyDate];
+  }) async => availableDates ?? [journey.journeyDate];
 
   @override
   Future<List<JourneyHeader>> crateApiApiListJourneysOnDate({

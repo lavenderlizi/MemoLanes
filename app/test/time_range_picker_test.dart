@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memolanes/body/time_machine/time_range_picker.dart';
+import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/app_translation_loader.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
@@ -70,5 +71,64 @@ void main() {
     expect(ranges, isNotEmpty);
     expect(ranges.last.$1, SimpleDate(2020));
     expect(ranges.last.$2, SimpleDate(currentYear, 12, 31));
+  });
+
+  testWidgets(
+    'scroll previews update the map range without moving the ruler selection',
+    (tester) async {
+      final ranges = <(SimpleDate, SimpleDate)>[];
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          _buildTestApp(onRangeChanged: (from, to) => ranges.add((from, to))),
+        );
+        await tester.pump(const Duration(seconds: 1));
+      });
+      await tester.pumpAndSettle();
+      final ruler = tester.widget<TimeRuler>(find.byType(TimeRuler));
+      ruler.onDisplayChanged!((2022, null, null));
+      await tester.pump();
+      expect(ranges.last, (SimpleDate(2020), SimpleDate(2022, 12, 31)));
+      expect(
+        tester.widget<TimeRuler>(find.byType(TimeRuler)).selectedYear,
+        ruler.selectedYear,
+      );
+      ruler.onSelectionChanged((2022, null, null));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<TimeRuler>(find.byType(TimeRuler)).selectedYear,
+        2022,
+      );
+    },
+  );
+
+  testWidgets('dragging the timeline publishes ranges before release', (
+    tester,
+  ) async {
+    AppHaptics.debugHapticsEnabledOverride = false;
+    addTearDown(() => AppHaptics.debugHapticsEnabledOverride = null);
+    final ranges = <(SimpleDate, SimpleDate)>[];
+    await tester.runAsync(() async {
+      await tester.pumpWidget(
+        _buildTestApp(onRangeChanged: (from, to) => ranges.add((from, to))),
+      );
+      await tester.pump(const Duration(seconds: 1));
+    });
+    await tester.pumpAndSettle();
+    final original = ranges.last;
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byType(TimeRuler)),
+    );
+    await gesture.moveBy(const Offset(36, 0));
+    await tester.pump(const Duration(milliseconds: 120));
+    await gesture.moveBy(const Offset(72, 0));
+    await tester.pump(const Duration(milliseconds: 120));
+    expect(ranges.last.$2.isBefore(original.$2), isTrue);
+    expect(
+      tester.widget<TimeRuler>(find.byType(TimeRuler)).selectedYear,
+      DateTime.now().year,
+    );
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }

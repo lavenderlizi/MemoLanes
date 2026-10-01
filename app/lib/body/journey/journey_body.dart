@@ -22,10 +22,14 @@ class JourneyBody extends StatefulWidget {
     super.key,
     required this.onJourneySelected,
     this.refreshRevision = 0,
+    this.initialDate,
+    this.onDateSelected,
   });
 
   /// Handles the selected journey; the parent owns navigation.
   final Future<void> Function(JourneyHeader journey) onJourneySelected;
+  final SimpleDate? initialDate;
+  final ValueChanged<SimpleDate>? onDateSelected;
 
   /// Change this value to refresh data using the existing list controller.
   /// The current calendar month, selected date, and journey-kind filters stay
@@ -45,12 +49,16 @@ class _JourneyBodyState extends State<JourneyBody> {
   static const _landscapeListMinWidth = 280.0;
 
   late final JourneyListController _controller;
+  SimpleDate? _lastReportedDate;
   final ScrollController _journeyListScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _controller = JourneyListController()..addListener(_onControllerChanged);
+    if (widget.initialDate != null) {
+      _controller.selectedDate = widget.initialDate!;
+    }
     _controller.initialize();
   }
 
@@ -73,7 +81,16 @@ class _JourneyBodyState extends State<JourneyBody> {
   }
 
   void _onControllerChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    final date = _controller.selectedDate;
+    final changed = _lastReportedDate != date;
+    _lastReportedDate = date;
+    // Initial loading follows the default map date. Later calendar selections,
+    // month changes and refresh adjustments must also update the daily map.
+    if (changed && !_controller.isInitialLoading) {
+      widget.onDateSelected?.call(date);
+    }
   }
 
   Widget _buildJourneyHeaderList() {

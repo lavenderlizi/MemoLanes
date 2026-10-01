@@ -25,6 +25,7 @@ export 'time_ruler.dart' show TimeRulerMode, TimeRuler;
 /// example, a ruler selection after the user releases and snapping completes)
 /// uses [onRangeCommitted] when provided.
 class TimeRangePicker extends StatefulWidget {
+  static const controlHeight = 60.0;
   final SimpleDate? earliestDate;
   final bool loading;
   final void Function(SimpleDate from, SimpleDate to) onRangeChanged;
@@ -89,19 +90,22 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
     return candidate.isAfter(now) ? now : candidate;
   }
 
-  (SimpleDate from, SimpleDate to) _periodRangeForSelection() {
+  (SimpleDate from, SimpleDate to) _periodRangeForSelection({
+    int? year,
+    int? month,
+    int? day,
+  }) {
+    final y = year ?? _selectedYear;
+    final m = month ?? _selectedMonth;
+    final d = day ?? _selectedDay;
     switch (_rulerMode) {
       case TimeRulerMode.year:
-        return (SimpleDate(_selectedYear), SimpleDate(_selectedYear, 12, 31));
+        return (SimpleDate(y), SimpleDate(y, 12, 31));
       case TimeRulerMode.month:
-        return (
-          SimpleDate(_selectedYear, _selectedMonth),
-          SimpleDate(_selectedYear, _selectedMonth + 1, 0),
-        );
+        return (SimpleDate(y, m), SimpleDate(y, m + 1, 0));
       case TimeRulerMode.day:
-        final lastDay = SimpleDate(_selectedYear, _selectedMonth + 1, 0).day;
-        final d = _selectedDay.clamp(1, lastDay);
-        final date = SimpleDate(_selectedYear, _selectedMonth, d);
+        final lastDay = SimpleDate(y, m + 1, 0).day;
+        final date = SimpleDate(y, m, d.clamp(1, lastDay));
         return (date, date);
       case TimeRulerMode.any:
         return (_fromDate, _toDate);
@@ -181,6 +185,18 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
     _notifyRange(committed: true);
   }
 
+  void _previewRulerChange(int year, int? month, int? day) {
+    setState(() => _updateDisplay(year, month, day));
+    // Keep the ruler's committed selection stable while dragging, so updating
+    // the map cannot reposition the ruler beneath the user's finger.
+    final period = _periodRangeForSelection(year: year, month: month, day: day);
+    final from = _viewMode == TimeMachineViewMode.asOf
+        ? _effectiveEarliest
+        : period.$1;
+    final to = period.$2.isBefore(from) ? from : period.$2;
+    widget.onRangeChanged(from, to);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -204,8 +220,7 @@ class _TimeRangePickerState extends State<TimeRangePicker> {
               if (selection.$2 != null) _selectedMonth = selection.$2!;
               if (selection.$3 != null) _selectedDay = selection.$3!;
             }),
-            onDisplayChanged: (s) =>
-                setState(() => _updateDisplay(s.$1, s.$2, s.$3)),
+            onDisplayChanged: (s) => _previewRulerChange(s.$1, s.$2, s.$3),
           )
         : TimeRangeOverlayPicker(
             fromDate: _fromDate.toLocalDateTime(),
@@ -663,7 +678,7 @@ class TimeRangeControllerBall extends StatelessWidget {
     required this.loading,
   });
 
-  static const double _buttonSize = 60;
+  static const double _buttonSize = TimeRangePicker.controlHeight;
   static const double _borderRadius = 12;
   TextStyle _contentStyle(BuildContext context) =>
       AppTypography.sectionLabel.copyWith(
@@ -731,7 +746,7 @@ class TimeRangeControllerBall extends StatelessWidget {
 }
 
 /// Fixed height for ruler / any picker block; must fit both ruler and any-mode date tiles.
-const double _kPickerBlockHeight = 60.0;
+const double _kPickerBlockHeight = TimeRangePicker.controlHeight;
 
 Widget _buildGlassPanel(Widget child, {EdgeInsets? padding}) {
   return TimeMachineGlassSurface(padding: padding, child: child);

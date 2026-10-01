@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:memolanes/body/time_machine/time_range_picker.dart';
 import 'package:memolanes/common/async_load_token.dart';
+import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/constants/style_constants.dart';
@@ -26,14 +27,15 @@ Set<JourneyKind> _initialJourneyKindsFromMainMap() {
 class TimeMachineOverlay extends StatefulWidget {
   const TimeMachineOverlay({super.key, required this.onJourneyRangeLoaded});
 
-  final void Function(api.MapRendererProxy? proxy) onJourneyRangeLoaded;
+  final void Function((api.MapRendererProxy, MapBounds?) mapData)
+  onJourneyRangeLoaded;
 
   @override
   State<TimeMachineOverlay> createState() => _TimeMachineOverlayState();
 }
 
 class _TimeMachineOverlayState extends State<TimeMachineOverlay> {
-  static const _rangeLoadDebounce = Duration(milliseconds: 100);
+  static const _rangeLoadInterval = Duration(milliseconds: 100);
   static const _loadErrorMessage =
       '[TimeMachineOverlay] failed to load journey range';
 
@@ -42,9 +44,18 @@ class _TimeMachineOverlayState extends State<TimeMachineOverlay> {
   SimpleDate? _requestedFrom;
   SimpleDate? _requestedTo;
   final _loadGuard = AsyncLoadToken();
-  Timer? _rangeLoadDebounceTimer;
+  Timer? _rangeLoadTimer;
+  (SimpleDate, SimpleDate, int)? _activeRange;
+  (SimpleDate, SimpleDate, int)? _loadedRange;
 
   late Set<JourneyKind> _selectedJourneyKinds;
+
+  (SimpleDate, SimpleDate, int) _rangeKey(SimpleDate from, SimpleDate to) => (
+    from,
+    to,
+    (_selectedJourneyKinds.contains(JourneyKind.defaultKind) ? 1 : 0) |
+        (_selectedJourneyKinds.contains(JourneyKind.flight) ? 2 : 0),
+  );
 
   @override
   void initState() {
@@ -70,42 +81,61 @@ class _TimeMachineOverlayState extends State<TimeMachineOverlay> {
   }
 
   Future<void> _loadJourneyForRange(SimpleDate from, SimpleDate to) async {
-    _rangeLoadDebounceTimer?.cancel();
-    _rangeLoadDebounceTimer = null;
+    _rangeLoadTimer?.cancel();
+    _rangeLoadTimer = null;
     if (!mounted) return;
     if (_earliestJourneyDate == null) return;
     if (from.isAfter(to)) return;
-    final loadToken = _loadGuard.begin();
     _requestedFrom = from;
     _requestedTo = to;
+    final range = _rangeKey(from, to);
+    if (_activeRange == range) return;
+    if (_loadedRange == range) {
+      _loadGuard.invalidate();
+      _activeRange = null;
+      setState(() => _loading = false);
+      return;
+    }
+    final loadToken = _loadGuard.begin();
+    _activeRange = range;
     final journeyKinds = Set<JourneyKind>.from(_selectedJourneyKinds);
     setState(() => _loading = true);
     try {
-      final proxy = await api.getMapRendererProxyForJourneyDateRange(
+      final mapData = await api.getMapRendererProxyForJourneyDateRange(
         fromDateInclusive: from.toFrbNaiveDate(),
         toDateInclusive: to.toFrbNaiveDate(),
         journeyKinds: journeyKinds,
       );
       if (mounted && _loadGuard.isActive(loadToken)) {
-        widget.onJourneyRangeLoaded(proxy);
+        _loadedRange = range;
+        widget.onJourneyRangeLoaded(mapData);
       }
     } catch (error, stackTrace) {
-      log.error('$_loadErrorMessage: $error', stackTrace);
+      if (mounted && _loadGuard.isActive(loadToken)) {
+        log.error('$_loadErrorMessage: $error', stackTrace);
+      }
     } finally {
       if (mounted && _loadGuard.isActive(loadToken)) {
         setState(() => _loading = false);
+        _activeRange = null;
         _loadGuard.clear();
       }
     }
   }
 
   void _scheduleJourneyRangeLoad(SimpleDate from, SimpleDate to) {
+    if (!mounted || from.isAfter(to)) return;
+    if (_requestedFrom == from && _requestedTo == to) return;
     _requestedFrom = from;
     _requestedTo = to;
-    _rangeLoadDebounceTimer?.cancel();
-    _rangeLoadDebounceTimer = Timer(_rangeLoadDebounce, () {
-      _rangeLoadDebounceTimer = null;
-      unawaited(_loadJourneyForRange(from, to));
+    // Invalidate immediately: an older load may finish before the next timer.
+    // Coalesce scroll events without postponing updates until scrolling stops.
+    _loadGuard.invalidate();
+    _activeRange = null;
+    setState(() => _loading = true);
+    _rangeLoadTimer ??= Timer(_rangeLoadInterval, () {
+      _rangeLoadTimer = null;
+      unawaited(_loadJourneyForRange(_requestedFrom!, _requestedTo!));
     });
   }
 
@@ -121,7 +151,7 @@ class _TimeMachineOverlayState extends State<TimeMachineOverlay> {
 
   @override
   void dispose() {
-    _rangeLoadDebounceTimer?.cancel();
+    _rangeLoadTimer?.cancel();
     _loadGuard.clear();
     super.dispose();
   }

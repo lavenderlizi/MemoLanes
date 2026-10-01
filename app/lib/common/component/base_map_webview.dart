@@ -81,6 +81,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
   bool _readyForDisplay = false;
   bool _webGlRecoveryReloadInProgress = false;
   bool _pendingMapDataSync = false;
+  Size? _viewportSize;
   final List<DateTime> _webGlRecoveryReloads = [];
 
   late MapStyle _selectedMapStyle;
@@ -124,6 +125,21 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
   void _setStateIfMounted(VoidCallback fn) {
     if (!mounted) return;
     setState(fn);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final size = MediaQuery.sizeOf(context);
+    final resized = _viewportSize != null && _viewportSize != size;
+    _viewportSize = size;
+    if (resized && widget.flyToBounds != null) {
+      // The same geographic bounds need a new zoom for a different viewport,
+      // even when the overlay padding itself has not changed.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_syncMapDataAndCamera());
+      });
+    }
   }
 
   @override
