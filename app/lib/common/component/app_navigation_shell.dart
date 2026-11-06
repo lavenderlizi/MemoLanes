@@ -27,6 +27,7 @@ class AppNavigationShell extends StatelessWidget {
     this.navigationVisible = true,
     this.contentMode = AppNavigationContentMode.fullBleed,
     this.bottomTrailingOverlay,
+    this.foregroundOverlay,
   });
 
   /// Scroll-content offsets resolved by the shared layout on every device.
@@ -37,6 +38,9 @@ class AppNavigationShell extends StatelessWidget {
 
   /// Small map overlay aligned above the navigation, hidden with app chrome.
   final Widget? bottomTrailingOverlay;
+
+  /// Full-viewport guidance above both native maps and app navigation.
+  final Widget? foregroundOverlay;
 
   @override
   Widget build(BuildContext context) {
@@ -53,48 +57,63 @@ class AppNavigationShell extends StatelessWidget {
         navigationVisible: navigationVisible,
         navigationMedia: mediaQuery,
         builder: (context, layout) => Stack(
+          fit: StackFit.expand,
           children: [
-            // Menu pages keep vertical insets inside their scroll content so
-            // the viewport extends beneath system chrome and the nav bar.
-            PageContentInsets.menu(
-              layout: layout,
-              enabled: insetContent,
-              child: bodyBuilder(
-                topSafeArea: insetContent ? layout.menuScrollInsets.top : 0,
-                bottomSafeArea: layout.menuScrollInsets.bottom,
-              ),
+            ExcludeFocus(
+              excluding: foregroundOverlay != null,
+              child: _buildContent(context, layout),
             ),
-            if (navigationVisible && layout.chromeReady)
-              Positioned.fromRect(
-                rect: layout.navigationBounds,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: SizedBox.fromSize(
-                    size: layout.navigationContentSize,
-                    // TODO: Remove this iOS PlatformView composition workaround
-                    // once Flutter #190003 is included in the stable SDK:
-                    // https://github.com/flutter/flutter/pull/190003
-                    child: PointerInterceptor(
-                      intercepting: Platform.isIOS,
-                      child: navigationBuilder(
-                        context,
-                        axis: layout.navigationAxis,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (navigationVisible &&
-                layout.chromeReady &&
-                bottomTrailingOverlay != null)
-              Positioned(
-                right: layout.trailingOverlayInsets.dx,
-                bottom: layout.trailingOverlayInsets.dy,
-                child: bottomTrailingOverlay!,
-              ),
+            if (foregroundOverlay != null)
+              Positioned.fill(child: foregroundOverlay!),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, AppLayout layout) {
+    final insetContent = contentMode == AppNavigationContentMode.inset;
+    return Stack(
+      children: [
+        // Menu pages keep vertical insets inside their scroll content so
+        // the viewport extends beneath system chrome and the nav bar.
+        PageContentInsets.menu(
+          layout: layout,
+          enabled: insetContent,
+          child: bodyBuilder(
+            topSafeArea: insetContent ? layout.menuScrollInsets.top : 0,
+            bottomSafeArea: layout.menuScrollInsets.bottom,
+          ),
+        ),
+        if (navigationVisible && layout.chromeReady)
+          Positioned.fromRect(
+            rect: layout.navigationBounds,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: SizedBox.fromSize(
+                size: layout.navigationContentSize,
+                // TODO: Remove this iOS PlatformView composition workaround
+                // once Flutter #190003 is included in the stable SDK:
+                // https://github.com/flutter/flutter/pull/190003
+                child: PointerInterceptor(
+                  intercepting: Platform.isIOS,
+                  child: navigationBuilder(
+                    context,
+                    axis: layout.navigationAxis,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (navigationVisible &&
+            layout.chromeReady &&
+            bottomTrailingOverlay != null)
+          Positioned(
+            right: layout.trailingOverlayInsets.dx,
+            bottom: layout.trailingOverlayInsets.dy,
+            child: bottomTrailingOverlay!,
+          ),
+      ],
     );
   }
 }

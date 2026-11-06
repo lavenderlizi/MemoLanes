@@ -7,6 +7,7 @@ import 'package:memolanes/common/component/rec_indicator.dart';
 import 'package:memolanes/common/component/recording_buttons.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/app_layout.dart';
+import 'package:memolanes/common/onboarding.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
@@ -23,25 +24,28 @@ class NormalMapOverlay extends StatelessWidget {
 
   Widget _buildMapControls(Axis axis) {
     return PointerInterceptor(
-      child: Flex(
-        direction: axis,
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        spacing: StyleConstants.mapControlSpacing,
-        children: [
-          for (final child in [
-            TrackingButton(
-              trackingMode: trackingMode,
-              onPressed: onTrackingPressed,
-            ),
-            const AccuracyDisplay(),
-            const LayerButton(),
-          ])
-            SizedBox.square(
-              dimension: StyleConstants.mapControlSize,
-              child: child,
-            ),
-        ],
+      child: OnboardingTarget(
+        anchor: OnboardingAnchor.mapControls,
+        child: Flex(
+          direction: axis,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          spacing: StyleConstants.mapControlSpacing,
+          children: [
+            for (final child in [
+              TrackingButton(
+                trackingMode: trackingMode,
+                onPressed: onTrackingPressed,
+              ),
+              const AccuracyDisplay(),
+              const LayerButton(),
+            ])
+              SizedBox.square(
+                dimension: StyleConstants.mapControlSize,
+                child: child,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -65,7 +69,10 @@ class NormalMapOverlay extends StatelessWidget {
           child: const Align(
             heightFactor: 1,
             alignment: Alignment.center,
-            child: RecordingButtons(),
+            child: OnboardingTarget(
+              anchor: OnboardingAnchor.recording,
+              child: RecordingButtons(),
+            ),
           ),
         ),
         Positioned.fromRect(
