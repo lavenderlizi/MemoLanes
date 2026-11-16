@@ -1,6 +1,7 @@
 mod absorb;
 pub mod admin0;
 pub mod admin1;
+pub mod admin2;
 pub mod area;
 pub mod atomic_write;
 pub mod cache;
@@ -10,6 +11,7 @@ pub mod entities;
 pub mod map_geometry;
 pub mod names;
 pub mod overrides;
+pub mod polar;
 pub mod policy;
 pub mod projection;
 pub mod rasterize;

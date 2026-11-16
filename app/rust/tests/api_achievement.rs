@@ -22,7 +22,7 @@ use memolanes_core::{
     },
     api::api,
     api::import::JourneyInfo,
-    gps_processor::RawData,
+    gps::{ExtendedRawGPSPoint, RawGPSPoint},
     import_data,
     journey_header::JourneyKind,
 };
@@ -34,14 +34,18 @@ use tempdir::TempDir;
 /// Import one GPX track as a finalized journey via the public GPS ingest path.
 fn import_gpx_as_journey(path: &str) {
     let (raw, _pre) = import_data::gpx::load_gpx(path).unwrap();
-    let points: Vec<RawData> = raw
+    let points: Vec<RawGPSPoint> = raw
         .into_iter()
         .flatten()
         .filter(|p| p.timestamp_ms.is_some())
         .collect();
     assert!(!points.is_empty(), "no timestamped points in {path}");
-    for p in &points {
-        api::on_location_update(p.clone(), p.timestamp_ms.unwrap());
+    for p in points {
+        let received_timestamp_ms = p.timestamp_ms.unwrap();
+        api::on_location_update(ExtendedRawGPSPoint {
+            raw_gps_point: p,
+            received_timestamp_ms,
+        });
     }
     assert!(api::finalize_ongoing_journey().unwrap(), "finalize {path}");
 }
@@ -127,7 +131,7 @@ async fn api_achievement_explored_area_and_region_contract() {
     // test; the geo install below continues in the same state.)
     assert!(region_levels().is_err(), "no geo → error");
     assert!(
-        region_level_view(Default, RegionKind::Admin0, None).is_err(),
+        region_level_view(Default, RegionKind::Admin0).is_err(),
         "no geo → error"
     );
     assert!(
@@ -172,8 +176,8 @@ async fn api_achievement_explored_area_and_region_contract() {
         region_detail(unknown, Default).unwrap().is_none(),
         "unknown entity → no detail, not an error"
     );
-    let empty_view = region_level_view(Default, RegionKind::Admin1, Some(unknown)).unwrap();
-    assert_eq!(empty_view.region_count, 0, "unknown parent → no children");
-    assert_eq!(empty_view.visited_count, 0);
-    assert!(empty_view.entries.is_empty());
+    assert!(
+        region_level_view(Default, RegionKind::Admin1).is_err(),
+        "below the country, regions are listed only under their parent"
+    );
 }

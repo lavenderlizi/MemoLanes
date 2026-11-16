@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:memolanes/app_bootstrap.dart';
 import 'package:memolanes/common/component/app_button.dart';
@@ -50,7 +50,7 @@ class _DatabaseVersionTooNewGateState extends State<DatabaseVersionTooNewGate> {
       barrierDismissible: false,
       builder: (dialogContext) => PopScope(
         canPop: false,
-        child: AppDialogCard(
+        child: AppDialogContent(
           title: dialogContext.tr('startup_error.title'),
           actions: AppButton(
             label: dialogContext.tr(

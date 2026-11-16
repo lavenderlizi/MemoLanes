@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:memolanes/theme/app_colors.dart';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memolanes/common/app_haptics.dart';
-import 'package:memolanes/common/component/custom_popup.dart';
-import 'package:memolanes/common/component/liquid_glass_surface.dart';
+import 'package:memolanes/common/component/app_menu.dart';
+import 'package:memolanes/common/component/map_controls/map_floating_control.dart';
+import 'package:memolanes/common/component/map_controls/map_popup_surface.dart';
 import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/constants/app_typography.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/journey_header.dart';
 
@@ -19,48 +19,12 @@ class LayerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPopup(
-      position: PopupPosition.left,
-      horizontalOffset: -16,
-      contentRadius: 24,
-      barrierColor: Colors.transparent,
-      contentDecorationBuilder: (context) => BoxDecoration(
-        color: context.appColors.glassColor.withValues(
-          alpha: context.appColors.mapPopupBackgroundAlpha,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: context.appColors.glassBorderColor.withValues(
-            alpha: context.appColors.mapPopupBorderAlpha,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: context.appColors.shadowColor.withValues(
-              alpha: context.appColors.mapPopupShadowAlpha,
-            ),
-            blurRadius: 22,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      content: PointerInterceptor(child: const LayerPopupContent()),
-      child: PointerInterceptor(
-        child: LiquidGlassSurface(
-          circular: true,
-          child: SizedBox(
-            width: 44,
-            height: 44,
-            child: Center(
-              child: Icon(
-                Icons.layers,
-                color: context.appColors.deepGreen,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-      ),
+    return AppMenu(
+      menuBuilder: (_) => const LayerPopupContent(),
+      position: AppMenuPosition.side,
+      offset: const Offset(16, 0),
+      surfaceBuilder: (_, child) => MapPopupSurface(child: child),
+      child: const MapFloatingControl(child: Center(child: Icon(Icons.layers))),
     );
   }
 }

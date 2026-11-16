@@ -4,18 +4,21 @@ import 'package:memolanes/theme/app_colors.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/body/journey/journey_export.dart';
 import 'package:memolanes/body/journey/journey_track_edit_page.dart';
+import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
+import 'package:memolanes/common/component/map_controls/map_overlay_actions.dart';
 import 'package:memolanes/common/component/map_glass_back_button.dart';
+import 'package:memolanes/common/component/map_overlay_panel.dart';
 import 'package:memolanes/body/map/journey_flow_controller.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/loading_manager.dart';
+import 'package:memolanes/common/app_layout.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/src/rust/api/edit_session.dart' show EditSession;
-import 'package:memolanes/src/rust/api/import.dart' show JourneyInfo;
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -25,7 +28,15 @@ import 'journey_more_dialog.dart';
 
 /// Journey details drawn above the shared map in [MapBody].
 class JourneyDetailOverlay extends StatefulWidget {
-  const JourneyDetailOverlay({super.key, required this.controller});
+  const JourneyDetailOverlay({
+    super.key,
+    required this.controller,
+    this.panelKey,
+    this.screenshotAction,
+  });
+
+  final GlobalKey<MapOverlayPanelState>? panelKey;
+  final Widget? screenshotAction;
 
   final JourneyFlowController controller;
 
@@ -116,6 +127,28 @@ class _JourneyDetailOverlayState extends State<JourneyDetailOverlay> {
     await showJourneyExportPicker(context, _journey);
   }
 
+  Future<void> _deleteRawData() async {
+    final confirmed = await showCommonDialog(
+      context,
+      context.tr('journey.delete_raw_data_message'),
+      hasCancel: true,
+      title: context.tr('journey.delete_raw_data_title'),
+      confirmButtonText: context.tr('common.delete'),
+      confirmVariant: AppButtonVariant.danger,
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      await _controller.deleteRawData();
+    } catch (error, stackTrace) {
+      log.error('Deleting journey raw data failed: $error', stackTrace);
+      if (!mounted) return;
+      await showCommonDialog(
+        context,
+        context.tr('journey.editor.operation_failed'),
+      );
+    }
+  }
+
   Future<void> _showMore() async {
     if (_moreActionInProgress || _controller.phase != JourneyPhase.viewing) {
       return;
@@ -165,12 +198,13 @@ class _JourneyDetailOverlayState extends State<JourneyDetailOverlay> {
     }
     final choice = await showAppDialog<_JourneyEditChoice>(
       context,
-      maxWidth: 360,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 38),
+      surfaceBuilder: (child) =>
+          AppDialogSurface(style: AppDialogSurfaceStyle.glass, child: child),
       barrierColor: context.appColors.shadowColor.withValues(
         alpha: context.appColors.pickerBarrierAlpha,
       ),
       builder: (dialogContext) => _JourneyEditChoiceCard(
+        hasRawData: _journey.hasRawData,
         onSelected: (choice) => Navigator.of(dialogContext).pop(choice),
       ),
     );
@@ -191,6 +225,9 @@ class _JourneyDetailOverlayState extends State<JourneyDetailOverlay> {
           );
         }
         break;
+      case _JourneyEditChoice.deleteRawData:
+        await _deleteRawData();
+        break;
     }
   }
 
@@ -199,51 +236,35 @@ class _JourneyDetailOverlayState extends State<JourneyDetailOverlay> {
     if (_controller.session == null) return const SizedBox.shrink();
     final mediaQuery = MediaQuery.of(context);
     final viewPadding = mediaQuery.viewPadding;
+    final layout = AppLayoutScope.of(context);
+    final overlayActions = MapOverlayActions(
+      back: _controller.isEditing
+          ? null
+          : MapGlassBackButton(onPressed: _requestBack),
+      actions: [?widget.screenshotAction],
+    );
     return Stack(
       fit: StackFit.expand,
       children: [
-        Positioned(
-          left: viewPadding.left + 16,
-          right: viewPadding.right + 16,
-          // Scaffold already removes the keyboard height from the body.
-          // Bound the card between the back button and the bottom inset.
-          top: viewPadding.top + 14 + 42 + 12,
-          bottom: viewPadding.bottom + 16,
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              width: math.min(
-                mediaQuery.size.width -
-                    viewPadding.left -
-                    viewPadding.right -
-                    32,
-                430.0,
-              ),
-              child: PointerInterceptor(
-                child: CollapsibleJourneyDetail(
-                  child: JourneyDetailCard(
-                    journey: _journey,
-                    isEditing: _controller.isEditing,
-                    isSaving: _controller.phase == JourneyPhase.saving,
-                    onExport: _exportJourney,
-                    onEdit: _showEditChoice,
-                    onMore: _showMore,
-                    onCancel: _requestBack,
-                    onSave: _saveJourneyInformation,
-                  ),
-                ),
+        MapOverlayPanel.detail(
+          key: widget.panelKey,
+          child: PointerInterceptor(
+            child: CollapsibleJourneyDetail(
+              key: ValueKey(_journey.id),
+              child: JourneyDetailCard(
+                journey: _journey,
+                isEditing: _controller.isEditing,
+                isSaving: _controller.phase == JourneyPhase.saving,
+                onExport: _exportJourney,
+                onEdit: _showEditChoice,
+                onMore: _showMore,
+                onCancel: _requestBack,
+                onSave: _saveJourneyInformation,
               ),
             ),
           ),
         ),
-        if (!_controller.isEditing)
-          Positioned(
-            left: viewPadding.left + 16,
-            top: viewPadding.top + 14,
-            child: PointerInterceptor(
-              child: MapGlassBackButton(onPressed: _requestBack),
-            ),
-          ),
+        if (layout.backPrecedesEdgeGesture) overlayActions,
         // Details share the root route, which cannot supply Cupertino's edge
         // gesture. Intercept only the edge so the native WebView still handles
         // map gestures everywhere else; use the same back action as the button.
@@ -272,24 +293,30 @@ class _JourneyDetailOverlayState extends State<JourneyDetailOverlay> {
               ),
             ),
           ),
+        // A detached navigation column can lie inside the edge-swipe region;
+        // give its Back target priority while preserving the ordinary order.
+        if (!layout.backPrecedesEdgeGesture) overlayActions,
       ],
     );
   }
 }
 
-enum _JourneyEditChoice { information, track }
+enum _JourneyEditChoice { information, track, deleteRawData }
 
 class _JourneyEditChoiceCard extends StatelessWidget {
-  const _JourneyEditChoiceCard({required this.onSelected});
+  const _JourneyEditChoiceCard({
+    required this.onSelected,
+    required this.hasRawData,
+  });
+
+  final bool hasRawData;
 
   final ValueChanged<_JourneyEditChoice> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    return AppDialogCard(
+    return AppDialogContent(
       title: context.tr('common.edit'),
-      surfaceStyle: AppDialogSurfaceStyle.glass,
-      maxHeightFactor: 0.5,
       contentPadding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -307,6 +334,19 @@ class _JourneyEditChoiceCard extends StatelessWidget {
             title: context.tr('journey.editor.page_title'),
             onTap: () => onSelected(_JourneyEditChoice.track),
           ),
+          if (hasRawData) ...[
+            const SizedBox(height: 8),
+            AppOptionTile(
+              backgroundAlpha: 0.5,
+              iconWidget: Icon(
+                Icons.delete_outline_rounded,
+                color: context.appColors.dangerInkColor,
+                size: 20,
+              ),
+              title: context.tr('journey.delete_raw_data'),
+              onTap: () => onSelected(_JourneyEditChoice.deleteRawData),
+            ),
+          ],
         ],
       ),
     );

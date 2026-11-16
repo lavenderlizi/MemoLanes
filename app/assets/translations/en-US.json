@@ -1,4 +1,26 @@
 {
+  "screenshot": {
+    "logo_topRight": "Top right",
+    "logo_bottomRight": "Bottom right",
+    "logo_hidden": "Hidden",
+    "time_info_option": "Dates",
+    "include_time_info": "Include dates",
+    "selected_time": "Travel back to",
+    "button_label": "Screenshot",
+    "generating": "Preparing screenshot…",
+    "content_options": "Image content",
+    "journey_info_option": "Journey info",
+    "logo_option": "Watermark",
+    "include_journey_info": "Include journey information",
+    "logo_unavailable": "Could not load the watermark. You can save without it.",
+    "save": "Save to Photos",
+    "saved": "Image saved to Photos",
+    "busy": "Wait for the current operation to finish before taking a screenshot.",
+    "failed": "Could not capture the map. Please try again.",
+    "save_failed": "Could not save the image. Please try again.",
+    "share_failed": "Could not share the image. Please try again.",
+    "permission_denied": "Permission to save images was denied. Allow it in system settings and try again."
+  },
   "home": {
     "start_new_journey": "Start new journey",
     "pause": "Pause",
@@ -102,8 +124,8 @@
       "empty_all_description": "Start exploring and make your first journey.",
       "empty_filtered_title": "No matching journeys",
       "empty_filtered_description": "Try a different layer to see more journeys.",
-      "empty_month_title": "No journeys this month",
-      "empty_month_description": "Try another month or layer to see more journeys.",
+      "empty_day_title": "No journeys on this day",
+      "empty_day_description": "Try another date or layer to see more journeys.",
       "show_all_layers": "Show all journeys"
     },
     "journey_date_is_empty": "JourneyDate is empty",
@@ -115,6 +137,19 @@
     "journey_info_edit_page_title": "Edit Journey Information",
     "import_mldx_data": "Import MLDX Data",
     "import_fog_of_world_data": "Import [Fog of World] Data",
+    "export_raw_data_csv": "CSV raw data (*.csv)",
+    "export_raw_data_csv_desc": "Keeps every recorded raw GPS field.",
+    "export_raw_data_gpx": "GPX raw data (*.gpx)",
+    "export_raw_data_gpx_desc": "Raw location points for fitness, navigation, and track tools.",
+    "export_raw_data_kml": "KML raw data (*.kml)",
+    "export_raw_data_kml_desc": "Raw location points for map and track tools.",
+    "raw_data_lossy_format_warning": "This format may omit raw GPS fields. Use CSV for a complete raw-data export.",
+    "delete_raw_data": "Delete Raw Data",
+    "delete_raw_data_title": "Delete Raw Data",
+    "delete_raw_data_message": "Delete raw data for this journey?",
+    "raw_data": "Raw Data",
+    "raw_data_included": "Included",
+    "raw_data_not_included": "Not included",
     "delete_all": "Delete All Journeys",
     "delete_all_success": "All journeys are deleted!",
     "journey_date": "Journey Date",
@@ -124,10 +159,11 @@
     "created_at": "Created At",
     "note": "Note",
     "finalize_saved": "New journey added",
-    "finalize_empty": "No journey detected"
+    "finalize_empty": "No journey detected",
+    "delete_all_title": "Delete All Journeys"
   },
   "db_optimization": {
-    "notification": "Your database requires optimization, please go to Settings tab and click [Optimize database] button.",
+    "notification": "Your database requires optimization. Go to [Settings] > [Data] > [Optimize database].",
     "button": "Optimize database",
     "already_optimized": "Database is already optimized. Nothing to do.",
     "confirm": "Your database requires optimization. It is recommended to backup your data before proceeding.",
@@ -189,10 +225,6 @@
       "description": "Large files may take a while. Please wait.",
       "data_file": "Data file",
       "keep_open_hint": "Keep this page open while processing"
-    },
-    "vector": {
-      "title": "Import Track File",
-      "description_md": "The following track file formats are supported:\n\n1. **GPX** (`.gpx`)\n2. **KML** (`.kml`)\n3. **CSV** (`.csv`)"
     },
     "mldx_preview": {
       "title": "Archive Import",
@@ -275,7 +307,8 @@
     },
     "region_list": {
       "country_title": "Countries & Regions",
-      "region_empty": "No regions unlocked in this country yet.",
+      "region_empty": "No subdivisions unlocked yet.",
+      "region_unsupported": "Subdivision statistics are not yet available for this region.",
       "error": "Could not load region data.",
       "retry": "Retry",
       "view_all": "View all",
@@ -308,12 +341,43 @@
       "style_name": {
         "maplibre": "MapLibre Demo Tile",
         "openfreemap": "OpenFreeMap"
+      },
+      "basemaps": {
+        "title": "Map Styles",
+        "built_in": "Built-in styles",
+        "my_maps": "Custom styles",
+        "empty": "No custom styles yet. Add a map link to get started.",
+        "add": "Add style",
+        "edit": "Edit style",
+        "attribution": "Map data sources",
+        "type_style": "Map style",
+        "type_raster_tiles": "Raster tiles",
+        "name": "Style name",
+        "style_url": "Style URL",
+        "tile_url": "Tile URL",
+        "style_url_help": "Enter a complete map style URL, including any parameters it requires.",
+        "tile_url_help": "Include {z}, {x}, and {y}; they are replaced with the tile zoom and coordinates.",
+        "tile_options": "Tile settings",
+        "tile_size": "Tile size",
+        "scheme": "Coordinate scheme",
+        "required": "This field is required",
+        "invalid_https_url": "Enter a complete HTTPS URL",
+        "invalid_tiles": "The tile URL must include {z}, {x}, and {y}",
+        "write_failed": "Could not save. Please try again.",
+        "save_and_use": "Save and use",
+        "delete": "Delete style",
+        "delete_title": "Delete style?",
+        "delete_message": "Delete “{name}”?",
+        "delete_selected_message": "Deleting “{name}” will switch to the default style."
       }
     },
     "advanced_settings": {
       "title": "Advanced settings",
       "export_logs": "Export Logs",
       "raw_data_mode": "Raw Data Mode",
+      "raw_data_mode_description": "This feature is off by default.\nJourneys recorded while it is off retain only the processed track.\nWhen it is on, all raw GPS data received during recording is also saved, including location, timestamps, accuracy, altitude, and speed. Saving raw data uses more storage space.",
+      "raw_data_files": "Raw Data Files (Deprecated)",
+      "no_raw_data_files": "No raw data files",
       "raw_data_export_csv": "Export as CSV",
       "raw_data_export_gpx": "Export as GPX",
       "rebuild_cache": "Rebuild Cache",
@@ -340,7 +404,16 @@
     },
     "import_data": {
       "title": "Import data",
-      "description": "Choose the data source and format you want to import."
+      "description": "Supported formats are detected automatically after you choose a file.",
+      "mldx_title": "MemoLanes archive",
+      "mldx_desc": ".mldx",
+      "vector_title": "Track files",
+      "vector_desc": ".gpx / .kml / .csv",
+      "fog_of_world_title": "Fog of World data",
+      "fog_of_world_desc": ".fwss / .zip",
+      "choose_file": "Choose File",
+      "unsupported_format": "Unsupported file format. Choose a .mldx, .gpx, .kml, .csv, .fwss, or .zip file.",
+      "unreadable_file": "Cannot read the selected file. Save it to your device and try again."
     },
     "export_data": {
       "export_all": "Export All Data",
@@ -348,10 +421,17 @@
       "export_journey_title": "Export Journey",
       "error": {
         "no_journeys_to_export": "There are no journeys to export yet.",
+        "no_raw_data_to_export": "There is no raw location data to export.",
         "no_track_data_for_selected_format": "There is no track data to export in the selected format.",
         "unexpected": "Unexpected error occurred during exporting"
       },
+      "content_section_title": "Export content",
       "format_section_title": "Export format",
+      "journey_data_group": "Journey data",
+      "raw_data_group": "Raw location data",
+      "raw_data_group_desc": "Only raw data saved with journeys is exported. Journeys without raw data are skipped automatically.",
+      "include_raw_data": "Preserve raw location data",
+      "include_raw_data_desc": "When disabled, only journey data will be exported; raw data will be discarded.",
       "format_mldx": "MemoLanes standard format (*.mldx)",
       "format_mldx_desc": "Recommended for backup, migration, and importing back into MemoLanes.",
       "format_fwss": "Fog of World snapshot (*.fwss)",
@@ -360,30 +440,73 @@
       "format_kml_desc": "For map apps and track tools.",
       "format_gpx": "GPX track (*.gpx)",
       "format_gpx_desc": "For fitness, navigation, and track tools.",
-      "lossy_format_warning": "This format may lose some journey data. Use MemoLanes standard format (*.mldx) for a complete backup."
+      "lossy_format_warning": "This format may lose some journey data. Use MemoLanes standard format (*.mldx) for a complete backup.",
+      "vector_format_warning": "GPX/KML exclude journeys imported from Fog of World and may lose some data. Use *.mldx for a complete backup."
     }
   },
   "settings": {
     "other": "Other",
     "about": "About",
-    "page_title": "Settings"
+    "page_title": "Settings",
+    "title": "Settings",
+    "categories": {
+      "journey_recording": {
+        "title": "Journey & Recording"
+      },
+      "map": {
+        "title": "Map Settings"
+      },
+      "appearance": {
+        "title": "Appearance"
+      },
+      "data": {
+        "title": "Data"
+      },
+      "advanced": {
+        "title": "Advanced"
+      },
+      "about": {
+        "title": "About MemoLanes"
+      }
+    },
+    "groups": {
+      "recording_data": "Recording Data",
+      "recording_protection": "Recording Protection",
+      "usage_settings": "Usage Settings",
+      "data_system": "Data & System",
+      "appearance": "Appearance",
+      "map_display": "Map Display",
+      "region": "Region",
+      "import_export": "Import & Export",
+      "data_maintenance": "Data Maintenance",
+      "delete_data": "Delete Data",
+      "diagnostics": "Diagnostics",
+      "recovery": "Recovery"
+    },
+    "language": {
+      "title": "Language",
+      "system": "Follow system",
+      "chinese": "Simplified Chinese",
+      "english": "English"
+    },
+    "data_attribution": "Map boundary data © OpenStreetMap contributors, via Overture Maps (ODbL)."
   },
   "beta_testing_notice": {
     "title": "Welcome to MemoLanes Public Beta",
-    "content_md": "Thank you for testing MemoLanes!\n\nPlease be aware of the following:\n* The app may occasionally lag, crash, or glitch.\n* Features are still being optimized and may change in the final release, so they may not reflect their final quality.\n* We recommend backing up your data regularly (go to the far-right [Settings] icon on the navigation bar > [Export All Data]).\n\nIf you run into any issues, please take a screenshot to share with our team—it helps a lot! Suggestions are also welcome. You can find us via [Settings] > [Contact Us].\n\nIf you enjoy using MemoLanes, feel free to share it with others. Your support motivates us to keep improving. 🫶🏻\n\nWish you great journeys ahead—let’s explore the world together! 🚀"
+    "content_md": "Thank you for testing MemoLanes!\n\nPlease be aware of the following:\n* The app may occasionally lag, crash, or glitch.\n* Features are still being optimized and may change in the final release, so they may not reflect their final quality.\n* We recommend backing up your data regularly (go to the far-right [Settings] icon on the navigation bar > [Data] > [Export All Data]).\n\nIf you run into any issues, please take a screenshot to share with our team—it helps a lot! Suggestions are also welcome. You can find us via [Settings] > [About MemoLanes] > [Contact Us].\n\nIf you enjoy using MemoLanes, feel free to share it with others. Your support motivates us to keep improving. 🫶🏻\n\nWish you great journeys ahead—let’s explore the world together! 🚀"
   },
   "privacy": {
     "url": "https://app.memolanes.com/en/privacy/",
     "setup_title": "First-time setup",
     "setup_desc": "Before using MemoLanes, choose your region preference and confirm the privacy policy.",
     "region_title": "Region preference",
-    "region_mainland_china": "Mainland China",
+    "region_china": "China",
     "region_international": "International",
     "region_united_states": "United States",
     "agreement_title": "Read and agree to the Privacy Policy",
     "view_policy": "View Privacy Policy",
     "name": "Privacy Policy",
-    "disagree_and_exit": "Disagree And Exit"
+    "exit": "Exit"
   },
   "contact_us": {
     "title": "Contact Us",

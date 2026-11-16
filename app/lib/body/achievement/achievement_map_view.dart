@@ -4,7 +4,7 @@ import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:memolanes/body/achievement/achievement_region_area_list_page.dart';
 import 'package:memolanes/body/achievement/achievement_globe_summary.dart';
@@ -386,7 +386,7 @@ class _AchievementMapViewState extends State<AchievementMapView> {
                 flyToView: country == null ? globeView : null,
                 flyToBounds: _bounds,
                 cameraRevision: _cameraRevision,
-                flyToBoundsPadding: padding,
+                boundsPadding: padding,
                 achievementOverlay: _overlay,
                 extraJavaScriptChannels: [
                   BaseMapJavaScriptChannel(

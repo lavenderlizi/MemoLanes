@@ -3,17 +3,17 @@ import 'dart:io';
 import 'package:memolanes/theme/app_colors.dart';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_file_saver/flutter_file_saver.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/app_option_tile.dart';
-import 'package:memolanes/common/component/basic_dialog_card.dart';
 import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
+import 'package:memolanes/src/rust/export_data.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
@@ -37,7 +37,10 @@ enum CommonExportFormat {
   mldx,
   fwss,
   kml,
-  gpx;
+  gpx,
+  rawDataCsv,
+  rawDataGpx,
+  rawDataKml;
 
   CommonExportOption get option {
     return switch (this) {
@@ -66,10 +69,76 @@ enum CommonExportFormat {
         title: tr('data.export_data.format_gpx'),
         description: tr('data.export_data.format_gpx_desc'),
       ),
+      CommonExportFormat.rawDataCsv => CommonExportOption(
+        extension: 'csv',
+        icon: Icons.table_chart_outlined,
+        title: tr('journey.export_raw_data_csv'),
+        description: tr('journey.export_raw_data_csv_desc'),
+        keepsCompleteData: true,
+      ),
+      CommonExportFormat.rawDataGpx => CommonExportOption(
+        extension: 'gpx',
+        icon: Icons.route_outlined,
+        title: tr('journey.export_raw_data_gpx'),
+        description: tr('journey.export_raw_data_gpx_desc'),
+      ),
+      CommonExportFormat.rawDataKml => CommonExportOption(
+        extension: 'kml',
+        icon: Icons.map_outlined,
+        title: tr('journey.export_raw_data_kml'),
+        description: tr('journey.export_raw_data_kml_desc'),
+      ),
     };
   }
 
   String get extension => option.extension;
+
+  RawDataExportType get rawDataExportType => switch (this) {
+    CommonExportFormat.rawDataCsv => RawDataExportType.csv,
+    CommonExportFormat.rawDataGpx => RawDataExportType.gpx,
+    CommonExportFormat.rawDataKml => RawDataExportType.kml,
+    _ => throw UnsupportedError('Unsupported raw-data export format: $this'),
+  };
+
+  bool get isRawData => switch (this) {
+    CommonExportFormat.rawDataCsv ||
+    CommonExportFormat.rawDataGpx ||
+    CommonExportFormat.rawDataKml => true,
+    CommonExportFormat.mldx ||
+    CommonExportFormat.fwss ||
+    CommonExportFormat.kml ||
+    CommonExportFormat.gpx => false,
+  };
+}
+
+class CommonExportFormatGroup {
+  const CommonExportFormatGroup({
+    required this.label,
+    required this.formats,
+    this.description,
+    this.lossyFormatWarning,
+  }) : assert(formats.length > 0);
+
+  factory CommonExportFormatGroup.rawData(
+    BuildContext context, {
+    String? description,
+  }) {
+    return CommonExportFormatGroup(
+      label: context.tr('data.export_data.raw_data_group'),
+      description: description,
+      formats: const [
+        CommonExportFormat.rawDataCsv,
+        CommonExportFormat.rawDataGpx,
+        CommonExportFormat.rawDataKml,
+      ],
+      lossyFormatWarning: context.tr('journey.raw_data_lossy_format_warning'),
+    );
+  }
+
+  final String label;
+  final List<CommonExportFormat> formats;
+  final String? description;
+  final String? lossyFormatWarning;
 }
 
 class CommonExportResult {
@@ -79,42 +148,56 @@ class CommonExportResult {
   final String filePath;
 }
 
+class CommonExportSelection {
+  const CommonExportSelection({
+    required this.format,
+    this.includeRawData = false,
+  });
+
+  final CommonExportFormat format;
+  final bool includeRawData;
+}
+
 typedef CommonExportFileBuilder = Future<CommonExportResult> Function(
-  CommonExportFormat format,
+  CommonExportSelection selection,
 );
 
 Future<void> showCommonExportWithFormatPicker({
   required BuildContext context,
   required String title,
-  required List<CommonExportFormat> formats,
+  required List<CommonExportFormatGroup> formatGroups,
   required CommonExportFileBuilder exportFile,
   CommonExportFormat? defaultFormat,
+  bool canIncludeRawData = true,
   bool deleteFile = true,
 }) async {
-  assert(formats.isNotEmpty);
+  assert(formatGroups.isNotEmpty);
 
+  final allFormats = formatGroups.expand((group) => group.formats);
   final initialFormat = defaultFormat == null
-      ? formats.first
-      : formats.firstWhere(
+      ? allFormats.first
+      : allFormats.firstWhere(
           (format) => format == defaultFormat,
-          orElse: () => formats.first,
+          orElse: () => allFormats.first,
         );
-  final selectedFormat = await showAppDialog<CommonExportFormat>(
+  final selection = await showAppDialog<CommonExportSelection>(
     context,
     barrierDismissible: false,
     builder: (_) => _ExportFormatDialog(
       title: title,
-      formats: formats,
+      formatGroups: formatGroups,
       initialFormat: initialFormat,
+      canIncludeRawData: canIncludeRawData,
     ),
   );
 
-  if (selectedFormat == null || !context.mounted) return;
+  if (selection == null || !context.mounted) return;
 
   final CommonExportResult exportResult;
   try {
     exportResult = await GlobalLoadingManager.instance.runWithLoading(
-      () => exportFile(selectedFormat),
+      () => exportFile(selection),
+      blockNavigation: true,
     );
   } catch (error, stack) {
     log.error('[export] Export failed: $error', stack);
@@ -145,7 +228,9 @@ Future<void> showCommonExportWithFormatPicker({
           await showCommonDialog(
             context,
             context.tr(
-              'data.export_data.error.no_track_data_for_selected_format',
+              selection.format.isRawData
+                  ? 'data.export_data.error.no_raw_data_to_export'
+                  : 'data.export_data.error.no_track_data_for_selected_format',
             ),
           );
         }
@@ -165,21 +250,32 @@ Future<bool> showCommonExport(
       return true;
     }
 
-    final action = await showBasicCard<_PreparedExportAction>(
+    final action = await showAppDialog<_PreparedExportAction>(
       context,
-      title: context.tr('common.export'),
-      builder: (_) => const _ExportActionSheetContent(),
+      builder: (dialogContext) => AppDialogContent(
+        title: context.tr('common.export'),
+        contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: const _ExportActionSheetContent(),
+      ),
     );
 
     if (action == null || !context.mounted) return false;
     switch (action) {
       case _PreparedExportAction.save:
-        await _saveFile(filePath);
-        return true;
+        return await _saveFile(filePath);
       case _PreparedExportAction.share:
         await _shareFile(filePath, computeSharePositionOrigin(context));
         return true;
     }
+  } catch (error, stack) {
+    log.error('[export] Save or share failed: $error', stack);
+    if (context.mounted) {
+      await showCommonDialog(
+        context,
+        context.tr('data.export_data.error.unexpected'),
+      );
+    }
+    return false;
   } finally {
     if (deleteFile) {
       await _deleteExportFile(filePath);
@@ -205,14 +301,16 @@ Future<void> _shareFile(String filePath, Rect sharePositionOrigin) {
   );
 }
 
-Future<void> _saveFile(String filePath) async {
-  final file = File(filePath);
-  // TODO: This is pretty inefficient, but I don't think `FlutterFileSaver`
-  // provides other API.
-  await FlutterFileSaver().writeFileAsBytes(
-    fileName: p.basename(filePath),
-    bytes: await file.readAsBytes(),
-  );
+Future<bool> _saveFile(String filePath) {
+  return GlobalLoadingManager.instance.runWithLoading(() async {
+    final savedPath = await FileSaver.instance.saveAs(
+      name: p.basenameWithoutExtension(filePath),
+      filePath: filePath,
+      fileExtension: p.extension(filePath).replaceFirst('.', ''),
+      mimeType: MimeType.other,
+    );
+    return savedPath != null;
+  }, blockNavigation: true);
 }
 
 Future<void> _deleteExportFile(String filePath) async {
@@ -229,24 +327,35 @@ Future<void> _deleteExportFile(String filePath) async {
 class _ExportFormatDialog extends StatefulWidget {
   const _ExportFormatDialog({
     required this.title,
-    required this.formats,
+    required this.formatGroups,
     required this.initialFormat,
+    required this.canIncludeRawData,
   });
 
   final String title;
-  final List<CommonExportFormat> formats;
+  final List<CommonExportFormatGroup> formatGroups;
   final CommonExportFormat initialFormat;
+  final bool canIncludeRawData;
 
   @override
   State<_ExportFormatDialog> createState() => _ExportFormatDialogState();
 }
 
 class _ExportFormatDialogState extends State<_ExportFormatDialog> {
+  late int _selectedGroupIndex;
   late CommonExportFormat _selectedFormat;
+  bool _includeRawData = true;
+
+  CommonExportFormatGroup get _selectedGroup =>
+      widget.formatGroups[_selectedGroupIndex];
 
   @override
   void initState() {
     super.initState();
+    _selectedGroupIndex = widget.formatGroups.indexWhere(
+      (group) => group.formats.contains(widget.initialFormat),
+    );
+    if (_selectedGroupIndex < 0) _selectedGroupIndex = 0;
     _selectedFormat = widget.initialFormat;
   }
 
@@ -256,8 +365,23 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
     });
   }
 
+  void _selectGroup(Set<int> selection) {
+    setState(() {
+      _selectedGroupIndex = selection.first;
+      _selectedFormat = _selectedGroup.formats.first;
+    });
+  }
+
   void _submit() {
-    Navigator.of(context).pop(_selectedFormat);
+    Navigator.of(context).pop(
+      CommonExportSelection(
+        format: _selectedFormat,
+        includeRawData:
+            widget.canIncludeRawData &&
+            _selectedFormat == CommonExportFormat.mldx &&
+            _includeRawData,
+      ),
+    );
   }
 
   Widget _buildFormatOption(CommonExportFormat format) {
@@ -274,10 +398,18 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
     );
   }
 
-  Widget _buildLossyWarning() {
-    if (_selectedFormat.option.keepsCompleteData) {
-      return const SizedBox.shrink();
-    }
+  Widget _buildExportNotice() {
+    final messages = [
+      if (_selectedGroup.description != null) _selectedGroup.description!,
+      if (!_selectedFormat.option.keepsCompleteData)
+        _selectedGroup.lossyFormatWarning ??
+            context.tr(switch (_selectedFormat) {
+              CommonExportFormat.kml || CommonExportFormat.gpx =>
+                'data.export_data.vector_format_warning',
+              _ => 'data.export_data.lossy_format_warning',
+            }),
+    ];
+    if (messages.isEmpty) return const SizedBox.shrink();
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
@@ -298,10 +430,68 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
           ),
           const SizedBox(width: 8.0),
           Expanded(
-            child: Text(
-              context.tr('data.export_data.lossy_format_warning'),
-              style: AppTypography.supporting,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < messages.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 8.0),
+                  Text(messages[i], style: AppTypography.supporting),
+                ],
+              ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRawDataToggle() {
+    if (!widget.canIncludeRawData ||
+        _selectedFormat != CommonExportFormat.mldx) {
+      return const SizedBox.shrink();
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      margin: const EdgeInsets.only(top: 6.0),
+      padding: const EdgeInsets.all(10.0),
+      decoration: BoxDecoration(
+        color: context.appColors.warningSurfaceColor.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr('data.export_data.include_raw_data'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.itemTitle.copyWith(
+                    color: context.appColors.inkColor,
+                  ),
+                ),
+                const SizedBox(height: 3.0),
+                Text(
+                  context.tr('data.export_data.include_raw_data_desc'),
+                  style: AppTypography.caption.copyWith(
+                    color: context.appColors.mutedInkColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          Switch(
+            value: _includeRawData,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            onChanged: (value) => setState(() => _includeRawData = value),
           ),
         ],
       ),
@@ -310,9 +500,8 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AppDialogCard(
+    return AppDialogContent(
       title: widget.title,
-      maxHeightFactor: 0.78,
       contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
       actions: AppDialogActions(
         children: [
@@ -328,28 +517,85 @@ class _ExportFormatDialogState extends State<_ExportFormatDialog> {
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
         alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.formatGroups.length > 1) ...[
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
-                  context.tr('data.export_data.format_section_title'),
+                  context.tr('data.export_data.content_section_title'),
                   style: AppTypography.sectionLabel.copyWith(
                     color: context.appColors.mutedInkColor,
                   ),
                 ),
               ),
               const SizedBox(height: 6.0),
-              for (var i = 0; i < widget.formats.length; i++) ...[
-                _buildFormatOption(widget.formats[i]),
-                if (i < widget.formats.length - 1) const SizedBox(height: 8),
-              ],
-              _buildLossyWarning(),
+              SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<int>(
+                  showSelectedIcon: false,
+                  expandedInsets: EdgeInsets.zero,
+                  segments: [
+                    for (var i = 0; i < widget.formatGroups.length; i++)
+                      ButtonSegment<int>(
+                        value: i,
+                        label: Text(widget.formatGroups[i].label),
+                      ),
+                  ],
+                  selected: {_selectedGroupIndex},
+                  onSelectionChanged: _selectGroup,
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return context.appColors.primaryGreen.withValues(
+                          alpha: 0.18,
+                        );
+                      }
+                      return context.appColors.surfaceColor.withValues(
+                        alpha: 0.76,
+                      );
+                    }),
+                    foregroundColor: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return context.appColors.primaryGreen;
+                      }
+                      return context.appColors.mutedInkColor;
+                    }),
+                    side: WidgetStatePropertyAll(
+                      BorderSide(color: context.appColors.lineColor),
+                    ),
+                    textStyle: const WidgetStatePropertyAll(
+                      AppTypography.itemTitle,
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14.0),
             ],
-          ),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                context.tr('data.export_data.format_section_title'),
+                style: AppTypography.sectionLabel.copyWith(
+                  color: context.appColors.mutedInkColor,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6.0),
+            Column(
+              children: [
+                for (var i = 0; i < _selectedGroup.formats.length; i++) ...[
+                  _buildFormatOption(_selectedGroup.formats[i]),
+                  if (i < _selectedGroup.formats.length - 1)
+                    const SizedBox(height: 8),
+                ],
+              ],
+            ),
+            _buildRawDataToggle(),
+            _buildExportNotice(),
+          ],
         ),
       ),
     );

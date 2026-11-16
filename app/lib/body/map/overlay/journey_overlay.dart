@@ -1,12 +1,10 @@
-import 'dart:math' as math;
-
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/body/journey/compact_journey_info_card.dart';
 import 'package:memolanes/body/journey/journey_body.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
-import 'package:memolanes/constants/style_constants.dart';
+import 'package:memolanes/common/app_layout.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/theme/app_colors.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -29,16 +27,7 @@ class JourneyOverlay extends StatefulWidget {
 
   /// Shared with map fitting so tracks stay above the expanded calendar too.
   static double pickerHeightForContext(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final bottom = StyleConstants.mapPrimaryControlBottomInsetForContext(
-      context,
-    );
-    final availableHeight = math.max(
-      0.0,
-      mediaQuery.size.height - bottom - mediaQuery.viewPadding.top - 128,
-    );
-    final preferredHeight = (mediaQuery.size.height * 0.62).clamp(390.0, 530.0);
-    return math.min(preferredHeight, availableHeight);
+    return AppLayoutScope.of(context).pickerBounds.height;
   }
 
   final Future<void> Function(JourneyHeader journey) onJourneySelected;
@@ -64,14 +53,10 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final viewPadding = mediaQuery.viewPadding;
-    final bottom = StyleConstants.mapPrimaryControlBottomInsetForContext(
-      context,
-    );
+    final layout = AppLayoutScope.of(context);
+    if (!layout.chromeReady) return const SizedBox.shrink();
+    final frame = layout.pickerBounds;
     final pickerHeight = JourneyOverlay.pickerHeightForContext(context);
-    final isLandscape = mediaQuery.orientation == Orientation.landscape;
-    final pickerMaxWidth = isLandscape ? 720.0 : 480.0;
 
     return Stack(
       children: [
@@ -80,19 +65,13 @@ class _JourneyOverlayState extends State<JourneyOverlay> {
           child: Stack(
             children: [
               Positioned(
-                left: viewPadding.left + 16,
-                right: viewPadding.right + 16,
-                bottom: bottom,
+                left: frame.left,
+                right: layout.size.width - frame.right,
+                bottom: layout.size.height - frame.bottom,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
-                    width: math.min(
-                      mediaQuery.size.width -
-                          viewPadding.left -
-                          viewPadding.right -
-                          32,
-                      pickerMaxWidth,
-                    ),
+                    width: frame.width,
                     child: AnimatedCrossFade(
                       duration: const Duration(milliseconds: 250),
                       firstCurve: Curves.easeInOutCubic,

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:memolanes/theme/app_colors.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
@@ -66,9 +66,8 @@ class CommonDialog extends StatelessWidget {
       ),
     };
 
-    return AppDialogCard(
+    return AppDialogContent(
       title: title,
-      maxHeightFactor: 0.78,
       contentPadding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
       actions: buttons.isEmpty
           ? null

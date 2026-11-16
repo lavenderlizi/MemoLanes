@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
+import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:memolanes/common/gps_manager.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/map_fog_style.dart';
-import 'package:memolanes/common/map_style.dart';
-import 'package:memolanes/common/map_webview_assets.dart';
+import 'package:memolanes/common/map_style_store.dart';
+import 'package:memolanes/common/map_webview_resources.dart';
+import 'package:memolanes/common/component/map_overlay_panel.dart';
+import 'package:memolanes/common/app_layout.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/utils.dart' as rust_utils show MapBounds;
@@ -38,9 +41,12 @@ class BaseMapWebview extends StatefulWidget {
   final api.MapRendererProxy mapRendererProxy;
   final MapView? initialMapView;
   final MapBounds? initialMapBounds;
-  final EdgeInsets? initialMapBoundsPadding;
+  final EdgeInsets? boundsPadding;
+  final ValueChanged<bool>? onMapAttributionChanged;
+
+  /// Reuse the existing panel's current footprint when fitting map bounds.
+  final GlobalKey<MapOverlayPanelState>? overlayPanel;
   final MapBounds? flyToBounds;
-  final EdgeInsets? flyToBoundsPadding;
   final MapView? flyToView;
 
   /// Explicitly repeat a fit even if its geographic bounds have not changed.
@@ -51,6 +57,7 @@ class BaseMapWebview extends StatefulWidget {
   final TrackingMode trackingMode;
   final bool isEditor;
   final void Function()? onMapMoved;
+  final VoidCallback? onMapTap;
   final void Function(MapView)? onRoughMapViewUpdate;
   final void Function(int)? onMapZoomChanged;
   final List<BaseMapJavaScriptChannel> extraJavaScriptChannels;
@@ -60,15 +67,17 @@ class BaseMapWebview extends StatefulWidget {
     required this.mapRendererProxy,
     this.initialMapView,
     this.initialMapBounds,
-    this.initialMapBoundsPadding,
+    this.boundsPadding,
+    this.onMapAttributionChanged,
+    this.overlayPanel,
     this.flyToBounds,
-    this.flyToBoundsPadding,
     this.flyToView,
     this.cameraRevision = 0,
     this.achievementOverlay,
     this.trackingMode = TrackingMode.off,
     this.isEditor = false,
     this.onMapMoved,
+    this.onMapTap,
     this.onRoughMapViewUpdate,
     this.onMapZoomChanged,
     this.extraJavaScriptChannels = const [],
@@ -81,18 +90,38 @@ class BaseMapWebview extends StatefulWidget {
 class BaseMapWebviewState extends State<BaseMapWebview> {
   static const _webGlRecoveryWindow = Duration(minutes: 1);
   static const _maxWebGlRecoveryReloads = 2;
-  static const _androidApiEndpoint = 'https://memolanes.local/api';
-  static const _androidApiRequestPrefix = '$_androidApiEndpoint/';
 
   InAppWebViewController? _webViewController;
   late GpsManager _gpsManager;
   bool _readyForDisplay = false;
   bool _webGlRecoveryReloadInProgress = false;
   bool _pendingMapDataSync = false;
-  Size? _viewportSize;
+  bool _mapSyncScheduled = false;
+  AppLayout? _mapLayout;
+
+  EdgeInsets get _boundsPadding =>
+      widget.overlayPanel?.currentState?.mapFitPadding ??
+      widget.boundsPadding ??
+      const EdgeInsets.all(24);
+
+  MapBounds? get _cameraBounds =>
+      widget.flyToBounds ??
+      (widget.overlayPanel != null ? widget.initialMapBounds : null);
+
+  // Bounds and panel measurements must belong to the same completed layout.
+  // Coalesce a target change and a physical viewport change into one move.
+  void _scheduleMapSync() {
+    if (_mapSyncScheduled) return;
+    _mapSyncScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _mapSyncScheduled = false;
+      if (!mounted) return;
+      unawaited(_syncMapDataAndCamera());
+    });
+  }
+
   final List<DateTime> _webGlRecoveryReloads = [];
 
-  late MapStyle _selectedMapStyle;
   late MapFogStyle _selectedMapFogStyle;
 
   // Dev server URL for loading map webview from a local dev server.
@@ -104,6 +133,56 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
 
   Future<void> runJavaScript(String javaScript) async {
     await _webViewController?.evaluateJavascript(source: javaScript);
+  }
+
+  /// Export only the map canvas, without Flutter controls or system chrome.
+  Future<({Uint8List png, Size logicalSize})> captureScreenshot() async {
+    final controller = _webViewController;
+    if (controller == null || !_readyForDisplay) {
+      throw StateError('Map is not ready for a screenshot');
+    }
+    final box = context.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) {
+      throw StateError('Map layout is unavailable');
+    }
+    final logicalSize = box.size;
+    final result = await controller
+        .callAsyncJavaScript(
+          functionBody: 'return await window.captureMapScreenshot();',
+        )
+        .timeout(const Duration(seconds: 20));
+    final value = result?.value;
+    const prefix = 'data:image/png;base64,';
+    if (result?.error != null ||
+        value is! String ||
+        !value.startsWith(prefix)) {
+      throw StateError('Map screenshot failed: ${result?.error}');
+    }
+    // The map can still resize during a fold or rotation.
+    if (!box.attached || box.size != logicalSize) {
+      throw StateError('Map resized during screenshot');
+    }
+    return (
+      png: base64Decode(value.substring(prefix.length)),
+      logicalSize: logicalSize,
+    );
+  }
+
+  Future<String?> getMapAttribution() async {
+    final controller = _webViewController;
+    if (controller == null || !_readyForDisplay) return null;
+    try {
+      final result = await controller.evaluateJavascript(
+        source: 'window.getMapAttribution?.() ?? null',
+      );
+      return result as String?;
+    } catch (error, stackTrace) {
+      log.error(
+        '[base_map_webview] Reading map attribution failed: $error',
+        stackTrace,
+      );
+      return null;
+    }
   }
 
   /// Read the live camera before opening a journey, including recent gestures
@@ -136,25 +215,13 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final size = MediaQuery.sizeOf(context);
-    final resized = _viewportSize != null && _viewportSize != size;
-    _viewportSize = size;
-    if (resized && widget.flyToBounds != null) {
-      // The same geographic bounds need a new zoom for a different viewport,
-      // even when the overlay padding itself has not changed.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) unawaited(_syncMapDataAndCamera());
-      });
-    }
-  }
-
-  @override
   void didUpdateWidget(BaseMapWebview oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.achievementOverlay != widget.achievementOverlay) {
       unawaited(_syncAchievementOverlay());
+    }
+    if ((oldWidget.onMapTap != null) != (widget.onMapTap != null)) {
+      unawaited(_syncMapTapListener());
     }
     if (oldWidget.trackingMode != widget.trackingMode) {
       if (widget.trackingMode == TrackingMode.off) {
@@ -164,22 +231,29 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
       }
     }
 
-    final paddingChanged =
-        widget.flyToBounds != null &&
-        oldWidget.flyToBoundsPadding != widget.flyToBoundsPadding;
     if (oldWidget.mapRendererProxy != widget.mapRendererProxy ||
         oldWidget.flyToBounds != widget.flyToBounds ||
+        (widget.overlayPanel != null &&
+            oldWidget.initialMapBounds != widget.initialMapBounds) ||
         oldWidget.flyToView != widget.flyToView ||
         oldWidget.cameraRevision != widget.cameraRevision ||
-        paddingChanged) {
-      if (paddingChanged) {
-        // fitBounds must see the WebView's new size after a rotation.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) unawaited(_syncMapDataAndCamera());
-        });
-      } else {
-        unawaited(_syncMapDataAndCamera());
-      }
+        oldWidget.boundsPadding != widget.boundsPadding ||
+        oldWidget.overlayPanel != widget.overlayPanel) {
+      _scheduleMapSync();
+    }
+  }
+
+  Future<void> _syncMapTapListener() async {
+    if (!mounted || !_readyForDisplay) return;
+    try {
+      await runJavaScript(
+        'window.setMapTapEnabled?.(${widget.onMapTap != null});',
+      );
+    } catch (error, stackTrace) {
+      log.error(
+        '[base_map_webview] Updating map tap listener failed: $error',
+        stackTrace,
+      );
     }
   }
 
@@ -192,9 +266,9 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
       return;
     }
     _pendingMapDataSync = false;
-    final bounds = widget.flyToBounds;
+    final bounds = _cameraBounds;
     final view = widget.flyToView;
-    final padding = widget.flyToBoundsPadding ?? const EdgeInsets.all(24);
+    final padding = _boundsPadding;
     final boundsJson = bounds == null
         ? 'null'
         : jsonEncode({
@@ -272,7 +346,6 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     _gpsManager = Provider.of<GpsManager>(context, listen: false);
     _gpsManager.addListener(_updateLocationMarker);
     _currentRoughMapView = widget.initialMapView;
-    _selectedMapStyle = _loadMapStyleFromStorage();
     _selectedMapFogStyle = _loadMapFogStyleFromStorage();
   }
 
@@ -335,6 +408,27 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     // These create window.channelName.postMessage(str) objects on the JS side,
     // matching the calling convention of webview_flutter's addJavaScriptChannel.
     await Future.wait([
+      if (widget.onMapAttributionChanged != null)
+        controller.addWebMessageListener(
+          WebMessageListener(
+            jsObjectName: 'onMapAttributionChanged',
+            allowedOriginRules: {'*'},
+            onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
+              if (!mounted || !isMainFrame) return;
+              widget.onMapAttributionChanged?.call(message?.data == 'true');
+            },
+          ),
+        ),
+      controller.addWebMessageListener(
+        WebMessageListener(
+          jsObjectName: 'onMapTap',
+          allowedOriginRules: {'*'},
+          onPostMessage: (message, sourceOrigin, isMainFrame, replyProxy) {
+            if (!mounted || !_readyForDisplay || !isMainFrame) return;
+            widget.onMapTap?.call();
+          },
+        ),
+      ),
       controller.addWebMessageListener(
         WebMessageListener(
           jsObjectName: 'onMapMoved',
@@ -356,9 +450,8 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
             _setStateIfMounted(() {
               _readyForDisplay = true;
             });
-            if (_pendingMapDataSync) {
-              unawaited(_syncMapDataAndCamera());
-            }
+            unawaited(_syncMapTapListener());
+            if (_pendingMapDataSync) unawaited(_syncMapDataAndCamera());
             if (widget.achievementOverlay != null) {
               unawaited(_syncAchievementOverlay());
             }
@@ -426,7 +519,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     if (!mounted) return;
 
     // Load the page after listeners are registered. Platform-specific asset
-    // mechanics are isolated in MapWebViewAssets.
+    // mechanics are isolated in MapWebViewResources.
     if (_devServer.isNotEmpty) {
       final pageUrl = _devServer.endsWith('/')
           ? '${_devServer}index.html'
@@ -435,7 +528,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
       await controller.loadUrl(urlRequest: URLRequest(url: WebUri(pageUrl)));
     } else {
       log.info('[base_map_webview] Loading bundled map page');
-      await MapWebViewAssets.load(controller, 'index.html');
+      await MapWebViewResources.load(controller, 'index.html');
     }
   }
 
@@ -444,52 +537,54 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     final controller = _webViewController;
     if (controller == null) return;
 
-    final accessKey = api.getMapboxAccessToken();
-
     final mapView = _currentRoughMapView;
     final lngParam = mapView?.lng.toString() ?? 'null';
     final latParam = mapView?.lat.toString() ?? 'null';
     final zoomParam = mapView?.zoom.toString() ?? 'null';
     final bounds = widget.flyToBounds ?? widget.initialMapBounds;
-    final boundsPadding =
-        widget.flyToBoundsPadding ??
-        widget.initialMapBoundsPadding ??
-        const EdgeInsets.all(24);
+    final boundsPadding = _boundsPadding;
 
     debugPrint('Injecting lng: $lngParam');
     debugPrint('Injecting lat: $latParam');
     debugPrint('Injecting zoom: $zoomParam');
 
-    final cgiEndpoint = Platform.isIOS
-        ? 'memolanes://api'
-        : _androidApiEndpoint;
-
-    final style = _selectedMapStyle;
+    final style = MapStyleStore.instance.selected;
+    final mapStyle = style.mapLibreStyle;
+    final useAppMapboxToken =
+        !style.isCustom &&
+        mapStyle is String &&
+        mapStyle.startsWith('mapbox://');
+    final accessKey = useAppMapboxToken ? api.getMapboxAccessToken() : null;
     final fogStyle = _selectedMapFogStyle;
+    final params = <String, Object?>{
+      'cgi_endpoint': MapWebViewResources.apiEndpoint,
+      'render': 'canvas',
+      'map_style': mapStyle,
+      'custom_basemap': style.isCustom,
+      'attribution_label': context.tr(
+        'general.map_settings.basemaps.attribution',
+      ),
+      'fog_style': fogStyle.id,
+      'fog_density': style.fogOpacityByStyle[fogStyle] ?? 0.50,
+      'access_key': accessKey,
+      'lng': mapView?.lng,
+      'lat': mapView?.lat,
+      'zoom': mapView?.zoom,
+      'west': bounds?.west,
+      'south': bounds?.south,
+      'east': bounds?.east,
+      'north': bounds?.north,
+      'fit_padding_top': boundsPadding.top,
+      'fit_padding_right': boundsPadding.right,
+      'fit_padding_bottom': boundsPadding.bottom,
+      'fit_padding_left': boundsPadding.left,
+      'editor': widget.isEditor,
+    };
     await controller.evaluateJavascript(
       source:
           '''
-      // Set the params
-      window.EXTERNAL_PARAMS = {
-        cgi_endpoint: "$cgiEndpoint",
-        render: "canvas",
-        map_style: "${style.url}",
-        fog_style: "${fogStyle.id}",
-        fog_density: ${style.fogOpacityByStyle[fogStyle] ?? 0.50},
-        access_key: ${accessKey != null ? "\"$accessKey\"" : "null"},
-        lng: $lngParam,
-        lat: $latParam,
-        zoom: $zoomParam,
-        west: ${bounds?.west ?? 'null'},
-        south: ${bounds?.south ?? 'null'},
-        east: ${bounds?.east ?? 'null'},
-        north: ${bounds?.north ?? 'null'},
-        fit_padding_top: ${boundsPadding.top},
-        fit_padding_right: ${boundsPadding.right},
-        fit_padding_bottom: ${boundsPadding.bottom},
-        fit_padding_left: ${boundsPadding.left},
-        editor: ${widget.isEditor ? "true" : "false"},
-      };
+      document.documentElement.classList.toggle('hide-map-attribution', ${widget.onMapAttributionChanged != null});
+      window.EXTERNAL_PARAMS = ${jsonEncode(params)};
       
       // Check if JS is ready and trigger initialization if so
       if (typeof window.SETUP_PENDING !== 'undefined' && window.SETUP_PENDING) {
@@ -504,11 +599,6 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     );
 
     debugPrint('Initialization completed');
-  }
-
-  MapStyle _loadMapStyleFromStorage() {
-    final id = MMKVUtil.getString(MMKVKey.mapStyle);
-    return MapStyle.findById(id);
   }
 
   MapFogStyle _loadMapFogStyleFromStorage() {
@@ -633,87 +723,61 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
     }
   }
 
-  /// Handle an intercepted request by forwarding path + query to the unified Rust dispatcher.
-  Future<
-    ({
-      int status,
-      Uint8List body,
-      String contentType,
-      Map<String, String> headers,
-    })
-  >
-  _handleInterceptedRequest(WebUri url) async {
-    final path = url.path.replaceFirst(RegExp(r'^/?(api/)?'), '');
-    final result = await widget.mapRendererProxy.handleRequest(
-      path: path,
-      queryParams: url.queryParameters,
-    );
-    return (
-      status: result.status,
-      body: result.body,
-      contentType: result.contentType,
-      headers: result.headers,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (widget.overlayPanel != null) {
+      final layout = AppLayoutScope.of(context);
+      if (_mapLayout case final previous?) {
+        if (_cameraBounds != null && !layout.hasSameMapViewport(previous)) {
+          _scheduleMapSync();
+        }
+      }
+      _mapLayout = layout;
+    }
     return Stack(
       children: [
         InAppWebView(
           key: const ValueKey('map_webview'),
           initialSettings: InAppWebViewSettings(
+            topScrollEdgeEffectHidden: true,
             javaScriptEnabled: true,
             useShouldOverrideUrlLoading: true,
             allowFileAccessFromFileURLs: true,
             allowUniversalAccessFromFileURLs: true,
             resourceCustomSchemes: ['memolanes'],
             // Skip the Android → Dart round trip for ordinary map resources.
-            shouldInterceptRequestUrlPrefixes: [_androidApiRequestPrefix],
-            webViewAssetLoader: MapWebViewAssets.createAssetLoader(),
+            shouldInterceptRequestUrlPrefixes: [
+              MapWebViewResources.androidApiRequestPrefix,
+            ],
+            webViewAssetLoader: MapWebViewResources.createAssetLoader(),
           ),
           onWebViewCreated: (controller) {
             _onWebViewCreated(controller);
           },
+          onContentSizeChanged: (controller, oldSize, newSize) {
+            // Native WebView resizing can finish after Flutter's layout frame.
+            // Fit again once the map can use the new content dimensions.
+            if (oldSize != newSize &&
+                _readyForDisplay &&
+                _cameraBounds != null) {
+              _scheduleMapSync();
+              WidgetsBinding.instance.ensureVisualUpdate();
+            }
+          },
           // iOS: intercept custom scheme requests (memolanes://)
           onLoadResourceWithCustomScheme: (controller, request) async {
             if (!mounted) return null;
-            final result = await _handleInterceptedRequest(request.url);
-            return CustomSchemeResponse(
-              data: result.body,
-              contentType: result.contentType,
-              contentEncoding: 'utf-8',
-              statusCode: result.status,
-              headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Expose-Headers':
-                    'X-Tile-Version, X-Not-Modified',
-                'Content-Type': result.contentType,
-                ...result.headers,
-              },
+            return MapWebViewResources.loadApiResource(
+              widget.mapRendererProxy,
+              request.url,
             );
           },
           // Android: intercept URL pattern requests (https://memolanes.local/api/)
           shouldInterceptRequest: (controller, request) async {
             if (!mounted) return null;
-            final url = request.url.toString();
-            if (!url.startsWith(_androidApiRequestPrefix)) {
-              return null;
-            }
-            final result = await _handleInterceptedRequest(request.url);
-            return WebResourceResponse(
-              contentType: result.contentType,
-              contentEncoding: 'utf-8',
-              data: result.body,
-              statusCode: result.status,
-              reasonPhrase: result.status == 200 ? 'OK' : 'Not Modified',
-              headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Expose-Headers':
-                    'X-Tile-Version, X-Not-Modified',
-                'Content-Type': result.contentType,
-                ...result.headers,
-              },
+            return MapWebViewResources.interceptApiRequest(
+              widget.mapRendererProxy,
+              request.url,
             );
           },
           shouldOverrideUrlLoading: (controller, navigationAction) async {
@@ -728,7 +792,7 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
             if (scheme == 'about') {
               return NavigationActionPolicy.ALLOW;
             }
-            if (MapWebViewAssets.owns(url)) {
+            if (MapWebViewResources.owns(url)) {
               return NavigationActionPolicy.ALLOW;
             }
             if (_devServer.isNotEmpty &&
@@ -741,6 +805,9 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
             );
             return NavigationActionPolicy.CANCEL;
           },
+          onLoadStart: (controller, url) {
+            if (mounted) widget.onMapAttributionChanged?.call(false);
+          },
           onLoadStop: (controller, url) {
             if (!mounted) return;
             debugPrint('Page finished loading: $url');
@@ -748,12 +815,11 @@ class BaseMapWebviewState extends State<BaseMapWebview> {
           },
           onReceivedError: (controller, request, error) async {
             if (!mounted) return;
-            final failedUrl = request.url.toString();
-            if (!failedUrl.contains('events.mapbox.com')) {
-              log.error('''Map WebView Error:
-                      Description: ${error.description}
-                      Error Type: ${error.type} 
-                      Failed URL: $failedUrl''');
+            final host = request.url.host;
+            if (host != 'events.mapbox.com') {
+              log.error(
+                '[base_map_webview] Resource load failed on $host (${error.type})',
+              );
             }
           },
           onWebContentProcessDidTerminate: (controller) async {

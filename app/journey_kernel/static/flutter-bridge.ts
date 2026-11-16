@@ -16,6 +16,7 @@ import {
   AchievementOverlay,
   type AchievementOverlayData,
 } from "./achievement-overlay";
+import { observeSingleMapTap } from "./single-map-tap";
 
 interface MapBounds {
   west: number;
@@ -47,8 +48,11 @@ declare global {
   interface Window {
     readyForDisplay?: FlutterMessageChannel;
     onMapMoved?: FlutterMessageChannel;
+    onMapTap?: FlutterMessageChannel;
+    setMapTapEnabled?: (enabled: boolean) => void;
     onMapViewChanged?: FlutterMessageChannel;
     onMapZoomChanged?: FlutterMessageChannel;
+    onMapAttributionChanged?: FlutterMessageChannel;
     trySetup?: () => Promise<void>;
     updateLocationMarker?: (
       lng: number,
@@ -57,6 +61,8 @@ declare global {
       flyto?: boolean,
     ) => void;
     getCurrentMapView?: () => string;
+    captureMapScreenshot?: () => Promise<string>;
+    getMapAttribution?: () => string | null;
     refreshMapData?: () => Promise<boolean | null>;
     flyToBounds?: (bounds: MapBounds, padding: MapPadding) => void;
     flyToView?: (view: MapView) => void;
@@ -82,7 +88,9 @@ export class FlutterBridge {
     this.locationMarker = new maplibregl.Marker({
       element: el,
     });
-    this.locationFollowController = new LocationFollowController(this.map);
+    this.locationFollowController = new LocationFollowController(this.map, {
+      camera: this.mapController,
+    });
   }
 
   /**
@@ -101,6 +109,63 @@ export class FlutterBridge {
     if (window.onMapMoved) {
       window.onMapMoved.postMessage("");
     }
+  }
+
+  private getMapAttribution(): string | null {
+    // MapLibre has already collected and sanitized the visible source credits.
+    const credits = this.map
+      .getContainer()
+      .querySelector(
+        ".maplibregl-ctrl-attrib:not(.maplibregl-attrib-empty) .maplibregl-ctrl-attrib-inner",
+      );
+    if (!credits?.textContent?.trim()) return null;
+
+    // Preserve links for Flutter's Markdown dialog; treat other content as text.
+    const escapeText = (text: string) =>
+      text.replace(/[!-/:-@\[-`{-~]/g, "\\$&");
+    const toMarkdown = (node: Node): string => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return escapeText(node.textContent ?? "");
+      }
+      if (node instanceof HTMLBRElement) return "\n";
+      if (node instanceof HTMLAnchorElement) {
+        const label = escapeText(node.textContent ?? "");
+        if (node.protocol !== "https:" && node.protocol !== "http:") {
+          return label;
+        }
+        const href = node.href
+          .replace(/[<>\\\s]/g, encodeURIComponent)
+          .replace(/&/g, "&amp;");
+        return `[${label}](<${href}>)`;
+      }
+      return Array.from(node.childNodes, toMarkdown).join("");
+    };
+    return toMarkdown(credits);
+  }
+
+  observeMapAttribution(): void {
+    const channel = window.onMapAttributionChanged;
+    const control = this.map
+      .getContainer()
+      .querySelector(".maplibregl-ctrl-attrib");
+    if (!channel || !control) return;
+
+    let available = false;
+    const update = () => {
+      const next = Boolean(this.getMapAttribution()?.trim());
+      if (next === available) return;
+      available = next;
+      channel.postMessage(String(next));
+    };
+    const observer = new MutationObserver(update);
+    observer.observe(control, {
+      attributes: true,
+      attributeFilter: ["class"],
+      childList: true,
+      subtree: true,
+    });
+    this.map.once("remove", () => observer.disconnect());
+    update();
   }
 
   /**
@@ -178,6 +243,19 @@ export class FlutterBridge {
   setupFlutterCallableMethods(): void {
     const achievementOverlay = new AchievementOverlay(this.map);
     window.setAchievementOverlay = (data) => achievementOverlay.setData(data);
+    let stopObservingTaps: (() => void) | undefined;
+    window.setMapTapEnabled = (enabled) => {
+      if (enabled) {
+        stopObservingTaps ??= observeSingleMapTap(this.map, () => {
+          window.onMapTap?.postMessage("");
+        });
+      } else {
+        stopObservingTaps?.();
+        stopObservingTaps = undefined;
+      }
+    };
+    this.map.once("remove", () => stopObservingTaps?.());
+
     // Update location marker
     window.updateLocationMarker = (
       lng: number,
@@ -204,14 +282,17 @@ export class FlutterBridge {
       });
     };
 
+    window.getMapAttribution = () => this.getMapAttribution();
+
     // Refresh map data - allows Flutter to trigger a data refresh
     window.refreshMapData = () => this.mapController.refreshMapData();
+    window.captureMapScreenshot = () => this.mapController.captureScreenshot();
 
     // Focus a journey within the visible area above its Flutter detail card.
     window.flyToBounds = (bounds, padding) => {
       // MapLibre's initial-bounds path calls fitBounds with the same padding
       // and zoom cap. fitBounds calculates the camera, then calls flyTo.
-      this.map.fitBounds(
+      this.mapController.fitBounds(
         [
           [bounds.west, bounds.south],
           [bounds.east, bounds.north],
@@ -222,7 +303,7 @@ export class FlutterBridge {
 
     // Return from journey details to the camera saved before opening them.
     window.flyToView = (view) => {
-      this.map.flyTo({
+      this.mapController.flyTo({
         center: [view.lng, view.lat],
         zoom: view.zoom,
         duration: 900,

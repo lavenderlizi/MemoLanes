@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memolanes/body/achievement/shared/achievement_common.dart';
@@ -11,6 +11,7 @@ RegionEntity _entity({required String nameKey, String? isoA3Eh}) =>
       kind: RegionKind.admin0,
       nameKey: RegionNameKey(value: nameKey),
       isoA3Eh: isoA3Eh,
+      hasChildren: false,
       visitedAreaM2: BigInt.zero,
       totalAreaM2: BigInt.one,
     );
@@ -59,7 +60,10 @@ void main() {
       fallbackLocale: enUs,
       child: Builder(
         builder: (context) => MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
+          localizationsDelegates: [
+            ...GlobalMaterialLocalizations.delegates,
+            ...context.localizationDelegates,
+          ],
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           home: const SizedBox.shrink(),
@@ -69,6 +73,7 @@ void main() {
     // The delegate loads assets via a real Future; runAsync lets it complete,
     // then pump/settle mounts the loaded translations into Localization.instance.
     await tester.runAsync(() async {
+      await loader.load('assets/translations', enUs);
       await tester.pumpWidget(app);
       await tester.pump(const Duration(seconds: 1));
     });

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:memolanes/theme/app_colors.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:memolanes/body/time_machine/time_machine_glass_surface.dart';
 import 'package:memolanes/common/app_haptics.dart';
@@ -316,6 +316,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
   bool _isSnapping = false;
   int _lastHapticIndex = -1;
   double _viewportWidth = 0;
+  static const _unitSpacing = kRulerUnitSpacing;
 
   _RulerData get _data => _buildData(widget);
 
@@ -358,7 +359,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
       }
       final idx = d.selectedIndex.clamp(0, d.itemCount - 1);
       _lastHapticIndex = idx;
-      _scrollController.jumpTo((idx * kRulerUnitSpacing).toDouble());
+      _scrollController.jumpTo((idx * _unitSpacing).toDouble());
       d.reportSelection(idx);
     });
   }
@@ -374,7 +375,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
       final idx = _data.selectedIndex.clamp(0, _data.itemCount - 1);
       _lastHapticIndex = idx;
       if (_scrollController.hasClients) {
-        _scrollController.jumpTo((idx * kRulerUnitSpacing).toDouble());
+        _scrollController.jumpTo((idx * _unitSpacing).toDouble());
       }
     }
   }
@@ -398,7 +399,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
       } finally {
         _isSnapping = false;
       }
-      if (!mounted) return;
+      if (!mounted || _isScrolling) return;
     }
     // Skip if _onScrollUpdate already vibrated for this tick.
     final shouldHaptic = !aligned || _lastHapticIndex != idx;
@@ -411,18 +412,17 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
   int _indexAtOffset(double pixels) {
     final maxIdx = _data.itemCount > 0 ? _data.itemCount - 1 : 0;
     if (_viewportWidth <= 0) {
-      return (pixels / kRulerUnitSpacing).round().clamp(0, maxIdx);
+      return (pixels / _unitSpacing).round().clamp(0, maxIdx);
     }
     final centerContent = pixels + _viewportWidth / 2;
-    final centerPadding = _viewportWidth / 2 - kRulerUnitSpacing / 2;
+    final centerPadding = _viewportWidth / 2 - _unitSpacing / 2;
     final index =
-        ((centerContent - centerPadding - kRulerUnitSpacing / 2) /
-                kRulerUnitSpacing)
+        ((centerContent - centerPadding - _unitSpacing / 2) / _unitSpacing)
             .round();
     return index.clamp(0, maxIdx);
   }
 
-  double _offsetForIndex(int index) => (index * kRulerUnitSpacing).toDouble();
+  double _offsetForIndex(int index) => (index * _unitSpacing).toDouble();
 
   bool _isAlignedToTick(int index) {
     if (!_scrollController.hasClients) return false;
@@ -442,10 +442,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
     if (_viewportWidth <= 0) return;
     if (_isSnapping) return;
     final maxIdx = _data.itemCount > 0 ? _data.itemCount - 1 : 0;
-    final bucket = (n.metrics.pixels / kRulerUnitSpacing).floor().clamp(
-      0,
-      maxIdx,
-    );
+    final bucket = (n.metrics.pixels / _unitSpacing).floor().clamp(0, maxIdx);
     if (bucket != _lastHapticIndex) {
       _lastHapticIndex = bucket;
       AppHaptics.selection();
@@ -453,14 +450,14 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
     }
   }
 
-  void _onScrollEnd(ScrollNotification n) {
+  void _onScrollEnd() {
     _isScrolling = false;
     if (_isSnapping) return;
     _snapTimer?.cancel();
     if (!mounted || !_scrollController.hasClients) return;
     _snapTimer = Timer(kRulerSnapDelay, () async {
+      _snapTimer = null;
       await _runSnapAndReport();
-      if (mounted) _snapTimer = null;
     });
   }
 
@@ -490,7 +487,7 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
                   if (mounted) setState(() => _viewportWidth = w);
                 });
               }
-              final centerPadding = (w / 2 - kRulerUnitSpacing / 2).clamp(
+              final centerPadding = (w / 2 - _unitSpacing / 2).clamp(
                 0.0,
                 double.infinity,
               );
@@ -505,13 +502,13 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
                         _snapTimer = null;
                       }
                       if (n is ScrollUpdateNotification) _onScrollUpdate(n);
-                      if (n is ScrollEndNotification) _onScrollEnd(n);
+                      if (n is ScrollEndNotification) _onScrollEnd();
                       return false;
                     },
                     child: ListView.builder(
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
-                      itemExtent: kRulerUnitSpacing,
+                      itemExtent: _unitSpacing,
                       itemCount: count,
                       padding: EdgeInsets.only(
                         left: centerPadding,
@@ -560,13 +557,17 @@ class _InfiniteTimeRulerState extends State<_InfiniteTimeRuler> {
               : context.appColors.mutedInkColor.withValues(alpha: 0.68),
         ),
         SizedBox(height: isSelected ? 4 : 6),
-        Text(
-          label,
-          style: AppTypography.micro.copyWith(
-            color: isSelected
-                ? context.appColors.deepGreen
-                : context.appColors.deepGreen.withValues(alpha: 0.72),
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            maxLines: 1,
+            style: AppTypography.micro.copyWith(
+              color: isSelected
+                  ? context.appColors.deepGreen
+                  : context.appColors.deepGreen.withValues(alpha: 0.72),
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            ),
           ),
         ),
       ],

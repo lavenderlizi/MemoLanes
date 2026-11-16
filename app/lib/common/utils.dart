@@ -1,5 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
 import 'package:memolanes/common/component/common_dialog.dart';
 import 'package:memolanes/common/component/app_button.dart';
@@ -97,10 +97,14 @@ Future<void> importMldx(BuildContext context, String path) async {
         onLoaded: (loadingContext, result) async {
           final (mldxFile, preview) = result;
           final unchangedCount = preview
-              .where((j) => j.$2 == MldxJourneyImportAnalyzeResult.unchanged)
+              .where(
+                (j) => j.status == MldxJourneyImportAnalyzeResult.unchanged,
+              )
               .length;
           final importableCount = preview
-              .where((j) => j.$2 != MldxJourneyImportAnalyzeResult.unchanged)
+              .where(
+                (j) => j.status != MldxJourneyImportAnalyzeResult.unchanged,
+              )
               .length;
 
           if (importableCount == 0 && unchangedCount > 0) {

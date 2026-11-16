@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memolanes/body/map/overlay/time_machine_overlay.dart';
 import 'package:memolanes/body/time_machine/time_range_picker.dart';
 import 'package:memolanes/common/app_translation_loader.dart';
+import 'package:memolanes/common/app_layout.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -52,7 +53,12 @@ void main() {
               supportedLocales: context.supportedLocales,
               locale: context.locale,
               home: Scaffold(
-                body: TimeMachineOverlay(onJourneyRangeLoaded: published.add),
+                body: AppLayoutBuilder(
+                  builder: (_, _) => TimeMachineOverlay(
+                    onJourneyRangeLoaded: (mapData, range) =>
+                        published.add(mapData),
+                  ),
+                ),
               ),
             ),
           ),

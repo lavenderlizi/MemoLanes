@@ -8,6 +8,7 @@ void main() {
     'region cards and ranking omit unvisited regions and sort explored area',
     () {
       RegionEntity region(int visited) => RegionEntity(
+        hasChildren: false,
         kind: RegionKind.admin1,
         nameKey: const RegionNameKey(value: 'test'),
         visitedAreaM2: BigInt.from(visited),

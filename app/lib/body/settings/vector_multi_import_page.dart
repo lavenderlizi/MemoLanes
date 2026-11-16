@@ -1,14 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/body/journey/journey_info_fields.dart';
 import 'package:memolanes/body/journey/journey_import_preview_page.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
 import 'package:memolanes/common/component/multi_journey_import_page.dart';
 import 'package:memolanes/common/component/tiles/label_tile.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/common/utils.dart';
 import 'package:memolanes/src/rust/api/import.dart' as import_api;
+import 'package:memolanes/src/rust/import_data.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 
 class VectorMultiImportPage extends StatefulWidget {
@@ -21,7 +23,7 @@ class VectorMultiImportPage extends StatefulWidget {
 
   final import_api.RawVectorData vectorData;
   final List<import_api.VectorImportPartSummary> parts;
-  final import_api.ImportPreprocessor initialPreprocessor;
+  final ImportPreprocessor initialPreprocessor;
 
   @override
   State<VectorMultiImportPage> createState() => _VectorMultiImportPageState();
@@ -29,7 +31,7 @@ class VectorMultiImportPage extends StatefulWidget {
 
 class _VectorMultiImportPageState extends State<VectorMultiImportPage> {
   late Set<SimpleDate> _selectedDates;
-  late import_api.ImportPreprocessor _preprocessor;
+  late ImportPreprocessor _preprocessor;
   JourneyKind _journeyKind = JourneyKind.defaultKind;
   final TextEditingController _noteController = TextEditingController();
   final DateFormat _timeFormat = DateFormat('HH:mm');
@@ -96,6 +98,7 @@ class _VectorMultiImportPageState extends State<VectorMultiImportPage> {
               journeyType: JourneyType.vector,
               journeyKind: _journeyKind,
               note: _noteController.text,
+              hasRawData: false,
             ),
             previewJourneyData: journeyData,
           ),

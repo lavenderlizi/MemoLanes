@@ -7,6 +7,7 @@
 // Each test binary that includes this module uses a subset of it.
 #![allow(dead_code)]
 
+use memolanes_core::main_db::NewJourney;
 use std::collections::BTreeMap;
 use std::fs;
 
@@ -106,7 +107,7 @@ pub fn one_block(tile: TileKey, block: BlockKey, bits: u32) -> JourneyBitmap {
     for i in 0..bits {
         b.set_point((i % 64) as u8, (i / 64) as u8, true);
     }
-    bm.get_tile_mut_or_insert_empty(&tile).set(&block, b);
+    bm.edit().get_tile_mut_or_insert_empty(&tile).set(&block, b);
     bm
 }
 
@@ -142,10 +143,10 @@ pub fn read_on_demand(storage: &Storage, geo: &dyn GeoLookup) -> Answers {
 /// country holds the whole coverage.
 pub fn journey_plan() -> [(TileKey, JourneyKind, u32, u32); 4] {
     [
-        (TileKey::new(0, 0), JourneyKind::DefaultKind, 1, 30),
-        (TileKey::new(2, 0), JourneyKind::DefaultKind, 2, 17),
-        (TileKey::new(3, 0), JourneyKind::Flight, 3, 41),
-        (TileKey::new(1, 0), JourneyKind::DefaultKind, 4, 9),
+        (TileKey::mercator(0, 0), JourneyKind::DefaultKind, 1, 30),
+        (TileKey::mercator(2, 0), JourneyKind::DefaultKind, 2, 17),
+        (TileKey::mercator(3, 0), JourneyKind::Flight, 3, 41),
+        (TileKey::mercator(1, 0), JourneyKind::DefaultKind, 4, 9),
     ]
 }
 
@@ -159,15 +160,16 @@ pub fn insert_one(
     let bm = one_block(tile, BlockKey::from_x_y(1, 1), bits);
     storage
         .with_db_txn(|txn| {
-            txn.create_and_insert_journey(
-                NaiveDate::from_ymd_opt(2025, 1, day).unwrap(),
-                None,
-                None,
-                None,
-                kind,
-                None,
-                JourneyData::Bitmap(bm),
-            )
+            txn.create_and_insert_journey(NewJourney {
+                journey_date: NaiveDate::from_ymd_opt(2025, 1, day).unwrap(),
+                start: None,
+                end: None,
+                created_at: None,
+                journey_kind: kind,
+                note: None,
+                journey_data: JourneyData::Bitmap(bm),
+                raw_data: None,
+            })
         })
         .unwrap()
 }

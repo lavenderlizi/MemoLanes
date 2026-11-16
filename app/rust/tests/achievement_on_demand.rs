@@ -3,6 +3,7 @@
 //! and country→continent rollup. The `AchievementReader` adapter over them
 //! (including its no-worldview branch) is covered by `cache_db_v1.rs`.
 
+use memolanes_core::main_db::NewJourney;
 use std::collections::{BTreeMap, HashMap};
 use std::fs;
 
@@ -59,22 +60,23 @@ fn one_block(tile: TileKey, block: BlockKey, bits: u32) -> JourneyBitmap {
     for i in 0..bits {
         b.set_point((i % 64) as u8, (i / 64) as u8, true);
     }
-    bm.get_tile_mut_or_insert_empty(&tile).set(&block, b);
+    bm.edit().get_tile_mut_or_insert_empty(&tile).set(&block, b);
     bm
 }
 
 fn insert(storage: &Storage, date: (i32, u32, u32), kind: JourneyKind, bm: JourneyBitmap) {
     storage
         .with_db_txn(|txn| {
-            txn.create_and_insert_journey(
-                NaiveDate::from_ymd_opt(date.0, date.1, date.2).unwrap(),
-                None,
-                None,
-                None,
-                kind,
-                None,
-                JourneyData::Bitmap(bm),
-            )
+            txn.create_and_insert_journey(NewJourney {
+                journey_date: NaiveDate::from_ymd_opt(date.0, date.1, date.2).unwrap(),
+                start: None,
+                end: None,
+                created_at: None,
+                journey_kind: kind,
+                note: None,
+                journey_data: JourneyData::Bitmap(bm),
+                raw_data: None,
+            })
         })
         .unwrap();
 }
@@ -136,13 +138,13 @@ fn on_demand_areas_and_region_areas() {
         &storage,
         (2025, 1, 1),
         JourneyKind::DefaultKind,
-        one_block(TileKey::new(0, 0), BlockKey::from_x_y(3, 4), 25),
+        one_block(TileKey::mercator(0, 0), BlockKey::from_x_y(3, 4), 25),
     );
     insert(
         &storage,
         (2025, 1, 2),
         JourneyKind::Flight,
-        one_block(TileKey::new(0, 0), BlockKey::from_x_y(5, 6), 40),
+        one_block(TileKey::mercator(0, 0), BlockKey::from_x_y(5, 6), 40),
     );
 
     // On-demand reads against the same worldview geo.
@@ -185,7 +187,7 @@ fn on_demand_area_without_geo() {
         &storage,
         (2025, 1, 1),
         JourneyKind::DefaultKind,
-        one_block(TileKey::new(0, 0), BlockKey::from_x_y(3, 4), 25),
+        one_block(TileKey::mercator(0, 0), BlockKey::from_x_y(3, 4), 25),
     );
 
     // Area needs no worldview installed; regions do (see `cache_db_v1.rs`).

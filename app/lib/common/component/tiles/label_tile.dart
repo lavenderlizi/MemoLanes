@@ -1,5 +1,5 @@
 import 'package:memolanes/theme/app_colors.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/constants/app_typography.dart';
 
 enum LabelTilePosition { single, top, middle, bottom }
@@ -9,11 +9,15 @@ class LabelTile extends StatelessWidget {
     super.key,
     this.position = LabelTilePosition.single,
     required this.label,
+    this.labelStyle,
+    this.labelTrailing,
     this.desc = '',
+    this.descStyle,
     this.descMaxLines = 1,
     this.prefix,
     this.suffix,
     this.trailing,
+    this.trailingWidthFactor = 0.6,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.onTap,
     this.infoLabelOnTap,
@@ -22,13 +26,23 @@ class LabelTile extends StatelessWidget {
     this.bottom = true,
     this.maxHeight,
     this.minHeight = 54.0,
-  });
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: 8,
+    ),
+  }) : assert(trailingWidthFactor > 0 && trailingWidthFactor <= 1);
 
   final LabelTilePosition position;
 
   final String label;
 
+  final TextStyle? labelStyle;
+
+  final Widget? labelTrailing;
+
   final String desc;
+
+  final TextStyle? descStyle;
 
   final int descMaxLines;
 
@@ -37,6 +51,9 @@ class LabelTile extends StatelessWidget {
   final Widget? suffix;
 
   final Widget? trailing;
+
+  /// Maximum share of this tile available to its value or input.
+  final double trailingWidthFactor;
 
   final MainAxisAlignment mainAxisAlignment;
 
@@ -54,8 +71,12 @@ class LabelTile extends StatelessWidget {
 
   final double minHeight;
 
+  final EdgeInsetsGeometry contentPadding;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(builder: _buildTile);
+
+  Widget _buildTile(BuildContext context, BoxConstraints constraints) {
     final radius = Radius.circular(16.0);
 
     EdgeInsets? margin;
@@ -75,7 +96,7 @@ class LabelTile extends StatelessWidget {
     }
 
     List<Widget> children = [
-      Flexible(
+      Expanded(
         child: GestureDetector(
           onTap: infoLabelOnTap,
           child: Row(
@@ -89,18 +110,22 @@ class LabelTile extends StatelessWidget {
                       label,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.itemTitle.copyWith(
-                        color: context.appColors.inkColor,
-                      ),
+                      style:
+                          labelStyle ??
+                          AppTypography.itemTitle.copyWith(
+                            color: context.appColors.inkColor,
+                          ),
                     ),
                     if (desc.isNotEmpty)
                       Text(
                         desc,
                         maxLines: descMaxLines,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.caption.copyWith(
-                          color: context.appColors.mutedInkColor,
-                        ),
+                        style:
+                            descStyle ??
+                            AppTypography.caption.copyWith(
+                              color: context.appColors.mutedInkColor,
+                            ),
                       ),
                   ],
                 ),
@@ -113,6 +138,7 @@ class LabelTile extends StatelessWidget {
                   color: context.appColors.mutedInkColor,
                 ),
               ],
+              ?labelTrailing,
             ],
           ),
         ),
@@ -121,53 +147,53 @@ class LabelTile extends StatelessWidget {
     if (prefix != null) children.insert(0, prefix!);
     if (suffix != null) children.add(suffix!);
     if (trailing != null) {
-      children.add(trailing!);
+      children.add(
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth * trailingWidthFactor,
+          ),
+          child: trailing!,
+        ),
+      );
     }
 
     return Container(
       margin: margin,
       decoration: decoration,
-      child: Column(
-        children: [
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              onLongPress: onLongPress,
-              borderRadius: borderRadius,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: maxHeight ?? double.infinity,
-                  minHeight: minHeight,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          borderRadius: borderRadius,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: maxHeight ?? double.infinity,
+              minHeight: minHeight,
+            ),
+            child: Ink(
+              padding: contentPadding,
+              decoration: BoxDecoration(
+                color: context.appColors.surfaceColor,
+                borderRadius: borderRadius,
+                border: Border(
+                  bottom:
+                      position == LabelTilePosition.top ||
+                          position == LabelTilePosition.middle
+                      ? BorderSide(color: context.appColors.lineColor)
+                      : BorderSide.none,
                 ),
-                child: Ink(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: context.appColors.surfaceColor,
-                    borderRadius: borderRadius,
-                    border: Border(
-                      bottom:
-                          position == LabelTilePosition.top ||
-                              position == LabelTilePosition.middle
-                          ? BorderSide(color: context.appColors.lineColor)
-                          : BorderSide.none,
-                    ),
-                  ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      mainAxisAlignment: mainAxisAlignment,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: children,
-                    ),
-                  ),
+              ),
+              child: IntrinsicHeight(
+                child: Row(
+                  mainAxisAlignment: mainAxisAlignment,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: children,
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

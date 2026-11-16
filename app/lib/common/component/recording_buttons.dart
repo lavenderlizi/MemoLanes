@@ -1,7 +1,7 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/common/app_haptics.dart';
 import 'package:memolanes/common/component/app_button.dart';
 import 'package:memolanes/common/component/liquid_glass_surface.dart';
@@ -23,6 +23,10 @@ const double _recordingEndControlInnerAlpha = 0.8;
 
 class RecordingButtons extends StatefulWidget {
   const RecordingButtons({super.key});
+
+  static const maximumWidth = 360.0;
+  static const minimumWidth = _recordingControlWidth;
+  static const height = _recordingControlHeight;
 
   @override
   State<RecordingButtons> createState() => _RecordingButtonsState();
@@ -54,47 +58,44 @@ class _RecordingButtonsState extends State<RecordingButtons> {
     final gpsManager = context.read<GpsManager>();
 
     return PointerInterceptor(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 360),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 280),
-          switchInCurve: Curves.easeOutBack,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: 0.94, end: 1).animate(animation),
-              child: child,
-            ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 280),
+        switchInCurve: Curves.easeOutBack,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.94, end: 1).animate(animation),
+            child: child,
           ),
-          child: switch (status) {
-            GpsRecordingStatus.none => _StartJourneyButton(
-              key: const ValueKey('record-start'),
-              onPressed: () {
-                AppHaptics.heavy();
-                gpsManager.changeRecordingState(GpsRecordingStatus.recording);
-              },
-            ),
-            GpsRecordingStatus.recording => _ActiveJourneyControls(
-              key: const ValueKey('record-active'),
-              isPaused: false,
-              onPrimaryPressed: () {
-                AppHaptics.medium();
-                gpsManager.changeRecordingState(GpsRecordingStatus.paused);
-              },
-              onEndPressed: _showEndJourneyDialog,
-            ),
-            GpsRecordingStatus.paused => _ActiveJourneyControls(
-              key: const ValueKey('record-paused'),
-              isPaused: true,
-              onPrimaryPressed: () {
-                AppHaptics.medium();
-                gpsManager.changeRecordingState(GpsRecordingStatus.recording);
-              },
-              onEndPressed: _showEndJourneyDialog,
-            ),
-          },
         ),
+        child: switch (status) {
+          GpsRecordingStatus.none => _StartJourneyButton(
+            key: const ValueKey('record-start'),
+            onPressed: () {
+              AppHaptics.heavy();
+              gpsManager.changeRecordingState(GpsRecordingStatus.recording);
+            },
+          ),
+          GpsRecordingStatus.recording => _ActiveJourneyControls(
+            key: const ValueKey('record-active'),
+            isPaused: false,
+            onPrimaryPressed: () {
+              AppHaptics.medium();
+              gpsManager.changeRecordingState(GpsRecordingStatus.paused);
+            },
+            onEndPressed: _showEndJourneyDialog,
+          ),
+          GpsRecordingStatus.paused => _ActiveJourneyControls(
+            key: const ValueKey('record-paused'),
+            isPaused: true,
+            onPrimaryPressed: () {
+              AppHaptics.medium();
+              gpsManager.changeRecordingState(GpsRecordingStatus.recording);
+            },
+            onEndPressed: _showEndJourneyDialog,
+          ),
+        },
       ),
     );
   }
@@ -169,6 +170,8 @@ class _StartJourneyButton extends StatelessWidget {
 }
 
 class _ActiveJourneyControls extends StatelessWidget {
+  static const _primaryWidth = 112.0;
+
   const _ActiveJourneyControls({
     super.key,
     required this.isPaused,
@@ -190,7 +193,7 @@ class _ActiveJourneyControls extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: 112,
+              width: _primaryWidth,
               height: 42,
               child: LiquidGlassSurface(
                 borderRadius: BorderRadius.circular(18),

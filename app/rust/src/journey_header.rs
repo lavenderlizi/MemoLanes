@@ -2,10 +2,10 @@ use anyhow::{Context, Result};
 use auto_context::auto_context;
 use chrono::{DateTime, NaiveDate, Utc};
 use flutter_rust_bridge::frb;
-use protobuf::EnumOrUnknown;
+use protobuf::{EnumOrUnknown, MessageField};
 use strum_macros::EnumIter;
 
-use crate::{protos, utils};
+use crate::{protos, transport_details::TransportDetails, utils};
 
 #[derive(Copy, Clone, Debug, EnumIter, PartialEq, Eq, Hash)]
 #[repr(i8)]
@@ -95,6 +95,16 @@ impl JourneyKind {
     }
 }
 
+#[derive(Debug)]
+#[frb(non_opaque)]
+pub struct JourneyInfo {
+    pub journey_date: NaiveDate,
+    pub start_time: Option<DateTime<Utc>>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub journey_kind: JourneyKind,
+    pub note: Option<String>,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 #[frb(non_opaque)]
 pub struct JourneyHeader {
@@ -109,6 +119,8 @@ pub struct JourneyHeader {
     pub journey_kind: JourneyKind,
     pub note: Option<String>,
     pub postprocessor_algo: Option<String>,
+    pub has_raw_data: bool,
+    pub transport_details: Option<TransportDetails>,
 }
 
 impl JourneyHeader {
@@ -118,6 +130,7 @@ impl JourneyHeader {
             .type_
             .enum_value()
             .map_err(|x| anyhow!("Unknown proto journey type: {x}"))?;
+        let MessageField(transport_details) = proto.transport_details;
         Ok(JourneyHeader {
             id: proto.id,
             revision: proto.revision,
@@ -139,7 +152,37 @@ impl JourneyHeader {
             }),
             note: proto.note,
             postprocessor_algo: proto.postprocessor_algo,
+            has_raw_data: proto.has_raw_data,
+            transport_details: transport_details.map(|proto| TransportDetails { proto }),
         })
+    }
+
+    /// Marks a raw-data removal as a deterministic derivative of this revision.
+    pub(crate) fn remove_raw_data(&mut self) {
+        if self.has_raw_data {
+            self.has_raw_data = false;
+            self.revision.push('*');
+        }
+    }
+
+    /// Reconcile the declared flag with the actual attachment. Removing a
+    /// declared attachment changes the represented content and derives a `*`
+    /// revision; discovering an undeclared attachment only repairs metadata.
+    /// Reapplying this correction is idempotent.
+    pub(crate) fn correct_has_raw_data(&mut self, actual_has_raw_data: bool, operation: &str) {
+        if self.has_raw_data != actual_has_raw_data {
+            log::warn!(
+                "[{operation}] Journey {} has inconsistent raw-data state: header has_raw_data={}, actual={}; correcting the header",
+                self.id,
+                self.has_raw_data,
+                actual_has_raw_data,
+            );
+            if actual_has_raw_data {
+                self.has_raw_data = true;
+            } else {
+                self.remove_raw_data();
+            }
+        }
     }
 
     pub fn to_proto(self) -> protos::journey::Header {
@@ -155,6 +198,8 @@ impl JourneyHeader {
             journey_kind,
             note,
             postprocessor_algo,
+            has_raw_data,
+            transport_details,
         } = self;
         let mut proto = protos::journey::Header::new();
         proto.id = id;
@@ -165,9 +210,11 @@ impl JourneyHeader {
         proto.end__timestamp_sec = end.map(|x| x.timestamp());
         proto.start__timestamp_sec = start.map(|x| x.timestamp());
         proto.type_ = EnumOrUnknown::new(journey_type.to_proto());
-        proto.kind.0 = Some(Box::new(journey_kind.to_proto()));
+        proto.kind = MessageField::some(journey_kind.to_proto());
         proto.note = note;
         proto.postprocessor_algo = postprocessor_algo;
+        proto.has_raw_data = has_raw_data;
+        proto.transport_details = MessageField(transport_details.map(|details| details.proto));
         proto
     }
 }

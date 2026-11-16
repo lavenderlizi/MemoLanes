@@ -1,11 +1,17 @@
 import 'package:memolanes/theme/app_colors.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/common/component/app_dialog.dart';
+import 'package:memolanes/common/journey_kind_visuals.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
 import 'package:memolanes/constants/app_typography.dart';
 import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
+
+String formatJourneyInfoTime(DateTime? time) {
+  if (time == null) return '—';
+  return DateFormat('yyyy-MM-dd HH:mm').format(time.toLocal());
+}
 
 class JourneyInfoPanelSurface extends StatelessWidget {
   const JourneyInfoPanelSurface({
@@ -73,6 +79,7 @@ class CompactJourneyInfoField extends StatelessWidget {
     this.value,
     this.trailing,
     this.onTap,
+    this.onInfoTap,
     this.maxLines = 1,
   }) : assert(value != null || trailing != null);
 
@@ -81,10 +88,19 @@ class CompactJourneyInfoField extends StatelessWidget {
   final String? value;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final VoidCallback? onInfoTap;
   final int maxLines;
 
   @override
   Widget build(BuildContext context) {
+    final labelText = Text(
+      label,
+      maxLines: 1,
+      softWrap: false,
+      style: AppTypography.label.copyWith(
+        color: context.appColors.mutedInkColor,
+      ),
+    );
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -104,15 +120,25 @@ class CompactJourneyInfoField extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              SizedBox(
-                width: 92,
-                child: Text(
-                  label,
-                  style: AppTypography.label.copyWith(
-                    color: context.appColors.mutedInkColor,
+              if (onInfoTap == null)
+                labelText
+              else
+                InkWell(
+                  onTap: onInfoTap,
+                  borderRadius: BorderRadius.circular(4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      labelText,
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: context.appColors.mutedInkColor,
+                      ),
+                    ],
                   ),
                 ),
-              ),
               const SizedBox(width: 6),
               Expanded(
                 child:
@@ -151,6 +177,25 @@ class CompactJourneyInfoField extends StatelessWidget {
   }
 }
 
+class JourneyRawDataInfoField extends StatelessWidget {
+  const JourneyRawDataInfoField({super.key, required this.hasRawData});
+
+  final bool hasRawData;
+
+  @override
+  Widget build(BuildContext context) {
+    return CompactJourneyInfoField(
+      icon: Icons.location_searching_rounded,
+      label: context.tr('journey.raw_data'),
+      value: context.tr(
+        hasRawData
+            ? 'journey.raw_data_included'
+            : 'journey.raw_data_not_included',
+      ),
+    );
+  }
+}
+
 /// Read-only journey information using the same floating card primitives as
 /// the editable journey card on the map.
 class ReadOnlyJourneyInfoCard extends StatelessWidget {
@@ -160,51 +205,47 @@ class ReadOnlyJourneyInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final kind = switch (journey.journeyKind) {
-      JourneyKind.defaultKind => context.tr('journey_kind.default'),
-      JourneyKind.flight => context.tr('journey_kind.flight'),
-    };
-    final timeFormat = DateFormat('yyyy-MM-dd HH:mm');
-    final start = journey.start?.toLocal();
-    final end = journey.end?.toLocal();
     final note = journey.note?.trim();
 
     return JourneyInfoPanelSurface(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 13),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const JourneyInfoCardHeader(),
-            const SizedBox(height: 5),
-            CompactJourneyInfoField(
-              icon: Icons.calendar_today_rounded,
-              label: context.tr('journey.journey_date'),
-              value: journey.journeyDate.toSimpleDate().toString(),
-            ),
-            CompactJourneyInfoField(
-              icon: Icons.sell_outlined,
-              label: context.tr('journey.journey_kind'),
-              value: kind,
-            ),
-            CompactJourneyInfoField(
-              icon: Icons.schedule_rounded,
-              label: context.tr('journey.start_time'),
-              value: start == null ? '—' : timeFormat.format(start),
-            ),
-            CompactJourneyInfoField(
-              icon: Icons.schedule_rounded,
-              label: context.tr('journey.end_time'),
-              value: end == null ? '—' : timeFormat.format(end),
-            ),
-            if (note != null && note.isNotEmpty)
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 13),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const JourneyInfoCardHeader(),
+              const SizedBox(height: 5),
               CompactJourneyInfoField(
-                icon: Icons.notes_rounded,
-                label: context.tr('journey.note'),
-                value: note,
-                maxLines: 2,
+                icon: Icons.calendar_today_rounded,
+                label: context.tr('journey.journey_date'),
+                value: journey.journeyDate.toSimpleDate().toString(),
               ),
-          ],
+              CompactJourneyInfoField(
+                icon: Icons.sell_outlined,
+                label: context.tr('journey.journey_kind'),
+                value: journeyKindLabel(context, journey.journeyKind),
+              ),
+              CompactJourneyInfoField(
+                icon: Icons.schedule_rounded,
+                label: context.tr('journey.start_time'),
+                value: formatJourneyInfoTime(journey.start),
+              ),
+              CompactJourneyInfoField(
+                icon: Icons.schedule_rounded,
+                label: context.tr('journey.end_time'),
+                value: formatJourneyInfoTime(journey.end),
+              ),
+              JourneyRawDataInfoField(hasRawData: journey.hasRawData),
+              if (note != null && note.isNotEmpty)
+                CompactJourneyInfoField(
+                  icon: Icons.notes_rounded,
+                  label: context.tr('journey.note'),
+                  value: note,
+                  maxLines: 2,
+                ),
+            ],
+          ),
         ),
       ),
     );

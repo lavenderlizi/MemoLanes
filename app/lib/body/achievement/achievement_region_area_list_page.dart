@@ -1,12 +1,11 @@
 import 'package:memolanes/theme/app_colors.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/body/achievement/shared/achievement_common.dart';
 import 'package:memolanes/common/component/capsule_style_app_bar.dart';
 import 'package:memolanes/common/component/cards/option_card.dart';
-import 'package:memolanes/common/component/safe_area_wrapper.dart';
+import 'package:memolanes/common/component/page_content_layout.dart';
 import 'package:memolanes/constants/app_typography.dart';
-import 'package:memolanes/constants/style_constants.dart';
 
 enum _RegionAreaSortMode { area, coverage }
 
@@ -68,43 +67,41 @@ class _AchievementRegionAreaListPageState
   @override
   Widget build(BuildContext context) {
     final items = _sortedItems(widget.items);
+    final reserveChevronSpace = items.any((item) => item.onTap != null);
 
     return Scaffold(
       backgroundColor: context.appColors.canvasColor,
       appBar: CapsuleStyleAppBar(title: widget.title),
-      body: SafeAreaWrapper(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            0,
-            12,
-            0,
-            StyleConstants.navBarSafeArea,
-          ),
-          children: [
-            if (widget.isLoading)
-              _RegionAreaListSkeleton(
-                showIcons: widget.showIcons,
-                showChevron: widget.skeletonShowsChevron,
-              )
-            else if (widget.onRetry != null)
-              _RegionAreaListErrorCard(onRetry: widget.onRetry!)
-            else if (items.isEmpty)
-              _RegionAreaListEmptyCard(text: widget.emptyText)
-            else ...[
-              _RegionAreaSortControl(
-                value: _sortMode,
-                onChanged: (value) => setState(() => _sortMode = value),
-              ),
-              const SizedBox(height: 12),
-              OptionCard(
-                children: [
-                  for (final item in items)
-                    _RegionAreaListTile(item: item, showIcon: widget.showIcons),
-                ],
-              ),
-            ],
+      body: PageContentLayout(
+        children: [
+          if (widget.isLoading)
+            _RegionAreaListSkeleton(
+              showIcons: widget.showIcons,
+              showChevron: widget.skeletonShowsChevron,
+            )
+          else if (widget.onRetry != null)
+            _RegionAreaListErrorCard(onRetry: widget.onRetry!)
+          else if (items.isEmpty)
+            _RegionAreaListEmptyCard(text: widget.emptyText)
+          else ...[
+            _RegionAreaSortControl(
+              value: _sortMode,
+              onChanged: (value) => setState(() => _sortMode = value),
+            ),
+            const SizedBox(height: 12),
+            OptionCard(
+              useSafeArea: false,
+              children: [
+                for (final item in items)
+                  _RegionAreaListTile(
+                    item: item,
+                    showIcon: widget.showIcons,
+                    reserveChevronSpace: reserveChevronSpace,
+                  ),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -148,51 +145,54 @@ class _RegionAreaSortControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: SegmentedButton<_RegionAreaSortMode>(
-        showSelectedIcon: false,
-        segments: [
-          ButtonSegment(
-            value: _RegionAreaSortMode.area,
-            label: Text(context.tr('achievement.region_list.sort_area')),
-          ),
-          ButtonSegment(
-            value: _RegionAreaSortMode.coverage,
-            label: Text(context.tr('achievement.region_list.sort_coverage')),
-          ),
-        ],
-        selected: {value},
-        onSelectionChanged: (selected) => onChanged(selected.first),
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return context.appColors.softGreen;
-            }
-            return context.appColors.surfaceColor;
-          }),
-          foregroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return context.appColors.deepGreen;
-            }
-            return context.appColors.mutedInkColor;
-          }),
-          side: WidgetStatePropertyAll(
-            BorderSide(color: context.appColors.lineColor),
-          ),
-          textStyle: const WidgetStatePropertyAll(AppTypography.label),
-          visualDensity: VisualDensity.compact,
+    return SegmentedButton<_RegionAreaSortMode>(
+      expandedInsets: EdgeInsets.zero,
+      showSelectedIcon: false,
+      segments: [
+        ButtonSegment(
+          value: _RegionAreaSortMode.area,
+          label: Text(context.tr('achievement.region_list.sort_area')),
         ),
+        ButtonSegment(
+          value: _RegionAreaSortMode.coverage,
+          label: Text(context.tr('achievement.region_list.sort_coverage')),
+        ),
+      ],
+      selected: {value},
+      onSelectionChanged: (selected) => onChanged(selected.first),
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return context.appColors.softGreen;
+          }
+          return context.appColors.surfaceColor;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return context.appColors.deepGreen;
+          }
+          return context.appColors.mutedInkColor;
+        }),
+        side: WidgetStatePropertyAll(
+          BorderSide(color: context.appColors.lineColor),
+        ),
+        textStyle: const WidgetStatePropertyAll(AppTypography.label),
+        visualDensity: VisualDensity.compact,
       ),
     );
   }
 }
 
 class _RegionAreaListTile extends StatelessWidget {
-  const _RegionAreaListTile({required this.item, required this.showIcon});
+  const _RegionAreaListTile({
+    required this.item,
+    required this.showIcon,
+    required this.reserveChevronSpace,
+  });
 
   final AchievementRegionAreaListItem item;
   final bool showIcon;
+  final bool reserveChevronSpace;
 
   @override
   Widget build(BuildContext context) {
@@ -282,12 +282,17 @@ class _RegionAreaListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (item.onTap != null) ...[
+              if (reserveChevronSpace) ...[
                 const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: context.appColors.mutedInkColor,
-                  size: 22,
+                SizedBox(
+                  width: 22,
+                  child: item.onTap == null
+                      ? null
+                      : Icon(
+                          Icons.chevron_right_rounded,
+                          color: context.appColors.mutedInkColor,
+                          size: 22,
+                        ),
                 ),
               ],
             ],
@@ -310,6 +315,7 @@ class _RegionAreaListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OptionCard(
+      useSafeArea: false,
       children: [
         for (var i = 0; i < 6; i++)
           _RegionAreaListSkeletonTile(
@@ -337,7 +343,12 @@ class _RegionAreaListSkeletonTile extends StatelessWidget {
       child: Row(
         children: [
           if (showIcon) ...[
-            const _RegionAreaSkeletonBlock(width: 42, height: 42, radius: 999),
+            const AchievementSkeletonBlock(
+              backgroundAlpha: 0.78,
+              width: 42,
+              height: 42,
+              radius: 999,
+            ),
             const SizedBox(width: 12),
           ],
           Expanded(
@@ -349,25 +360,38 @@ class _RegionAreaListSkeletonTile extends StatelessWidget {
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: _RegionAreaSkeletonBlock(width: 128, height: 16),
+                        child: AchievementSkeletonBlock(
+                          backgroundAlpha: 0.78,
+                          width: 128,
+                          height: 16,
+                        ),
                       ),
                     ),
                     SizedBox(width: 10),
-                    _RegionAreaSkeletonBlock(width: 78, height: 16),
+                    AchievementSkeletonBlock(
+                      backgroundAlpha: 0.78,
+                      width: 78,
+                      height: 16,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 9),
                 Row(
                   children: [
                     const Expanded(
-                      child: _RegionAreaSkeletonBlock(
+                      child: AchievementSkeletonBlock(
+                        backgroundAlpha: 0.78,
                         width: double.infinity,
                         height: 6,
                         radius: 999,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const _RegionAreaSkeletonBlock(width: 54, height: 12),
+                    const AchievementSkeletonBlock(
+                      backgroundAlpha: 0.78,
+                      width: 54,
+                      height: 12,
+                    ),
                   ],
                 ),
               ],
@@ -375,33 +399,14 @@ class _RegionAreaListSkeletonTile extends StatelessWidget {
           ),
           if (showChevron) ...[
             const SizedBox(width: 8),
-            const _RegionAreaSkeletonBlock(width: 22, height: 22),
+            const AchievementSkeletonBlock(
+              backgroundAlpha: 0.78,
+              width: 22,
+              height: 22,
+            ),
           ],
         ],
       ),
-    );
-  }
-}
-
-class _RegionAreaSkeletonBlock extends StatelessWidget {
-  const _RegionAreaSkeletonBlock({
-    required this.width,
-    required this.height,
-    this.radius = 6,
-  });
-
-  final double width;
-  final double height;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.appColors.lineColor.withValues(alpha: 0.78),
-        borderRadius: BorderRadius.circular(radius),
-      ),
-      child: SizedBox(width: width, height: height),
     );
   }
 }
@@ -451,6 +456,7 @@ class _RegionAreaListEmptyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OptionCard(
+      useSafeArea: false,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
@@ -475,6 +481,7 @@ class _RegionAreaListErrorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OptionCard(
+      useSafeArea: false,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),

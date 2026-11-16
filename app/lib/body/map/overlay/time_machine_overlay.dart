@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:memolanes/body/time_machine/time_range_picker.dart';
 import 'package:memolanes/common/async_load_token.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
+import 'package:memolanes/common/component/map_overlay_panel.dart';
 import 'package:memolanes/common/log.dart';
 import 'package:memolanes/common/simple_date_utils.dart';
-import 'package:memolanes/constants/style_constants.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
 import 'package:memolanes/src/rust/journey_header.dart';
 
@@ -27,7 +26,10 @@ Set<JourneyKind> _initialJourneyKindsFromMainMap() {
 class TimeMachineOverlay extends StatefulWidget {
   const TimeMachineOverlay({super.key, required this.onJourneyRangeLoaded});
 
-  final void Function((api.MapRendererProxy, MapBounds?) mapData)
+  final void Function(
+    (api.MapRendererProxy, MapBounds?) mapData,
+    DateTimeRange range,
+  )
   onJourneyRangeLoaded;
 
   @override
@@ -108,7 +110,13 @@ class _TimeMachineOverlayState extends State<TimeMachineOverlay> {
       );
       if (mounted && _loadGuard.isActive(loadToken)) {
         _loadedRange = range;
-        widget.onJourneyRangeLoaded(mapData);
+        widget.onJourneyRangeLoaded(
+          mapData,
+          DateTimeRange(
+            start: from.toLocalDateTime(),
+            end: to.toLocalDateTime(),
+          ),
+        );
       }
     } catch (error, stackTrace) {
       if (mounted && _loadGuard.isActive(loadToken)) {
@@ -163,17 +171,9 @@ class _TimeMachineOverlayState extends State<TimeMachineOverlay> {
       return const SizedBox.shrink();
     }
 
-    final padding = MediaQuery.viewPaddingOf(context);
-    final horizontalSafeArea = math.max(padding.left, padding.right);
-
     return Stack(
       children: [
-        Positioned(
-          left: horizontalSafeArea + 24,
-          right: horizontalSafeArea + 24,
-          bottom: StyleConstants.mapPrimaryControlBottomInsetForContext(
-            context,
-          ),
+        MapOverlayPanel.controls(
           child: TimeRangePicker(
             earliestDate: earliest,
             loading: _loading,

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:memolanes/body/map/overlay/journey_overlay.dart';
 import 'package:memolanes/body/map/journey_flow_controller.dart';
@@ -10,13 +10,18 @@ import 'package:memolanes/body/map/overlay/journey_detail_overlay.dart';
 import 'package:memolanes/body/map/overlay/normal_map_overlay.dart';
 import 'package:memolanes/body/map/overlay/time_machine_overlay.dart';
 import 'package:memolanes/body/time_machine/time_range_picker.dart';
+import 'package:memolanes/body/map/screenshot/map_screenshot_flow.dart';
 import 'package:memolanes/common/component/base_map_webview.dart';
-import 'package:memolanes/common/component/capsule_style_overlay_app_bar.dart';
+import 'package:memolanes/common/component/fading_overlay.dart';
+import 'package:memolanes/common/component/map_controls/map_overlay_actions.dart';
+import 'package:memolanes/common/component/map_controls/screenshot_button.dart';
 import 'package:memolanes/common/gps_manager.dart';
+import 'package:memolanes/common/component/map_overlay_panel.dart';
 import 'package:memolanes/common/log.dart';
+import 'package:memolanes/common/loading_manager.dart';
 import 'package:memolanes/common/mmkv_util.dart';
 import 'package:memolanes/common/utils.dart';
-import 'package:memolanes/constants/style_constants.dart';
+import 'package:memolanes/common/app_layout.dart';
 import 'package:memolanes/src/rust/journey_header.dart';
 import 'package:memolanes/utils/nav_helper.dart';
 import 'package:memolanes/src/rust/api/api.dart' as api;
@@ -58,11 +63,17 @@ class MapBody extends StatefulWidget {
     super.key,
     this.mode = MapMode.normal,
     required this.journeys,
+    required this.onMapAttributionChanged,
+    this.recordMapOnly = false,
+    this.onRecordMapTap,
   });
 
   final MapMode mode;
 
   final JourneyFlowController journeys;
+  final ValueChanged<bool> onMapAttributionChanged;
+  final bool recordMapOnly;
+  final VoidCallback? onRecordMapTap;
 
   @override
   State<StatefulWidget> createState() => MapBodyState();
@@ -75,6 +86,8 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   MapView? _roughMapView;
   (api.MapRendererProxy, MapBounds?)? _timeMachineMapData;
   late final _emptyMapRendererProxy = api.getEmptyMapRendererProxy();
+  final _detailPanelKey = GlobalKey<MapOverlayPanelState>();
+  ({api.MapRendererProxy proxy, DateTimeRange range})? _timelineMap;
   TrackingMode _currentTrackingMode = TrackingMode.off;
   bool _journeyPickerExpanded = false;
 
@@ -87,11 +100,38 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   /// cause a mistaken rebuild and reload.
   final GlobalKey<BaseMapWebviewState> _mainMapKey =
       GlobalKey<BaseMapWebviewState>();
+  bool _screenshotInProgress = false;
 
-  void _setTimeMachineMapData((api.MapRendererProxy, MapBounds?) mapData) {
-    if (!mounted || widget.mode != MapMode.timeMachine) return;
-    setState(() => _timeMachineMapData = mapData);
+  bool get _canTakeScreenshot =>
+      widget.mode != MapMode.journeys ||
+      (widget.journeys.session != null &&
+          widget.journeys.phase == JourneyPhase.viewing);
+
+  bool get _isCurrentRoute => ModalRoute.of(context)?.isCurrent == true;
+
+  Future<void> takeScreenshot() async {
+    if (_screenshotInProgress || !_canTakeScreenshot || !_isCurrentRoute) {
+      return;
+    }
+    final mode = widget.mode;
+    setState(() => _screenshotInProgress = true);
+    try {
+      await showMapScreenshotPreview(
+        context,
+        map: _mainMapKey.currentState,
+        isActive: () => widget.mode == mode && _isCurrentRoute,
+        timeRange: mode == MapMode.timeMachine ? _timelineMap?.range : null,
+        journey: mode == MapMode.journeys
+            ? widget.journeys.session?.journey
+            : null,
+      );
+    } finally {
+      if (mounted) setState(() => _screenshotInProgress = false);
+    }
   }
+
+  Future<String?>? getMapAttribution() =>
+      _mainMapKey.currentState?.getMapAttribution();
 
   Future<void> _openJourneyDetails(JourneyHeader journey) async {
     try {
@@ -198,8 +238,7 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
     }
   }
 
-  // TODO: We don't enough time to save if the app got killed. Losing data here
-  // is fine but we could consider saving every minute or so.
+  // Home camera updates persist as they arrive. Journey detail keeps the return view.
   void _saveMapState() {
     final mapView = widget.journeys.session?.returnView ?? _roughMapView;
     if (mapView == null) return;
@@ -235,6 +274,17 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
     _syncTrackingModeWithGpsManager();
   }
 
+  void _handleRecordMapTap() {
+    final loading = GlobalLoadingManager.instance;
+    if (_screenshotInProgress ||
+        loading.isLoading ||
+        loading.isNavigationBlocked ||
+        !_isCurrentRoute) {
+      return;
+    }
+    widget.onRecordMapTap?.call();
+  }
+
   Widget _buildMapLayer() {
     // Swap data and its matching bounds together on the existing WebView.
     final session = widget.journeys.session;
@@ -245,39 +295,47 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
         _timeMachineMapData ?? (_emptyMapRendererProxy, null),
       MapMode.normal => (_mapRendererProxy, null),
     };
-    final detailCardPadding =
-        MediaQuery.orientationOf(context) == Orientation.landscape
-        ? 190.0
-        : 330.0;
     // The overview always fits the union of the day's tracks, including when
     // returning from a single journey or rotating the screen.
-    final safeArea = MediaQuery.viewPaddingOf(context);
-    final mainMap = BaseMapWebview(
+    final layout = AppLayoutScope.of(context);
+    final pickerFrame = layout.pickerBounds;
+    final controlsInsets = layout.primaryControlsInsets;
+    final overlayBounds = widget.mode == MapMode.timeMachine
+        ? Rect.fromLTWH(
+            controlsInsets.left,
+            layout.size.height -
+                controlsInsets.bottom -
+                TimeRangePicker.controlHeight,
+            layout.size.width - controlsInsets.horizontal,
+            TimeRangePicker.controlHeight,
+          )
+        : Rect.fromLTWH(
+            pickerFrame.left,
+            pickerFrame.bottom -
+                (_journeyPickerExpanded
+                    ? pickerFrame.height
+                    : JourneyOverlay.collapsedHeight),
+            pickerFrame.width,
+            _journeyPickerExpanded
+                ? pickerFrame.height
+                : JourneyOverlay.collapsedHeight,
+          );
+    return BaseMapWebview(
       key: _mainMapKey,
       mapRendererProxy: proxy,
       initialMapView: _roughMapView,
       flyToBounds: bounds,
-      flyToBoundsPadding: bounds == null
+      overlayPanel: widget.mode == MapMode.journeys && session != null
+          ? _detailPanelKey
+          : null,
+      onMapAttributionChanged: widget.onMapAttributionChanged,
+      boundsPadding: bounds == null
           ? null
-          : widget.mode == MapMode.journeys && session != null
-          ? CapsuleStyleOverlayAppBar.mapFitPaddingForBottomOverlay(
-              context,
-              edgePadding: 28,
-              bottomOverlayHeight: detailCardPadding + safeArea.bottom,
-            )
-          : EdgeInsets.fromLTRB(
-              safeArea.left + 28,
-              safeArea.top + 28,
-              safeArea.right + 28,
-              StyleConstants.mapPrimaryControlBottomInsetForContext(context) +
-                  (widget.mode == MapMode.timeMachine
-                      ? TimeRangePicker.controlHeight
-                      : _journeyPickerExpanded
-                      ? JourneyOverlay.pickerHeightForContext(context)
-                      : JourneyOverlay.collapsedHeight) +
-                  28,
-            ),
+          : layout.mapFitPaddingForOverlay(overlayBounds),
       trackingMode: _effectiveTrackingMode,
+      onMapTap: widget.mode == MapMode.normal && widget.onRecordMapTap != null
+          ? _handleRecordMapTap
+          : null,
       onRoughMapViewUpdate: (roughMapView) {
         _roughMapView = roughMapView;
         if (widget.journeys.session == null) _saveMapState();
@@ -293,13 +351,14 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
         }
       },
     );
-
-    return mainMap;
   }
 
-  /// Returns the overlay for the given mode; each overlay lives in its own
-  /// file.
-  Widget _buildOverlay(BuildContext context, MapMode mode) {
+  MapScreenshotButton _screenshotButton() => MapScreenshotButton(
+    busy: _screenshotInProgress,
+    onPressed: takeScreenshot,
+  );
+
+  Widget _buildOverlay(MapMode mode) {
     switch (mode) {
       case MapMode.normal:
         return NormalMapOverlay(
@@ -307,7 +366,15 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
           onTrackingPressed: _trackingModeButton,
         );
       case MapMode.timeMachine:
-        return TimeMachineOverlay(onJourneyRangeLoaded: _setTimeMachineMapData);
+        return TimeMachineOverlay(
+          onJourneyRangeLoaded: (mapData, range) {
+            if (!mounted || widget.mode != MapMode.timeMachine) return;
+            setState(() {
+              _timeMachineMapData = mapData;
+              _timelineMap = (proxy: mapData.$1, range: range);
+            });
+          },
+        );
       case MapMode.journeys:
         final session = widget.journeys.session;
         return JourneyOverlay(
@@ -327,6 +394,10 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
               : JourneyDetailOverlay(
                   key: ValueKey(session.journey.id),
                   controller: widget.journeys,
+                  panelKey: _detailPanelKey,
+                  screenshotAction: _canTakeScreenshot
+                      ? _screenshotButton()
+                      : null,
                 ),
         );
     }
@@ -336,7 +407,20 @@ class MapBodyState extends State<MapBody> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final mode = widget.mode;
 
-    final children = <Widget>[_buildMapLayer(), _buildOverlay(context, mode)];
+    final children = <Widget>[
+      _buildMapLayer(),
+      if (mode == MapMode.normal) ...[
+        FadingOverlay(child: widget.recordMapOnly ? null : _buildOverlay(mode)),
+        FadingOverlay(
+          child: widget.recordMapOnly
+              ? MapOverlayActions(actions: [_screenshotButton()])
+              : null,
+        ),
+      ] else
+        _buildOverlay(mode),
+      if (mode == MapMode.timeMachine)
+        MapOverlayActions(actions: [_screenshotButton()]),
+    ];
 
     return Stack(children: children);
   }
